@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {}
+    "net8.0": {
+      "EduPlatform.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/EduPlatform.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/EduPlatform.Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "EduPlatform.Domain/1.0.0": {
+      "type": "project",
+      "path": "../EduPlatform.Domain/EduPlatform.Domain.csproj",
+      "msbuildProject": "../EduPlatform.Domain/EduPlatform.Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net8.0": []
+    "net8.0": [
+      "EduPlatform.Domain >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "/home/duythai/.nuget/packages/": {}
@@ -13,11 +32,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/duythai/Documents/edu-platform/src/EduPlatform.Application/EduPlatform.Application.csproj",
+      "projectUniqueName": "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/EduPlatform.Application.csproj",
       "projectName": "EduPlatform.Application",
-      "projectPath": "/home/duythai/Documents/edu-platform/src/EduPlatform.Application/EduPlatform.Application.csproj",
+      "projectPath": "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/EduPlatform.Application.csproj",
       "packagesPath": "/home/duythai/.nuget/packages/",
-      "outputPath": "/home/duythai/Documents/edu-platform/src/EduPlatform.Application/obj/",
+      "outputPath": "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/duythai/.nuget/NuGet/NuGet.Config"
@@ -31,7 +50,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Domain/EduPlatform.Domain.csproj": {
+              "projectPath": "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Domain/EduPlatform.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

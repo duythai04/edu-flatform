@@ -1,0 +1,16 @@
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/bin/Debug/net8.0/EduPlatform.Application.deps.json
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/bin/Debug/net8.0/EduPlatform.Application.dll
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/bin/Debug/net8.0/EduPlatform.Application.pdb
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/bin/Debug/net8.0/EduPlatform.Domain.dll
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/bin/Debug/net8.0/EduPlatform.Domain.pdb
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.csproj.AssemblyReference.cache
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.GeneratedMSBuildEditorConfig.editorconfig
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.AssemblyInfoInputs.cache
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.AssemblyInfo.cs
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.csproj.CoreCompileInputs.cache
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.sourcelink.json
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.csproj.CopyComplete
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.dll
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/refint/EduPlatform.Application.dll
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/EduPlatform.Application.pdb
+/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Application/obj/Debug/net8.0/ref/EduPlatform.Application.dll

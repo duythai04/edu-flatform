@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/duythai/Documents/edu-platform/src/EduPlatform.Domain/EduPlatform.Domain.csproj",
+      "projectUniqueName": "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Domain/EduPlatform.Domain.csproj",
       "projectName": "EduPlatform.Domain",
-      "projectPath": "/home/duythai/Documents/edu-platform/src/EduPlatform.Domain/EduPlatform.Domain.csproj",
+      "projectPath": "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Domain/EduPlatform.Domain.csproj",
       "packagesPath": "/home/duythai/.nuget/packages/",
-      "outputPath": "/home/duythai/Documents/edu-platform/src/EduPlatform.Domain/obj/",
+      "outputPath": "/home/duythai/Documents/edu-platform/backend/src/EduPlatform.Domain/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/duythai/.nuget/NuGet/NuGet.Config"
