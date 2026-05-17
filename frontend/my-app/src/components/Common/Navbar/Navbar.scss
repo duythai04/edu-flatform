@@ -1,0 +1,155 @@
+@import "../../../styles/variables";
+
+.navbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background-color: $white;
+  border-bottom: 1px solid $border-color;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  // font-family: $font-sans; // Đảm bảo biến này tồn tại trong file variables của bạn
+
+  // Cột trái: Toggle & Logo
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      cursor: pointer;
+
+      .logo-icon {
+        background-color: $primary-color; // Màu xanh chủ đạo mới
+        color: $white;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: $radius-md; // Bo góc 8px
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .logo-text {
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: $text-main; // Màu chữ #3c4043
+        letter-spacing: -0.5px;
+
+        @media (max-width: 640px) {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // Cột giữa: Thanh tìm kiếm
+  .navbar-middle {
+    flex: 0 1 600px;
+    margin: 0 20px;
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: $bg-light; // Màu xám nhẹ #f8f9fa
+      padding: 8px 16px;
+      border-radius: $radius-md; // Sử dụng radius của bạn
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+
+      &:focus-within {
+        background-color: $white;
+        border-color: $primary-color;
+        box-shadow: $shadow-sm; // Đổ bóng nhẹ khi focus
+      }
+
+      .search-icon {
+        color: $text-secondary; // Màu chữ #5f6368
+        margin-right: 12px;
+      }
+
+      input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 100%;
+        font-size: 0.95rem;
+        color: $text-main;
+
+        &::placeholder {
+          color: $text-secondary;
+          opacity: 0.7;
+        }
+      }
+    }
+
+    @media (max-width: 850px) {
+      display: none;
+    }
+  }
+
+  // Cột phải: Actions & Profile
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .navbar-profile {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-left: 10px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+
+      &:hover {
+        border-color: $primary-color;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+
+  // Common Icon Button Style
+  .icon-btn {
+    background: transparent;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; // Nút icon nên để tròn hoàn toàn
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: $primary-color;
+    }
+
+    &.sidebar-toggle {
+      @media (max-width: 1024px) {
+        color: $primary-color;
+        background-color: rgba($primary-color, 0.05);
+      }
+    }
+  }
+}

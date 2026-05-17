@@ -1,40 +1,44 @@
-import React from 'react';
-import styles from './Navbar.module.scss';
-import { Menu, Plus, Bell, Grid, Search } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Menu, Plus, Bell, Grid, Search } from "lucide-react";
+import "./Navbar.scss";
 
 const Navbar = ({ onToggleSidebar }) => {
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.left}>
-        <button className={styles.iconBtn} onClick={onToggleSidebar}>
+    <nav className="navbar">
+      <div className="navbar-left">
+        <button className="icon-btn sidebar-toggle" onClick={onToggleSidebar}>
           <Menu size={24} />
         </button>
-        <div className={styles.logo}>
-          <div className={styles.logoIcon}>E</div>
-          <span className={styles.logoText}>EduClass</span>
-        </div>
+
+        <Link to="/" className="navbar-logo">
+          <div className="logo-icon">E</div>
+          <span className="logo-text">EduClass</span>
+        </Link>
       </div>
 
-      <div className={styles.middle}>
-        <div className={styles.searchBar}>
-          <Search size={20} className={styles.searchIcon} />
+      <div className="navbar-middle">
+        <div className="search-bar">
+          <Search size={20} className="search-icon" />
           <input type="text" placeholder="Tìm kiếm lớp học..." />
         </div>
       </div>
 
-      <div className={styles.right}>
-        <button className={styles.iconBtn} title="Tạo hoặc tham gia lớp học">
+      <div className="navbar-right">
+        {/* Nút tạo lớp học chuyển hướng sang trang Create Class */}
+        <Link to="/create-class" className="icon-btn" title="Tạo lớp học mới">
           <Plus size={24} />
-        </button>
-        <button className={styles.iconBtn}>
+        </Link>
+
+        <button className="icon-btn">
           <Grid size={22} />
         </button>
-        <button className={styles.iconBtn}>
+
+        <button className="icon-btn">
           <Bell size={22} />
         </button>
-        <div className={styles.profile}>
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" />
-        </div>
+
+        <Link to="auth" className="navbar-profile"></Link>
       </div>
     </nav>
   );

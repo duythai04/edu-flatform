@@ -1,54 +1,88 @@
-import { useState } from 'react';
-import Navbar from './components/Common/Navbar/Navbar';
-import Sidebar from './components/Common/Sidebar/Sidebar';
-import Home from './pages/Home/Home';
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
-// Import file global style để reset CSS và định nghĩa biến SCSS
-import './styles/global.scss'; 
+import Navbar from "./components/Common/Navbar/Navbar";
+import Sidebar from "./components/Common/Sidebar/Sidebar";
+
+import Home from "./pages/Home/Home";
+import CreateClass from "./pages/CreateClass/CreateClass";
+import AuthMain from "./pages/Auth/Auth";
+
+import "./App.css";
 
 function App() {
-  // Quản lý trạng thái đóng/mở của Sidebar tại đây để cả Navbar và Sidebar đều dùng được
+  // 1. Khởi tạo state token từ localStorage
+  const [token, setToken] = useState(localStorage.getItem("token"));
+
+  // 2. Quản lý trạng thái Sidebar
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  // Lắng nghe sự thay đổi của localStorage (để đồng bộ nếu mở nhiều tab)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setToken(localStorage.getItem("token"));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const handleLoginSuccess = (newToken) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+  };
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
 
   return (
-    <div className="app-wrapper">
-      {/* Navbar luôn nằm trên cùng */}
-      <Navbar onToggleSidebar={toggleSidebar} />
+    <Router>
+      {/* 
+          LOGIC QUYẾT ĐỊNH:
+          - Người mới (không token): Chỉ thấy màn hình Auth (Role -> Register -> Login).
+          - Người đã đăng nhập: Thấy toàn bộ hệ thống Navbar/Sidebar/Routes.
+      */}
+      {!token ? (
+        <AuthMain onLoginSuccess={handleLoginSuccess} />
+      ) : (
+        <div
+          className={`app-layout ${!isSidebarOpen ? "sidebar-collapsed" : ""}`}
+        >
+          <Navbar
+            onToggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+            onLogout={handleLogout}
+          />
 
-      <div className="app-body">
-        {/* Sidebar nằm bên trái */}
-        <Sidebar isOpen={isSidebarOpen} />
+          <div className="app-container">
+            <Sidebar isOpen={isSidebarOpen} />
 
-        {/* Nội dung chính nằm bên phải, thay đổi tùy theo trang (sau này dùng React Router) */}
-        <main className={`main-content ${!isSidebarOpen ? 'full-width' : ''}`}>
-          <Home />
-        </main>
-      </div>
+            <main className="main-content">
+              <Routes>
+                {/* Trang chủ sau khi vào app */}
+                <Route path="/" element={<Home />} />
 
-      <style jsx>{`
-        .app-wrapper {
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-          overflow: hidden;
-        }
-        .app-body {
-          display: flex;
-          flex: 1;
-          overflow: hidden;
-        }
-        .main-content {
-          flex: 1;
-          overflow-y: auto;
-          background-color: #ffffff;
-          transition: all 0.3s ease;
-        }
-      `}</style>
-    </div>
+                {/* Trang tạo lớp */}
+                <Route path="/create-class" element={<CreateClass />} />
+
+                {/* Nếu người dùng đã login mà cố tình gõ link lung tung, đẩy về trang chủ */}
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </main>
+          </div>
+        </div>
+      )}
+    </Router>
   );
 }
 

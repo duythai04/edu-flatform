@@ -1,0 +1,165 @@
+// Khai báo biến màu sắc
+$purple-primary: #7c3aed;
+$purple-bg-active: #f5f3ff;
+$text-dark: #1f2937;
+$text-gray: #6b7280;
+$text-light: #9ca3af;
+$white: #ffffff;
+$red-badge-bg: #fee2e2;
+$red-badge-text: #ef4444;
+$border-color: #f3f4f6;
+
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background-color: $white;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  border-right: 1px solid $border-color;
+  font-family:
+    "Inter",
+    -apple-system,
+    sans-serif;
+
+  // Từng nhóm menu
+  .sidebar-group {
+    margin-bottom: 8px;
+    padding-right: 16px; 
+
+    &.tools-section {
+      margin-top: 24px;
+    }
+  }
+
+  // Item menu chung
+  .nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    color: $text-dark;
+    border-radius: 0 50px 50px 0;
+
+    &:hover {
+      background-color: #f9fafb;
+    }
+
+    &.active {
+      background-color: $purple-bg-active;
+      color: $purple-primary;
+      font-weight: 600;
+
+      .nav-icon {
+        color: $purple-primary;
+      }
+    }
+
+    .nav-item-content {
+      display: flex;
+      text-decoration: none;
+      align-items: center;
+      gap: 15px;
+
+      .nav-icon {
+        margin-right: 16px;
+        color: $text-dark;
+        display: flex;
+      }
+
+      .nav-label {
+        font-size: 15px;
+      }
+    }
+
+    .nav-badge {
+      background-color: $red-badge-bg;
+      color: $red-badge-text;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+  }
+
+  // Đường gạch ngang
+  .sidebar-divider {
+    height: 1px;
+    background-color: $border-color;
+    margin: 16px 24px;
+  }
+
+  // Header của mỗi section
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 24px 16px 24px;
+
+    .btn-add-class {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: $text-dark;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #f3f4f6;
+        border-color: $text-gray;
+      }
+    }
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-light;
+    letter-spacing: 0.05em;
+    margin: 0;
+    padding-left: 24px; // Mặc định cho tiêu đề không có header
+  }
+
+  .section-header .section-title {
+    padding-left: 0; // Reset khi có header (flex-space-between)
+  }
+
+  // Item dành riêng cho Lớp học
+  .class-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background-color: #f9fafb;
+    }
+
+    .class-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      color: $white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      margin-right: 16px;
+    }
+
+    .class-name {
+      font-size: 15px;
+      color: $text-dark;
+      font-weight: 500;
+    }
+  }
+}
