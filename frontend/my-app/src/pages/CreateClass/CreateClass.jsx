@@ -1,10 +1,72 @@
 import React, { useState } from "react";
-import { Check, RotateCcw, Copy, Share2, ChevronDown } from "lucide-react";
+import {
+  Check,
+  RotateCcw,
+  Copy,
+  Share2,
+  ChevronDown,
+  Loader2,
+} from "lucide-react";
 import "./CreateClass.scss";
 
 const CreateClass = () => {
+  // 1. State quản lý form
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [classCode, setClassCode] = useState("------"); // Hiển thị mã sau khi tạo
+
   const [selectedColor, setSelectedColor] = useState("#7c3aed");
   const colors = ["#7c3aed", "#0d9488", "#ea580c", "#dc2626", "#2563eb"];
+
+  // 2. Hàm gọi API tạo lớp học
+  const handleCreateClassroom = async () => {
+    if (!name.trim()) {
+      alert("Vui lòng nhập tên lớp học!");
+      return;
+    }
+
+    setLoading(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://localhost:5187/api/classroom", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Gửi token để Backend check Role "Teacher"
+        },
+        body: JSON.stringify({
+          name: name,
+          description: description,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Backend trả về object Classroom có ClassCode
+        setClassCode(data.classCode);
+        alert("Tạo lớp học thành công!");
+      } else if (response.status === 403) {
+        alert("Lỗi: Chỉ tài khoản Giáo viên mới có quyền tạo lớp!");
+      } else {
+        const errorMsg = await response.text();
+        alert("Lỗi: " + errorMsg);
+      }
+    } catch (error) {
+      console.error("Error creating classroom:", error);
+      alert("Không thể kết nối đến máy chủ.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 3. Hàm sao chép mã lớp
+  const handleCopyCode = () => {
+    if (classCode === "------") return;
+    navigator.clipboard.writeText(classCode);
+    alert("Đã sao chép mã lớp: " + classCode);
+  };
 
   return (
     <div className="create-class-container">
@@ -19,12 +81,24 @@ const CreateClass = () => {
 
           <div className="input-group">
             <label>Tên lớp học *</label>
-            <input type="text" placeholder="giải tích" />
+            <input
+              type="text"
+              placeholder="Ví dụ: Giải tích 1"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={loading}
+            />
           </div>
 
           <div className="input-group">
             <label>Mô tả lớp học</label>
-            <textarea placeholder="Học kì I" rows="4"></textarea>
+            <textarea
+              placeholder="Ví dụ: Học kì I - Nhóm 01"
+              rows="4"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={loading}
+            ></textarea>
           </div>
 
           <div className="form-row-flex">
@@ -54,20 +128,33 @@ const CreateClass = () => {
             </div>
           </div>
 
-          <button className="btn-create">
-            <Check size={20} />
-            <span>Tạo lớp học</span>
+          <button
+            className="btn-create"
+            onClick={handleCreateClassroom}
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="spinner" size={20} />
+            ) : (
+              <Check size={20} />
+            )}
+            <span>{loading ? "Đang xử lý..." : "Tạo lớp học"}</span>
           </button>
         </div>
 
         {/* CỘT PHẢI: MÃ CODE & QUYỀN HẠN */}
         <div className="side-column">
-          {/* CARD MÃ LỚP HỌC */}
           <div className="form-card code-card">
             <h2 className="card-title">Mã lớp học (tự động tạo)</h2>
             <div className="code-display-box">
-              <span className="code-text">S 1 6 2 J X L</span>
-              <button className="btn-regenerate">
+              <span className="code-text">
+                {/* Hiển thị classCode từ API hoặc placeholder */}
+                {classCode.split("").join(" ")}
+              </span>
+              <button
+                className="btn-regenerate"
+                onClick={() => alert("Chức năng đang phát triển")}
+              >
                 <RotateCcw size={16} />
                 <span>Tạo lại</span>
               </button>
@@ -77,7 +164,7 @@ const CreateClass = () => {
               hoặc nhắn thẳng mã code.
             </p>
             <div className="code-actions">
-              <button className="btn-outline">
+              <button className="btn-outline" onClick={handleCopyCode}>
                 <Copy size={18} />
                 <span>Sao chép mã</span>
               </button>
@@ -88,7 +175,6 @@ const CreateClass = () => {
             </div>
           </div>
 
-          {/* CARD QUYỀN HẠN */}
           <div className="form-card permissions-card">
             <h2 className="card-title">Quyền hạn học sinh</h2>
             <div className="checkbox-list">
