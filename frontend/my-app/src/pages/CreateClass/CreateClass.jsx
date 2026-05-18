@@ -14,7 +14,7 @@ const CreateClass = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [classCode, setClassCode] = useState("------"); // Hiển thị mã sau khi tạo
+  const [classCode, setClassCode] = useState("------"); 
 
   const [selectedColor, setSelectedColor] = useState("#7c3aed");
   const colors = ["#7c3aed", "#0d9488", "#ea580c", "#dc2626", "#2563eb"];

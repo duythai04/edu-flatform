@@ -11,4 +11,6 @@ public class ClassroomMember : BaseEntity
     public User User { get; set; }
 
     public Classroom Classroom { get; set; }
+
+    public string? Role {get; set;}
 }

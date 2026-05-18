@@ -44,7 +44,8 @@ public class ClassroomController : ControllerBase
         var member = new ClassroomMember
         {
             UserId = Guid.Parse(userId),
-            ClassroomId = classroom.Id
+            ClassroomId = classroom.Id,
+            Role = "Teacher"
         };
 
         _context.ClassroomMembers.Add(member);
@@ -86,7 +87,8 @@ public class ClassroomController : ControllerBase
         var member = new ClassroomMember
         {
             UserId = userGuid,
-            ClassroomId = classroom.Id
+            ClassroomId = classroom.Id,
+            Role = "Student"
         };
 
         _context.ClassroomMembers.Add(member);
@@ -99,23 +101,49 @@ public class ClassroomController : ControllerBase
 
     // get class user
     [Authorize]
-    [HttpGet("my")]
-    public async Task<IActionResult> GetMyClassrooms()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+[HttpGet("my")]
+public async Task<IActionResult> GetMyClassrooms()
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var classes = await _context.ClassroomMembers
-            .Where(x => x.UserId == Guid.Parse(userId))
-            .Select(x => new
-            {
-                x.Classroom.Id,
-                x.Classroom.Name,
-                x.Classroom.ClassCode
-            })
-            .ToListAsync();
+    if (userId == null)
+        return Unauthorized();
 
-        return Ok(classes);
-    }
+    var userGuid = Guid.Parse(userId);
+
+    // lớp user tham gia (student hoặc teacher nếu có trong member)
+    var joinedClasses = await _context.ClassroomMembers
+        .Where(x => x.UserId == userGuid)
+        .Select(x => new
+        {
+            x.Classroom.Id,
+            x.Classroom.Name,
+            x.Classroom.ClassCode,
+            Role = "Member"
+        })
+        .ToListAsync();
+
+    // lớp user tạo (teacher)
+    var ownedClasses = await _context.Classrooms
+        .Where(x => x.TeacherId == userGuid)
+        .Select(x => new
+        {
+            x.Id,
+            x.Name,
+            x.ClassCode,
+            Role = "Teacher"
+        })
+        .ToListAsync();
+
+    // merge + tránh trùng
+    var result = ownedClasses
+        .Concat(joinedClasses)
+        .GroupBy(x => x.Id)
+        .Select(g => g.First())
+        .ToList();
+
+    return Ok(result);
+}
 
   
 
