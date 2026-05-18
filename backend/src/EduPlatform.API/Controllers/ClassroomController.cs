@@ -19,7 +19,7 @@ public class ClassroomController : ControllerBase
         _context = context;
     }
 
-  
+
     // teacher tạo class 
     [Authorize(Roles = "Teacher")]
     [HttpPost]
@@ -55,7 +55,7 @@ public class ClassroomController : ControllerBase
         return Ok(classroom);
     }
 
-   
+
 
     // student join class 
     [Authorize(Roles = "Student")]
@@ -97,55 +97,58 @@ public class ClassroomController : ControllerBase
         return Ok("Joined successfully");
     }
 
- 
+
 
     // get class user
     [Authorize]
-[HttpGet("my")]
-public async Task<IActionResult> GetMyClassrooms()
-{
-    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    [HttpGet("my")]
+    public async Task<IActionResult> GetMyClassrooms()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-    if (userId == null)
-        return Unauthorized();
+        if (userId == null)
+            return Unauthorized();
 
-    var userGuid = Guid.Parse(userId);
+        var userGuid = Guid.Parse(userId);
 
-    // lớp user tham gia (student hoặc teacher nếu có trong member)
-    var joinedClasses = await _context.ClassroomMembers
-        .Where(x => x.UserId == userGuid)
-        .Select(x => new
-        {
-            x.Classroom.Id,
-            x.Classroom.Name,
-            x.Classroom.ClassCode,
-            Role = "Member"
-        })
-        .ToListAsync();
 
-    // lớp user tạo (teacher)
-    var ownedClasses = await _context.Classrooms
-        .Where(x => x.TeacherId == userGuid)
-        .Select(x => new
-        {
-            x.Id,
-            x.Name,
-            x.ClassCode,
-            Role = "Teacher"
-        })
-        .ToListAsync();
+        var joinedClasses = await _context.ClassroomMembers
+            .Where(x => x.UserId == userGuid)
+            .Select(x => new
+            {
+                x.Classroom.Id,
+                x.Classroom.Name,
+                x.Classroom.Description,
+                x.Classroom.ClassCode,
+                Role = "Member"
+            })
+            .ToListAsync();
 
-    // merge + tránh trùng
-    var result = ownedClasses
-        .Concat(joinedClasses)
-        .GroupBy(x => x.Id)
-        .Select(g => g.First())
-        .ToList();
+        // lớp user tạo (teacher)
+        var ownedClasses = await _context.Classrooms
+            .Where(x => x.TeacherId == userGuid)
+            .Select(x => new
+            {
+                x.Id,
+                x.Name,
+                x.Description,
+                x.ClassCode,
+                Role = "Teacher"
+            })
+            .ToListAsync();
 
-    return Ok(result);
-}
 
-  
+        var result = ownedClasses
+            .Concat(joinedClasses)
+            .GroupBy(x => x.Id)
+            .Select(g => g.First())
+            .ToList();
+
+        return Ok(result);
+    }
+
+
+
 
     // helper
     private string GenerateJoinCode()
@@ -153,5 +156,5 @@ public async Task<IActionResult> GetMyClassrooms()
         return Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
     }
 
-    
+
 }

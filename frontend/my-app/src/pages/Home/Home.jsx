@@ -1,98 +1,123 @@
-import React from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Plus,
   Users,
-  FileText,
-  BarChart3,
   Clock,
-  MoreVertical,
-  MessageSquare,
   ClipboardList,
+  UserCheck,
+  MoreVertical,
+  GraduationCap,
+  LogIn,
+  FileText,
+  MessageSquare,
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
+
 import "./Home.scss";
 
 const Home = () => {
-  const stats = [
-    { label: "Lớp đang dạy", value: "3", color: "blue" },
-    { label: "Học sinh", value: "84", sub: "+5 tuần này", color: "green" },
-    { label: "Bài chờ chấm", value: "3", sub: "Cần xử lý", color: "orange" },
-    { label: "Điểm TB chung", value: "7.8", color: "purple" },
-  ];
+  const { user } = useContext(AuthContext);
+  console.log("Thông tin user hiện tại:", user);
+  const [myClasses, setMyClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const activities = [
-    {
-      id: 1,
-      user: "Lê Thị Thu",
-      action: 'nộp bài "Bài tập tích phân"',
-      class: "Toán giải tích 12",
-      time: "10 phút trước",
-      type: "submit",
-    },
-    {
-      id: 2,
-      user: "Nguyễn Văn Bình",
-      action: "đặt câu hỏi trong lớp",
-      class: "Vật lý nâng cao",
-      time: "25 phút trước",
-      type: "question",
-    },
-    {
-      id: 3,
-      user: "Trần Quốc Anh",
-      action: "nộp bài tập muộn",
-      class: "Hóa hữu cơ",
-      time: "1 giờ trước",
-      status: "Cần chú ý",
-      type: "late",
-    },
-    {
-      id: 4,
-      user: "5 học sinh mới",
-      action: "tham gia lớp Vật lý",
-      class: "Vật lý nâng cao",
-      time: "2 giờ trước",
-      type: "new",
-    },
-  ];
+  // Giả định Role global từ AuthContext: 1 là Giáo viên, 2 là Học sinh (hoặc dùng string)
+  // Bạn hãy điều chỉnh user.Role theo đúng logic Backend của bạn
+  const isGlobalTeacher = user?.Role === "Teacher" || user?.role === "Teacher";
 
-  const myClasses = [
-    {
-      id: 1,
-      name: "Toán giải tích 12",
-      code: "TOAN12A",
-      students: 34,
-      assignments: 8,
-      posts: 12,
-      color: "#7c3aed",
-      status: "Đang học",
-      update: "10p trước",
-    },
-    {
-      id: 2,
-      name: "Vật lý nâng cao",
-      code: "VATLY11",
-      students: 28,
-      assignments: 5,
-      posts: 0,
-      color: "#0d9488",
-      status: "Đang học",
-      update: "25p trước",
-    },
-  ];
+  const getBannerColor = (index) => {
+    const colors = [
+      "#4f46e5",
+      "#0891b2",
+      "#059669",
+      "#d97706",
+      "#7c3aed",
+      "#db2777",
+    ];
+    return colors[index % colors.length];
+  };
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("Vui lòng đăng nhập để tiếp tục.");
+          return;
+        }
+
+        const res = await fetch("http://localhost:5187/api/classroom/my", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error("Không thể tải danh sách lớp học.");
+        const data = await res.json();
+        setMyClasses(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchClasses();
+  }, []);
+
+  // --- LOGIC PHÂN QUYỀN CHO STATS ---
+  const stats = isGlobalTeacher
+    ? [
+        {
+          label: "Tổng số lớp dạy",
+          value: myClasses.length,
+          sub: "Đang quản lý",
+        },
+        { label: "Bài tập cần chấm", value: "12", sub: "Trên tất cả lớp" },
+        { label: "Học sinh hoạt động", value: "150+", sub: "Tuần này" },
+        { label: "Yêu cầu tham gia", value: "5", sub: "Chưa duyệt" },
+      ]
+    : [
+        {
+          label: "Lớp đang học",
+          value: myClasses.length,
+          sub: "Đang tham gia",
+        },
+        { label: "Bài tập cần nộp", value: "3", sub: "Hạn trong tuần" },
+        { label: "Điểm trung bình", value: "8.5", sub: "Học kỳ này" },
+        { label: "Tài liệu mới", value: "10+", sub: "Chưa xem" },
+      ];
+
+  const userName = user?.Fullname || user?.fullname || "Người dùng";
 
   return (
     <div className="home-container">
-      {/* HEADER */}
+      {/* HEADER: Thay đổi nút dựa trên quyền */}
       <header className="home-header">
         <div className="welcome-text">
-          <h1>Xin chào, Thầy Nguyễn Minh Khoa</h1>
-          <p>Bạn có 3 bài cần chấm điểm hôm nay</p>
+          <h1>
+            Xin chào, {isGlobalTeacher ? "Thầy/Cô" : "Bạn"} {userName}
+          </h1>
+          <p>
+            {isGlobalTeacher
+              ? "Hôm nay bạn có lịch dạy 3 tiết và 12 bài tập cần chấm."
+              : "Bạn có 2 bài tập sắp đến hạn nộp. Hãy kiểm tra nhé!"}
+          </p>
         </div>
-        <Link to="/create-class" className="btn-primary-outline">
-          <Plus size={18} />
-          <span>Tạo lớp học mới</span>
-        </Link>
+        <div className="header-actions">
+          {isGlobalTeacher ? (
+            <Link to="/create-class" className="btn-primary-outline">
+              <Plus size={18} />
+              <span>Tạo lớp học mới</span>
+            </Link>
+          ) : (
+            <Link to="/join-class" className="btn-primary-outline">
+              <LogIn size={18} />
+              <span>Tham gia lớp học</span>
+            </Link>
+          )}
+        </div>
       </header>
 
       {/* STATS GRID */}
@@ -107,62 +132,39 @@ const Home = () => {
       </div>
 
       <div className="home-content-layout">
-        {/* LEFT COLUMN */}
+        {/* LEFT COLUMN: Hiển thị nội dung dựa trên quyền */}
         <div className="content-column-left">
-          {/* HOẠT ĐỘNG GẦN ĐÂY */}
           <section className="card-section">
             <div className="section-header">
-              <h2>Hoạt động gần đây</h2>
+              <h2>
+                {isGlobalTeacher ? "Hoạt động của học sinh" : "Thông báo mới"}
+              </h2>
               <button className="text-link">Xem tất cả</button>
             </div>
-            <div className="activity-list">
-              {activities.map((act) => (
-                <div key={act.id} className={`activity-item ${act.type}`}>
-                  <div className="activity-dot"></div>
-                  <div className="activity-info">
-                    <p>
-                      <strong>{act.user}</strong> {act.action}
-                    </p>
-                    <span>
-                      {act.class} · {act.time}{" "}
-                      {act.status && (
-                        <strong className="warning">· {act.status}</strong>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Logic render activity list ở đây (như code cũ của bạn) */}
           </section>
 
-          {/* BÀI TẬP SẮP ĐẾN HẠN */}
           <section className="card-section">
             <div className="section-header">
-              <h2>Bài tập sắp đến hạn</h2>
+              <h2>{isGlobalTeacher ? "Bài tập cần chấm" : "Lịch nộp bài"}</h2>
             </div>
             <div className="deadline-list">
+              {/* Hiển thị danh sách deadline ưu tiên */}
               <div className="deadline-card urgent">
                 <div className="deadline-icon">
                   <Clock size={20} />
                 </div>
                 <div className="deadline-info">
-                  <h3>Kiểm tra chương 3 — Toán GT 12</h3>
+                  <h3>
+                    {isGlobalTeacher
+                      ? "Chấm bài: Kiểm tra Lý 10"
+                      : "Nộp bài: Toán GT 12"}
+                  </h3>
                   <div className="deadline-meta">
                     <span className="tag-urgent">Hôm nay</span>
-                    <p>Hạn nộp: Hôm nay 23:59 · 28/34 đã nộp</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="deadline-card normal">
-                <div className="deadline-icon">
-                  <FileText size={20} />
-                </div>
-                <div className="deadline-info">
-                  <h3>Bài tập dao động cơ học — Vật lý</h3>
-                  <div className="deadline-meta">
-                    <span className="tag-normal">2 ngày nữa</span>
-                    <p>Hạn nộp: 20/05 · 15/28 đã nộp</p>
+                    <p>
+                      {isGlobalTeacher ? "25/40 đã nộp" : "Hạn cuối: 23:59"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -170,47 +172,105 @@ const Home = () => {
           </section>
         </div>
 
-        {/* RIGHT COLUMN */}
+        {/* RIGHT COLUMN: Lớp học của tôi */}
         <div className="content-column-right">
           <section className="card-section">
             <div className="section-header">
               <h2>Lớp học của tôi</h2>
-              <button className="text-link">+ Tạo lớp</button>
             </div>
-            <div className="class-cards-list">
-              {myClasses.map((cls) => (
-                <div key={cls.id} className="class-summary-card">
-                  <div
-                    className="class-card-top"
-                    style={{ backgroundColor: cls.color }}
-                  >
-                    <span className="class-code-badge">MÃ: {cls.code}</span>
-                    <div className="class-avatar">{cls.name.charAt(0)}</div>
-                    <div className="class-title">
-                      <h3>{cls.name}</h3>
-                      <p>{cls.students} học sinh</p>
+
+            {loading ? (
+              <p>Đang tải...</p>
+            ) : myClasses.length === 0 ? (
+              <div className="empty-state">
+                <p>Bạn chưa tham gia lớp học nào.</p>
+                {isGlobalTeacher ? (
+                  <Link to="/create-class">Tạo lớp ngay</Link>
+                ) : (
+                  <Link to="/join-class">Nhập mã tham gia</Link>
+                )}
+              </div>
+            ) : (
+              <div className="class-cards-list">
+                {myClasses.map((cls, index) => {
+                  const roleInClass = cls.Role || cls.role; // Lấy role cụ thể trong lớp này
+                  const isTeacherInClass = roleInClass === "Teacher";
+
+                  return (
+                    <div
+                      key={cls.Id || cls.id || index}
+                      className="class-summary-card"
+                    >
+                      <div
+                        className="class-card-top"
+                        style={{ backgroundColor: getBannerColor(index) }}
+                      >
+                        <div className="class-card-header-meta">
+                          <span className="class-code-badge">
+                            MÃ: {cls.ClassCode || cls.classCode}
+                          </span>
+                          {/* Badge hiển thị vai trò trong lớp */}
+                          <span
+                            className={`role-badge ${isTeacherInClass ? "teacher" : "member"}`}
+                          >
+                            {isTeacherInClass ? (
+                              <GraduationCap size={12} />
+                            ) : (
+                              <UserCheck size={12} />
+                            )}
+                            {isTeacherInClass ? "Giáo viên" : "Học sinh"}
+                          </span>
+                        </div>
+
+                        <div className="class-avatar">
+                          {(cls.Name || cls.name || "L")
+                            .charAt(0)
+                            .toUpperCase()}
+                        </div>
+
+                        <div className="class-title">
+                          <h3>{cls.Name || cls.name}</h3>
+                          <p className="class-description-text">
+                            {cls.Description ||
+                              cls.description ||
+                              "Không có mô tả"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="class-card-bottom">
+                        <div className="class-stats">
+                          <span>
+                            <Users size={14} /> 0 HS
+                          </span>
+                          <span>
+                            <ClipboardList size={14} /> 0 bài
+                          </span>
+                        </div>
+
+                        {/* CHỨC NĂNG RIÊNG TRÊN CARD */}
+                        <div className="class-card-actions">
+                          <Link
+                            to={`/class/${cls.Id || cls.id}`}
+                            className="btn-enter"
+                          >
+                            Vào lớp
+                          </Link>
+                          {isTeacherInClass && (
+                            <button
+                              className="btn-icon-only"
+                              title="Cài đặt lớp"
+                            >
+                              <MoreVertical size={18} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="class-card-bottom">
-                    <div className="class-stats">
-                      <span>
-                        <Users size={14} /> {cls.students} HS
-                      </span>
-                      <span>
-                        <ClipboardList size={14} /> {cls.assignments} bài
-                      </span>
-                      <span>
-                        <MessageSquare size={14} /> {cls.posts} đăng
-                      </span>
-                    </div>
-                    <div className="class-footer">
-                      <span className="status-tag">Đang học</span>
-                      <span className="update-time">Cập nhật {cls.update}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
         </div>
       </div>

@@ -12,6 +12,7 @@ import Sidebar from "./components/Common/Sidebar/Sidebar";
 import Home from "./pages/Home/Home";
 import CreateClass from "./pages/CreateClass/CreateClass";
 import AuthMain from "./pages/Auth/Auth";
+import JoinClass from "./pages/JoinClass/JoinClass";
 
 import "./App.css";
 
@@ -47,11 +48,7 @@ function App() {
 
   return (
     <Router>
-      {/* 
-          LOGIC QUYẾT ĐỊNH:
-          - Người mới (không token): Chỉ thấy màn hình Auth (Role -> Register -> Login).
-          - Người đã đăng nhập: Thấy toàn bộ hệ thống Navbar/Sidebar/Routes.
-      */}
+
       {!token ? (
         <AuthMain onLoginSuccess={handleLoginSuccess} />
       ) : (
@@ -69,13 +66,11 @@ function App() {
 
             <main className="main-content">
               <Routes>
-                {/* Trang chủ sau khi vào app */}
                 <Route path="/" element={<Home />} />
 
-                {/* Trang tạo lớp */}
                 <Route path="/create-class" element={<CreateClass />} />
+                <Route path="/join-class" element={<JoinClass />} />
 
-                {/* Nếu người dùng đã login mà cố tình gõ link lung tung, đẩy về trang chủ */}
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </main>

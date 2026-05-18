@@ -1,6 +1,7 @@
 using EduPlatform.Domain.Common;
 
 namespace EduPlatform.Domain.Entities;
+
 public class ClassroomMember : BaseEntity
 {
 
@@ -12,5 +13,5 @@ public class ClassroomMember : BaseEntity
 
     public Classroom Classroom { get; set; }
 
-    public string? Role {get; set;}
+    public string? Role { get; set; }
 }
