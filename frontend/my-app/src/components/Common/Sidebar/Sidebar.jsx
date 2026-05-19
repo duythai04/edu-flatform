@@ -19,7 +19,7 @@ export default function Sidebar({ isOpen }) {
       <div className="sidebar-group">
         <div className="sidebar-wrapper">
           <div className="nav-item active">
-            <Link className="nav-item-content">
+            <Link to ="/" className="nav-item-content">
               <Home size={20} />
               <span className="nav-label">Trang chủ</span>
             </Link>

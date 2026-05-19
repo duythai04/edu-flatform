@@ -1,0 +1,280 @@
+$primary: #1a73e8;
+$text-dark: #202124;
+$text-light: #5f6368;
+$bg-gray: #f1f3f4;
+$white: #ffffff;
+$radius-xl: 16px;
+$radius-lg: 12px;
+$shadow-soft:
+  0 1px 3px rgba(0, 0, 0, 0.05),
+  0 10px 20px rgba(0, 0, 0, 0.02);
+
+.modern-class-detail {
+  background-color: #fafafa;
+  min-height: 100vh;
+  padding: 2rem 5%;
+  font-family: "Inter", sans-serif;
+
+  .floating-back {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    width: 45px;
+    height: 45px;
+    background: $white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $shadow-soft;
+    color: $text-dark;
+    transition: all 0.3s ease;
+    &:hover {
+      background: $primary;
+      color: $white;
+      transform: scale(1.1);
+    }
+  }
+
+  // Hero Banner hiện đại
+  .class-hero {
+    position: relative;
+    height: 280px;
+    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+    border-radius: $radius-xl;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: flex-end;
+    padding: 3rem;
+    box-shadow: 0 15px 35px rgba(26, 115, 232, 0.2);
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      color: $white;
+      width: 100%;
+
+      .badge {
+        background: rgba($white, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+        display: inline-block;
+      }
+
+      h1 {
+        font-size: 2.8rem;
+        margin: 0;
+        font-weight: 700;
+      }
+
+      p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 1.5rem;
+      }
+
+      .hero-footer {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+
+        .teacher-pill {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: rgba($white, 0.1);
+          padding: 6px 16px 6px 6px;
+          border-radius: 30px;
+          .avatar {
+            width: 32px;
+            height: 32px;
+            background: $white;
+            color: $primary;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+          }
+        }
+
+        .code-pill {
+          font-size: 0.9rem;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          .copy-icon {
+            cursor: pointer;
+            opacity: 0.7;
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2.5rem;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Stream column
+  .stream-column {
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      .title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: $text-dark;
+        h2 {
+          font-size: 1.2rem;
+          margin: 0;
+        }
+      }
+      .btn-filter {
+        background: transparent;
+        border: 1px solid #ddd;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        &:hover {
+          background: #eee;
+        }
+      }
+    }
+
+    .assignment-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+
+      .modern-asm-card {
+        background: $white;
+        border-radius: $radius-lg;
+        padding: 1.5rem;
+        display: flex;
+        gap: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        box-shadow: $shadow-soft;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+
+        &:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .asm-type-icon {
+          width: 50px;
+          height: 50px;
+          background: rgba($primary, 0.08);
+          color: $primary;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .asm-body {
+          flex: 1;
+          .asm-header {
+            display: flex;
+            justify-content: space-between;
+            h4 {
+              margin: 0;
+              font-size: 1.1rem;
+              color: $text-dark;
+            }
+            .more-btn {
+              color: #ccc;
+              cursor: pointer;
+            }
+          }
+          .asm-meta {
+            margin-top: 8px;
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: $text-light;
+            .due-date {
+              display: flex;
+              align-items: center;
+              gap: 5px;
+            }
+            .status {
+              color: $primary;
+              font-weight: 600;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Sidebar widgets
+  .sidebar-column {
+    .side-widget {
+      background: $white;
+      border-radius: $radius-lg;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      box-shadow: $shadow-soft;
+
+      h3 {
+        font-size: 1rem;
+        margin-top: 0;
+        color: $text-dark;
+        margin-bottom: 1rem;
+      }
+      p {
+        font-size: 0.9rem;
+        color: $text-light;
+        line-height: 1.5;
+      }
+
+      .stat-row {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        .stat-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: $text-light;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  // Screens
+  .loading-screen {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: $primary;
+    background: $white;
+  }
+}

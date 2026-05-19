@@ -15,6 +15,7 @@ import AuthMain from "./pages/Auth/Auth";
 import JoinClass from "./pages/JoinClass/JoinClass";
 
 import "./App.css";
+import ClassroomDetail from "./pages/ClassroomDetail/ClassroomDetail";
 
 function App() {
   // 1. Khởi tạo state token từ localStorage
@@ -48,7 +49,6 @@ function App() {
 
   return (
     <Router>
-
       {!token ? (
         <AuthMain onLoginSuccess={handleLoginSuccess} />
       ) : (
@@ -70,6 +70,7 @@ function App() {
 
                 <Route path="/create-class" element={<CreateClass />} />
                 <Route path="/join-class" element={<JoinClass />} />
+                <Route path="/class/:id" element={<ClassroomDetail />} />
 
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
