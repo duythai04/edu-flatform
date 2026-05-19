@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using EduPlatform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,7 @@ builder.Services.AddAuthorization();
 
 // DI services
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IClassroomService, ClassroomService>();
 
 // Swagger + JWT support
 builder.Services.AddEndpointsApiExplorer();

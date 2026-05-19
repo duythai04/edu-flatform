@@ -5,18 +5,25 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EduPlatform.Application.DTOs.Classroom;
 using Microsoft.EntityFrameworkCore;
+using EduPlatform.Application.Interfaces;
 
 namespace EduPlatform.API.Controllers;
+
+
 
 [ApiController]
 [Route("api/classroom")]
 public class ClassroomController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly IClassroomService _classroomService;
 
-    public ClassroomController(AppDbContext context)
+
+
+    public ClassroomController(AppDbContext context, IClassroomService classroomService)
     {
         _context = context;
+        _classroomService = classroomService;
     }
 
 
@@ -111,7 +118,6 @@ public class ClassroomController : ControllerBase
 
         var userGuid = Guid.Parse(userId);
 
-
         var joinedClasses = await _context.ClassroomMembers
             .Where(x => x.UserId == userGuid)
             .Select(x => new
@@ -147,9 +153,6 @@ public class ClassroomController : ControllerBase
         return Ok(result);
     }
 
-
-
-
     // helper
     private string GenerateJoinCode()
     {
@@ -157,4 +160,28 @@ public class ClassroomController : ControllerBase
     }
 
 
+    [Authorize]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetDetails(Guid id) // 1. Đổi int id thành Guid id
+    {
+        // 2. Lấy UserId từ Token (nó là chuỗi string)
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Unauthorized();
+
+        // 3. Chuyển đổi chuỗi string đó sang Guid
+        if (!Guid.TryParse(userIdClaim, out var userGuid))
+            return Unauthorized();
+
+        // 4. Bây giờ truyền id (Guid) và userGuid (Guid) vào service sẽ hết lỗi đỏ
+        var classroom = await _classroomService.GetClassroomDetailAsync(id, userGuid);
+
+        if (classroom == null)
+        {
+            return NotFound(new { message = "Lớp học không tồn tại hoặc bạn không có quyền truy cập." });
+        }
+
+        return Ok(classroom);
+    }
 }
