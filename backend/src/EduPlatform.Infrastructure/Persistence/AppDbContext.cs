@@ -18,6 +18,11 @@ public class AppDbContext : DbContext
 
     public DbSet<Assignment> Assignments { get; set; }
 
+    public DbSet<Announcement> Announcements { get; set; }
+
+
+    public DbSet<AssignmentFile> AssignmentFiles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -49,7 +49,6 @@ const ClassDetail = () => {
 
   return (
     <div className="modern-class-detail">
-      {/* Nút quay lại bay lơ lửng */}
       <Link to="/home" className="floating-back">
         <ArrowLeft size={20} />
       </Link>
