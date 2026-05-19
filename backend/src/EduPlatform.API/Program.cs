@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization; // Thêm namespace này cho JSON Options
 using EduPlatform.Application.Interfaces;
 using EduPlatform.Infrastructure.Persistence;
 using EduPlatform.Infrastructure.Services;
@@ -10,7 +11,7 @@ using EduPlatform.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// 1. Cấu hình CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
@@ -21,10 +22,16 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Add controllers 
-builder.Services.AddControllers();
+// 2. Add controllers và FIX LỖI THAM CHIẾU VÒNG (Circular Reference)
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Dòng này giúp bỏ qua vòng lặp khi Serialize dữ liệu sang JSON
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true; // Giúp JSON trả về dễ đọc hơn
+    });
 
-// Database
+// 3. Cấu hình Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
@@ -33,7 +40,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-// JWT Authentication
+// 4. Cấu hình JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,13 +66,13 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// DI services
+// 5. Đăng ký Dependency Injection (DI) services
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
-
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IAssignmentService, AssignmentService>();
-// Swagger + JWT support
+
+// 6. Cấu hình Swagger + JWT support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -97,9 +104,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-
-
-
+// 7. Cấu hình Middleware Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -108,7 +113,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-
+// Thứ tự Middleware rất quan trọng: Cors -> Auth -> Map
 app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
