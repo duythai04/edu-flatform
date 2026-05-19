@@ -12,5 +12,8 @@ public class Classroom : BaseEntity
 
     public Guid TeacherId { get; set; }
 
-    public User Teacher { get; set; }
+
+    public virtual User Teacher { get; set; }
+    public virtual ICollection<ClassroomMember> ClassroomMembers { get; set; } = new List<ClassroomMember>();
+    public virtual ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
 }
