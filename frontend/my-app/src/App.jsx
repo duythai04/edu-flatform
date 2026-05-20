@@ -15,6 +15,7 @@ import AuthMain from "./pages/Auth/Auth";
 import JoinClass from "./pages/JoinClass/JoinClass";
 
 import ClassroomDetail from "./pages/ClassroomDetail/ClassDetail";
+import AssignmentDetail from "./pages/AssignmentDetail/AssignmentDetail";
 
 import "./App.css";
 
@@ -71,7 +72,8 @@ function App() {
 
                 <Route path="/create-class" element={<CreateClass />} />
                 <Route path="/join-class" element={<JoinClass />} />
-                <Route path="/class/:id" element={<ClassroomDetail/>} />
+                <Route path="/class/:id" element={<ClassroomDetail />} />
+                <Route path="/assignment/:id" element={<AssignmentDetail />} />
 
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
