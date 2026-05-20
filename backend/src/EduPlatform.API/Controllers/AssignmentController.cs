@@ -1,7 +1,7 @@
-using EduPlatform.Application.DTOs;
+using EduPlatform.Application.DTOs.Assignment;
 using EduPlatform.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-
+using System.Security.Claims;
 namespace EduPlatform.API.Controllers;
 
 [ApiController]
@@ -32,5 +32,21 @@ public class AssignmentController : ControllerBase
     {
         await _service.DeleteFileAsync(fid);
         return NoContent();
+    }
+
+    [HttpGet("{id:guid}/detail")]
+    public async Task<IActionResult> GetAssignmentDetail(Guid id) 
+    {
+        // Lấy UserId và Role từ JWT Token
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var role = User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+
+        var userId = Guid.Parse(userIdClaim);
+        
+        // Gọi Service xử lý nghiệp vụ
+        var result = await _service.GetDetailAsync(id, userId, role);
+        return Ok(result);
     }
 }

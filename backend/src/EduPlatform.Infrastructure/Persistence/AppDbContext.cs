@@ -23,6 +23,8 @@ public class AppDbContext : DbContext
 
     public DbSet<AssignmentFile> AssignmentFiles { get; set; }
 
+    public DbSet<Submission> Submissions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

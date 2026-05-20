@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
 
-namespace EduPlatform.Application.DTOs
+
+namespace EduPlatform.Application.DTOs.Assignment
 {
     // DTO để tạo bài tập mới
     public record CreateAssignmentDto(

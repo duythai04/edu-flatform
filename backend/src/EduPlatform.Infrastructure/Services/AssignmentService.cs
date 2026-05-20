@@ -1,4 +1,4 @@
-using EduPlatform.Application.DTOs;
+using EduPlatform.Application.DTOs.Assignment;
 using EduPlatform.Application.Interfaces;
 using EduPlatform.Domain.Entities;
 using EduPlatform.Infrastructure.Persistence;
@@ -16,6 +16,68 @@ public class AssignmentService : IAssignmentService
         _context = context;
     }
 
+    public async Task<AssignmentDetailDto> GetDetailAsync(Guid assignmentId, Guid userId, string role)
+    {
+        // 1. Lấy Assignment kèm Files và thông tin Classroom/Teacher
+        // Sử dụng Include để lấy dữ liệu từ các bảng liên quan trong 1 lần truy vấn
+        var assignment = await _context.Assignments
+            .Include(a => a.AssignmentFiles)
+            .Include(a => a.Classroom)
+                .ThenInclude(c => c.Teacher)
+            .FirstOrDefaultAsync(a => a.Id == assignmentId);
+
+        if (assignment == null) throw new Exception("Assignment not found");
+
+        // 2. Map dữ liệu cơ bản vào DTO
+        var dto = new AssignmentDetailDto
+        {
+            Id = assignment.Id,
+            Title = assignment.Title,
+            Description = assignment.Description,
+            DueDate = assignment.DueDate,
+            MaxScore = assignment.MaxScore,
+            // Thêm kiểm tra null an toàn cho Classroom và Teacher
+            ClassroomName = assignment.Classroom?.Name ?? "Không xác định",
+            TeacherName = assignment.Classroom?.Teacher?.FullName ?? "Giáo viên",
+            Files = assignment.AssignmentFiles?.Select(f => new AssignmentFileDto
+            {
+                Id = f.Id,
+                FileName = f.FileName,
+                FileUrl = f.FileUrl,
+                FileSize = f.FileSize
+            }).ToList() ?? new List<AssignmentFileDto>()
+        };
+
+        // 3. Logic xử lý theo Vai trò (Role)
+        if (role == "Student")
+        {
+            // Kiểm tra học sinh hiện tại đã nộp bài này chưa
+            var submission = await _context.Set<Submission>()
+                .FirstOrDefaultAsync(s => s.AssignmentId == assignmentId && s.StudentId == userId);
+
+            dto.IsSubmitted = submission != null;
+
+            if (submission != null)
+            {
+                // Map thông tin bài nộp vào Object MySubmission trong DTO
+                dto.MySubmission = new SubmissionSummaryDto
+                {
+                    Id = submission.Id,
+                    SubmittedAt = submission.SubmittedAt,
+                    Score = submission.Score
+                };
+            }
+        }
+        else if (role == "Teacher")
+        {
+            // Nếu là giáo viên, đếm tổng số lượt nộp bài
+            dto.SubmissionCount = await _context.Set<Submission>()
+                .CountAsync(s => s.AssignmentId == assignmentId);
+        }
+
+        return dto;
+    }
+
     public async Task<IEnumerable<AssignmentResponseDto>> GetAllAsync()
     {
         return await _context.Assignments
@@ -29,7 +91,7 @@ public class AssignmentService : IAssignmentService
     public async Task<AssignmentResponseDto> GetByIdAsync(Guid id)
     {
         var a = await _context.Assignments.Include(x => x.AssignmentFiles).FirstOrDefaultAsync(x => x.Id == id);
-        if (a == null) return null;
+        if (a == null) return null!;
         return new AssignmentResponseDto(
             a.Id, a.Title, a.Description, a.DueDate, a.MaxScore, a.ClassroomId, a.CreatedAt,
             a.AssignmentFiles.Select(f => new FileDto(f.Id, f.FileName, f.FileUrl, f.FileSize)).ToList()
@@ -80,13 +142,12 @@ public class AssignmentService : IAssignmentService
 
     public async Task<FileDto> UploadFileAsync(Guid assignmentId, IFormFile file)
     {
-        // Logic upload file tạm thời (Bạn có thể lưu vào wwwroot hoặc Cloud)
         var fileId = Guid.NewGuid();
         var assignmentFile = new AssignmentFile
         {
             Id = fileId,
             FileName = file.FileName,
-            FileUrl = $"/uploads/{file.FileName}", // Demo URL
+            FileUrl = $"/uploads/{file.FileName}",
             FileSize = file.Length,
             AssignmentId = assignmentId
         };
