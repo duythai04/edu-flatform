@@ -1,55 +1,260 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FileText,
-  Calendar,
-  Clock,
   Paperclip,
   Send,
   ChevronLeft,
   MoreVertical,
-  Download,
   ExternalLink,
   Loader2,
   AlertCircle,
-  Trophy,
+  MoreHorizontal,
+  UploadCloud,
+  X,
+  CheckCircle2,
+  Clock,
+  RefreshCcw,
+  Users,
 } from "lucide-react";
 import "./AssignmentDetail.scss";
+import { AuthContext } from "../../contexts/AuthContext";
+
+// Cấu hình URL cơ sở để dễ quản lý và sửa lỗi Port
+const API_BASE_URL = "http://localhost:5187";
+
+const formatFileSize = (bytes) => {
+  if (!bytes) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+};
+
+const StatusBadge = ({ isSubmitted, isLate }) => {
+  if (isSubmitted && isLate)
+    return (
+      <span className="status-badge late">
+        <Clock size={13} /> Nộp muộn
+      </span>
+    );
+  if (isSubmitted)
+    return (
+      <span className="status-badge submitted">
+        <CheckCircle2 size={13} /> Đã nộp
+      </span>
+    );
+  return <span className="status-badge assigned">Đã giao</span>;
+};
+
+const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
+  const [uploading, setUploading] = useState(false);
+  const [unsubmitting, setUnsubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileRef = useRef(null);
+
+  const isLate =
+    data.isSubmitted &&
+    data.mySubmission?.submittedAt &&
+    new Date(data.mySubmission.submittedAt) > new Date(data.dueDate);
+
+  const handleFileChange = (e) => {
+    if (e.target.files[0]) setSelectedFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedFile) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("assignmentId", assignmentId);
+      const res = await fetch(`${API_BASE_URL}/api/submission`, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token },
+        body: formData,
+      });
+      if (res.ok) {
+        setSelectedFile(null);
+        onRefresh();
+      }
+    } catch (err) {
+      console.error("Lỗi nộp bài:", err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleUnsubmit = async () => {
+    if (!window.confirm("Bạn có chắc muốn hủy nộp bài?")) return;
+    setUnsubmitting(true);
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/submission/` + data.mySubmission?.id,
+        { method: "DELETE", headers: { Authorization: "Bearer " + token } },
+      );
+      if (res.ok) onRefresh();
+    } catch (err) {
+      console.error("Lỗi hủy nộp:", err);
+    } finally {
+      setUnsubmitting(false);
+    }
+  };
+
+  return (
+    <div className="sidebar-card work-card">
+      <div className="card-header">
+        <h2>Bài tập của bạn</h2>
+        <StatusBadge isSubmitted={data.isSubmitted} isLate={isLate} />
+      </div>
+      <div className="card-content">
+        {data.isSubmitted ? (
+          <div className="submitted-view">
+            {data.mySubmission?.fileUrl && (
+              <a
+                href={
+                  data.mySubmission.fileUrl.startsWith("http")
+                    ? data.mySubmission.fileUrl
+                    : `${API_BASE_URL}${data.mySubmission.fileUrl}`
+                }
+                target="_blank"
+                rel="noreferrer"
+                className="submitted-file-row"
+              >
+                <FileText size={18} />
+                <span>{data.mySubmission.fileName || "Tệp đã nộp"}</span>
+                <ExternalLink size={14} />
+              </a>
+            )}
+            {data.mySubmission?.score != null ? (
+              <div className="grade-display">
+                <span className="score">{data.mySubmission.score}</span>
+                <span className="total">/ {data.maxScore} điểm</span>
+              </div>
+            ) : (
+              <p className="grade-pending">Chờ chấm điểm...</p>
+            )}
+            <button
+              className="btn-unsubmit"
+              onClick={handleUnsubmit}
+              disabled={unsubmitting}
+            >
+              {unsubmitting ? (
+                <Loader2 size={14} className="spin" />
+              ) : (
+                <RefreshCcw size={14} />
+              )}
+              {unsubmitting ? "Đang hủy..." : "Hủy nộp bài"}
+            </button>
+          </div>
+        ) : (
+          <div className="empty-view">
+            <input
+              ref={fileRef}
+              type="file"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+            />
+            {selectedFile ? (
+              <div className="selected-file-row">
+                <FileText size={16} />
+                <span className="sf-name">{selectedFile.name}</span>
+                <button
+                  className="btn-remove-file"
+                  onClick={() => setSelectedFile(null)}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                className="btn-add-work"
+                onClick={() => fileRef.current && fileRef.current.click()}
+              >
+                <UploadCloud size={18} /> Thêm hoặc tạo
+              </button>
+            )}
+            <button
+              className="btn-mark-done"
+              disabled={!selectedFile || uploading}
+              onClick={handleSubmit}
+            >
+              {uploading ? (
+                <>
+                  <Loader2 size={14} className="spin" /> Đang nộp...
+                </>
+              ) : (
+                "Nộp bài"
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const TeacherSidebar = ({ data, assignmentId, navigate }) => {
+  const totalStudents = data.totalStudents || 0;
+  const submittedCount = data.submissionCount || 0;
+  const missingCount = Math.max(0, totalStudents - submittedCount);
+  const percent =
+    totalStudents > 0 ? Math.round((submittedCount / totalStudents) * 100) : 0;
+
+  return (
+    <div className="sidebar-card stats-card">
+      <h2 className="stats-title">Tổng quan</h2>
+      <div className="stats-row">
+        <div
+          className="stat-item clickable"
+          onClick={() => navigate(`/assignment/${assignmentId}/submissions`)}
+        >
+          <span className="count submitted-count">{submittedCount}</span>
+          <span className="label">Đã nộp</span>
+        </div>
+        <div className="stat-divider" />
+        <div className="stat-item">
+          <span className="count missing-count">{missingCount}</span>
+          <span className="label">Chưa nộp</span>
+        </div>
+      </div>
+      <div className="progress-bar-wrap">
+        <div className="progress-bar-fill" style={{ width: percent + "%" }} />
+      </div>
+      <button
+        className="btn-view-all"
+        onClick={() => navigate(`/assignment/${assignmentId}/submissions`)}
+      >
+        <Users size={15} /> Xem bài nộp <ExternalLink size={13} />
+      </button>
+    </div>
+  );
+};
 
 const AssignmentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, token } = useContext(AuthContext);
+  const isTeacher = user?.role?.toLowerCase() === "teacher";
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [privateComment, setPrivateComment] = useState("");
 
-  // Lấy Role từ localStorage (giả định bạn lưu khi đăng nhập)
-  const userRole = localStorage.getItem("role");
-
-  useEffect(() => {
-    fetchAssignmentDetail();
-  }, [id]);
-
-  const fetchAssignmentDetail = async () => {
+  const fetchDetail = async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
     try {
-      // Gọi đúng API /detail chúng ta vừa viết ở Backend
-      const response = await fetch(
-        `http://localhost:5187/api/assignment/${id}/detail`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      const res = await fetch(`${API_BASE_URL}/api/assignment/${id}/detail`, {
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
         },
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        setData(result);
+      });
+      if (res.ok) {
+        setData(await res.json());
       } else {
-        setError("Không thể tải thông tin bài tập. Vui lòng thử lại.");
+        setError("Không thể tải thông tin bài tập.");
       }
     } catch (err) {
       setError("Lỗi kết nối đến máy chủ.");
@@ -58,185 +263,141 @@ const AssignmentDetail = () => {
     }
   };
 
-  // Hàm hỗ trợ format dung lượng file
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  useEffect(() => {
+    if (token) fetchDetail();
+  }, [id, token]);
+
+  const handleSendComment = async () => {
+    if (!privateComment.trim()) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/assignment/${id}/comment`, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: privateComment }),
+      });
+      setPrivateComment("");
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   if (loading)
     return (
-      <div className="asd-state-wrap">
-        <Loader2 className="asd-spin" size={40} />
-        <p>Đang tải bài tập...</p>
+      <div className="gc-loading">
+        <Loader2 className="spin" />
       </div>
     );
-
-  if (error)
+  if (error || !data)
     return (
-      <div className="asd-state-wrap asd-error">
-        <AlertCircle size={48} />
-        <p>{error}</p>
+      <div className="gc-error">
+        <AlertCircle />
+        <p>{error || "Dữ liệu không tồn tại"}</p>
         <button onClick={() => navigate(-1)}>Quay lại</button>
       </div>
     );
 
   return (
-    <div className="asd-root">
-      <nav className="asd-nav">
-        <button className="asd-back-btn" onClick={() => navigate(-1)}>
-          <ChevronLeft size={20} />
-          <span>Quay lại</span>
-        </button>
+    <div
+      className={`gc-assignment-page ${isTeacher ? "role-teacher" : "role-student"}`}
+    >
+      <nav className="gc-assign-nav">
+        <div className="nav-left">
+          <button className="btn-icon" onClick={() => navigate(-1)}>
+            <ChevronLeft size={24} />
+          </button>
+          <div className="nav-titles">
+            <span className="class-name">{data.classroomName}</span>
+            <span className="assign-title">{data.title}</span>
+          </div>
+        </div>
       </nav>
 
-      <div className="asd-container">
-        {/* CỘT TRÁI: THÔNG TIN BÀI TẬP */}
-        <main className="asd-main">
-          <header className="asd-header">
-            <div className="asd-header__icon">
-              <FileText size={26} />
-            </div>
-            <div className="asd-header__info">
-              <h1>{data.title}</h1>
-              <div className="asd-meta">
-                <span>
-                  Giáo viên: <strong>{data.teacherName}</strong>
-                </span>
-                <span className="asd-meta__sep">•</span>
-                <span>
-                  Lớp: <strong>{data.classroomName}</strong>
-                </span>
+      <main className="gc-assign-container">
+        <div className="gc-assign-content-grid">
+          <section className="gc-assign-main">
+            <header className="main-header">
+              <div className="header-icon">
+                <FileText size={32} />
               </div>
-            </div>
-          </header>
+              <div className="header-text">
+                <h1>{data.title}</h1>
+                <div className="sub-info">
+                  <span>{data.teacherName}</span>
+                  <span className="dot">•</span>
+                  <span>
+                    Đã đăng:{" "}
+                    {new Date(data.createdAt).toLocaleDateString("vi-VN")}
+                  </span>
+                </div>
+                <div className="score-due-row">
+                  <span className="points">{data.maxScore} điểm</span>
+                  <span className="due-date">
+                    Hạn chót: {new Date(data.dueDate).toLocaleString("vi-VN")}
+                  </span>
+                </div>
+              </div>
+            </header>
 
-          <div className="asd-score-deadline">
-            <div className="asd-info-chip">
-              <Trophy size={16} />
-              <span>Tối đa: {data.maxScore} điểm</span>
+            <div className="main-divider" />
+            <div className="instructions-section">
+              <p className="desc-text">
+                {data.description || "Không có hướng dẫn chi tiết."}
+              </p>
             </div>
-            <div className="asd-info-chip asd-info-chip--danger">
-              <Calendar size={16} />
-              <span>
-                Hạn chót: {new Date(data.dueDate).toLocaleString("vi-VN")}
-              </span>
-            </div>
-          </div>
 
-          <div className="asd-section">
-            <h3>Hướng dẫn</h3>
-            <div className="asd-description">
-              {data.description || "Không có mô tả chi tiết."}
-            </div>
-          </div>
-
-          {data.files && data.files.length > 0 && (
-            <div className="asd-section">
-              <h3>Tài liệu đính kèm ({data.files.length})</h3>
-              <div className="asd-file-grid">
-                {data.files.map((file) => (
-                  <div key={file.id} className="asd-file-card">
-                    <div className="asd-file-card__icon">
-                      <Paperclip size={18} />
-                    </div>
-                    <div className="asd-file-card__info">
-                      <p className="name">{file.fileName}</p>
-                      <p className="size">{formatFileSize(file.fileSize)}</p>
-                    </div>
+            {data.files && data.files.length > 0 && (
+              <div className="attachments-section">
+                <div className="attachment-grid">
+                  {data.files.map((file) => (
                     <a
-                      href={`http://localhost:5187${file.fileUrl}`}
+                      key={file.id}
+                      // Kiểm tra xem URL đã có http chưa để tránh nối chuỗi sai
+                      href={
+                        file.fileUrl.startsWith("http")
+                          ? file.fileUrl
+                          : `${API_BASE_URL}${file.fileUrl}`
+                      }
                       target="_blank"
                       rel="noreferrer"
-                      className="asd-file-card__dl"
+                      className="file-card"
                     >
-                      <Download size={16} />
+                      <div className="file-thumb">
+                        <Paperclip size={24} />
+                      </div>
+                      <div className="file-info">
+                        <span className="file-name">{file.fileName}</span>
+                        <span className="file-type">
+                          {formatFileSize(file.fileSize)}
+                        </span>
+                      </div>
                     </a>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-
-        {/* CỘT PHẢI: TRẠNG THÁI NỘP BÀI */}
-        <aside className="asd-side">
-          {userRole === "Student" ? (
-            <div className="asd-card asd-card--submit">
-              <div className="asd-card__head">
-                <h2>Bài làm của bạn</h2>
-                <span
-                  className={`asd-badge ${data.isSubmitted ? "asd-badge--success" : "asd-badge--warn"}`}
-                >
-                  {data.isSubmitted ? "Đã nộp" : "Chưa nộp"}
-                </span>
-              </div>
-
-              {data.isSubmitted ? (
-                <div className="asd-submitted-info">
-                  <div className="asd-sub-row">
-                    <Clock size={14} />
-                    <span>
-                      Nộp lúc:{" "}
-                      {new Date(data.mySubmission.submittedAt).toLocaleString(
-                        "vi-VN",
-                      )}
-                    </span>
-                  </div>
-                  {data.mySubmission.score !== null && (
-                    <div className="asd-grade-box">
-                      <span className="label">Điểm số:</span>
-                      <span className="value">
-                        {data.mySubmission.score} / {data.maxScore}
-                      </span>
-                    </div>
-                  )}
-                  <button className="asd-btn-secondary">Hủy nộp bài</button>
-                </div>
-              ) : (
-                <div className="asd-empty-submit">
-                  <p>Bạn chưa thêm tệp nào cho bài tập này.</p>
-                  <button className="asd-btn-primary">
-                    <Send size={16} />
-                    Nộp bài ngay
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Giao diện dành cho Giáo viên */
-            <div className="asd-card asd-card--teacher">
-              <h2>Thống kê lớp học</h2>
-              <div className="asd-stats">
-                <div className="asd-stats__item">
-                  <span className="num">{data.submissionCount}</span>
-                  <span className="lab">Đã nộp</span>
+                  ))}
                 </div>
               </div>
-              <button
-                className="asd-btn-primary asd-btn-full"
-                onClick={() => navigate(`/assignment/${id}/submissions`)}
-              >
-                Xem danh sách bài nộp
-                <ExternalLink size={16} />
-              </button>
-            </div>
-          )}
+            )}
+          </section>
 
-          <div className="asd-card asd-card--comment">
-            <h2>Nhận xét riêng tư</h2>
-            <div className="asd-comment-box">
-              <input type="text" placeholder="Gửi nhận xét cho giáo viên..." />
-              <button>
-                <Send size={14} />
-              </button>
-            </div>
-          </div>
-        </aside>
-      </div>
+          <aside className="gc-assign-sidebar">
+            {isTeacher ? (
+              <TeacherSidebar
+                data={data}
+                assignmentId={id}
+                navigate={navigate}
+              />
+            ) : (
+              <StudentSidebar
+                data={data}
+                assignmentId={id}
+                token={token}
+                onRefresh={fetchDetail}
+              />
+            )}
+          </aside>
+        </div>
+      </main>
     </div>
   );
 };

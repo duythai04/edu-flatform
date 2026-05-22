@@ -1,4 +1,4 @@
-namespace EduPlatform.Application.DTOs.Assignment; 
+namespace EduPlatform.Application.DTOs.Assignment;
 
 public class AssignmentFileDto
 {
@@ -8,7 +8,7 @@ public class AssignmentFileDto
     public long FileSize { get; set; }
 }
 
-public class AssignmentDetailDto 
+public class AssignmentDetailDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;
@@ -23,6 +23,7 @@ public class AssignmentDetailDto
     public SubmissionSummaryDto? MySubmission { get; set; }
 
     public int SubmissionCount { get; set; }
+    public int TotalStudents { get; set; }
 }
 
 public class SubmissionSummaryDto
@@ -30,4 +31,8 @@ public class SubmissionSummaryDto
     public Guid Id { get; set; }
     public DateTime SubmittedAt { get; set; }
     public double? Score { get; set; }
+
+    public string? FileName { get; set; }
+    public string? FileUrl { get; set; }
+    public string? TeacherComment { get; set; }
 }

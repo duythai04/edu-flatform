@@ -1,44 +1,424 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Users,
-  Calendar,
   ClipboardList,
   ArrowLeft,
   MoreVertical,
   Megaphone,
-  Send,
   Copy,
-  Clock,
   Plus,
-  X,
-  Award,
+  Info,
+  LayoutGrid,
+  Bell,
+  CheckCircle,
+  Clock,
   BookOpen,
-  Layout,
+  AlertCircle,
 } from "lucide-react";
 import "./ClassDetail.scss";
 import CreateAssignmentModal from "../CreateAssignmentModal/CreateAssignmentModal";
-
 import { AuthContext } from "../../contexts/AuthContext";
 
+/* ─────────────────────────────────────────────
+   Helper: badge trạng thái nộp bài (học sinh)
+───────────────────────────────────────────── */
+const SubmissionBadge = ({ status }) => {
+  const map = {
+    submitted: {
+      icon: <CheckCircle size={14} />,
+      label: "Đã nộp",
+      cls: "badge-submitted",
+    },
+    late: {
+      icon: <AlertCircle size={14} />,
+      label: "Nộp muộn",
+      cls: "badge-late",
+    },
+    missing: {
+      icon: <Clock size={14} />,
+      label: "Chưa nộp",
+      cls: "badge-missing",
+    },
+  };
+  const item = map[status] ?? map.missing;
+  return (
+    <span className={`submission-badge ${item.cls}`}>
+      {item.icon} {item.label}
+    </span>
+  );
+};
+
+/* ─────────────────────────────────────────────
+   GIAO DIỆN GIÁO VIÊN – Stream
+───────────────────────────────────────────── */
+const TeacherStream = ({
+  classData,
+  announcements,
+  user,
+  id,
+  headers,
+  onAnnouncementPosted,
+}) => {
+  const [newPost, setNewPost] = useState("");
+  const [isExpanding, setIsExpanding] = useState(false);
+
+  const handlePost = async () => {
+    if (!newPost.trim()) return;
+    const res = await fetch(`http://localhost:5187/api/announcement`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        title: "Thông báo lớp",
+        content: newPost,
+        classroomId: id,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      onAnnouncementPosted(data);
+      setNewPost("");
+      setIsExpanding(false);
+    }
+  };
+
+  return (
+    <div className="tab-stream fade-in">
+      {/* Banner */}
+      <div
+        className="stream-banner"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5)),
+            url('https://www.gstatic.com/classroom/themes/img_read.jpg')`,
+        }}
+      >
+        <div className="banner-footer">
+          <div className="code-badge">
+            Mã lớp: <strong>{classData.classCode}</strong>
+            <Copy
+              size={14}
+              onClick={() => navigator.clipboard.writeText(classData.classCode)}
+              style={{ marginLeft: 8, cursor: "pointer" }}
+            />
+          </div>
+          <span className="teacher-badge">Giáo viên</span>
+        </div>
+      </div>
+
+      <div className="stream-feed-container">
+        {/* Composer – chỉ giáo viên */}
+        <div className={`composer-box ${isExpanding ? "active" : ""}`}>
+          {!isExpanding ? (
+            <div className="placeholder" onClick={() => setIsExpanding(true)}>
+              <div className="avatar-mini">{user?.name?.charAt(0)}</div>
+              <span>Thông báo nội dung nào đó cho lớp học...</span>
+            </div>
+          ) : (
+            <div className="active-area">
+              <textarea
+                placeholder="Thông báo nội dung..."
+                autoFocus
+                value={newPost}
+                onChange={(e) => setNewPost(e.target.value)}
+              />
+              <div className="actions">
+                <button
+                  className="btn-text"
+                  onClick={() => setIsExpanding(false)}
+                >
+                  Hủy
+                </button>
+                <button
+                  className="btn-filled"
+                  disabled={!newPost.trim()}
+                  onClick={handlePost}
+                >
+                  Đăng
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <FeedList classData={classData} announcements={announcements} />
+      </div>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────
+   GIAO DIỆN HỌC SINH – Stream
+───────────────────────────────────────────── */
+const StudentStream = ({ classData, announcements }) => (
+  <div className="tab-stream fade-in">
+    {/* Banner học sinh – không có mã lớp */}
+    <div
+      className="stream-banner"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5)),
+          url('https://www.gstatic.com/classroom/themes/img_read.jpg')`,
+      }}
+    >
+      <div className="banner-footer">
+        <span className="student-banner-info">
+          <BookOpen size={16} /> {classData.name}
+        </span>
+      </div>
+    </div>
+
+    <div className="stream-feed-container">
+      <FeedList classData={classData} announcements={announcements} />
+    </div>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   Feed chung (dùng cho cả 2 role)
+───────────────────────────────────────────── */
+const FeedList = ({ classData, announcements }) => (
+  <div className="feed-list">
+    {announcements.map((ann) => (
+      <div key={ann.id} className="feed-item announcement">
+        <div className="item-header">
+          <div className="icon-circle">
+            <Megaphone size={18} />
+          </div>
+          <div className="meta">
+            <span className="author">{classData.teacherName}</span>
+            <span className="time">
+              {new Date(ann.createdAt).toLocaleDateString("vi-VN")}
+            </span>
+          </div>
+          <button className="btn-more">
+            <MoreVertical size={18} />
+          </button>
+        </div>
+        <div className="item-content">
+          <p>{ann.content}</p>
+        </div>
+      </div>
+    ))}
+
+    {classData.assignments?.map((asm) => (
+      <Link
+        key={asm.id}
+        to={`/assignment/${asm.id}`}
+        className="feed-item assignment-link"
+      >
+        <div className="item-header">
+          <div className="icon-circle assignment">
+            <ClipboardList size={18} />
+          </div>
+          <div className="meta">
+            <span className="author">
+              <strong>{classData.teacherName}</strong> đã đăng một bài tập:{" "}
+              {asm.title}
+            </span>
+            <span className="time">
+              {new Date(asm.dueDate).toLocaleDateString("vi-VN")}
+            </span>
+          </div>
+        </div>
+      </Link>
+    ))}
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   GIAO DIỆN GIÁO VIÊN – Classwork
+───────────────────────────────────────────── */
+const TeacherClasswork = ({ classData, onCreateClick }) => (
+  <div className="tab-classwork fade-in">
+    <div className="classwork-top">
+      <button className="btn-create" onClick={onCreateClick}>
+        <Plus size={20} /> Tạo bài tập
+      </button>
+    </div>
+    <div className="asm-list">
+      {classData.assignments?.map((asm) => (
+        <Link
+          to={`/assignment/${asm.id}`}
+          key={asm.id}
+          className="asm-card teacher-card"
+        >
+          <div className="asm-icon">
+            <ClipboardList size={22} />
+          </div>
+          <div className="asm-info">
+            <h4>{asm.title}</h4>
+            <span>
+              Đã đăng {new Date(asm.dueDate).toLocaleDateString("vi-VN")}
+            </span>
+          </div>
+          <div className="asm-meta-right">
+            <div className="asm-due">
+              Hạn: {new Date(asm.dueDate).toLocaleDateString("vi-VN")}
+            </div>
+            {/* Thống kê nộp bài – giáo viên */}
+            <div className="submission-stats">
+              <span className="stat submitted">
+                {asm.submittedCount ?? 0} đã nộp
+              </span>
+              <span className="stat missing">
+                {asm.missingCount ?? 0} chưa nộp
+              </span>
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   GIAO DIỆN HỌC SINH – Classwork
+───────────────────────────────────────────── */
+const StudentClasswork = ({ classData }) => (
+  <div className="tab-classwork fade-in">
+    <div className="classwork-top student-classwork-header">
+      <h2>Bài tập của bạn</h2>
+    </div>
+    <div className="asm-list">
+      {classData.assignments?.length === 0 && (
+        <div className="empty-state">
+          <BookOpen size={40} />
+          <p>Chưa có bài tập nào.</p>
+        </div>
+      )}
+      {classData.assignments?.map((asm) => {
+        // submissionStatus: "submitted" | "late" | "missing"
+        const status = asm.submissionStatus ?? "missing";
+        const isOverdue =
+          new Date(asm.dueDate) < new Date() && status === "missing";
+        return (
+          <Link
+            to={`/assignment/${asm.id}`}
+            key={asm.id}
+            className={`asm-card student-card ${isOverdue ? "overdue" : ""}`}
+          >
+            <div className="asm-icon">
+              <ClipboardList size={22} />
+            </div>
+            <div className="asm-info">
+              <h4>{asm.title}</h4>
+              <span className="asm-posted">
+                Đã đăng {new Date(asm.dueDate).toLocaleDateString("vi-VN")}
+              </span>
+            </div>
+            <div className="asm-meta-right">
+              <div className="asm-due">
+                Hạn: {new Date(asm.dueDate).toLocaleDateString("vi-VN")}
+              </div>
+              <SubmissionBadge status={status} />
+              {asm.grade != null && (
+                <span className="grade-badge">Điểm: {asm.grade}</span>
+              )}
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   GIAO DIỆN GIÁO VIÊN – People
+───────────────────────────────────────────── */
+const TeacherPeople = ({ classData }) => (
+  <div className="tab-people fade-in">
+    <section className="people-section">
+      <h2>Giáo viên</h2>
+      <div className="person-row">
+        <div className="avatar-circle teacher">
+          {classData.teacherName?.charAt(0)}
+        </div>
+        <span>{classData.teacherName}</span>
+        <span className="role-tag teacher-tag">Giáo viên</span>
+      </div>
+    </section>
+    <section className="people-section">
+      <div className="section-header">
+        <h2>Học sinh</h2>
+        <span>{classData.studentCount} sinh viên</span>
+      </div>
+      {classData.students?.length > 0 ? (
+        classData.students.map((s) => (
+          <div key={s.id} className="person-row">
+            <div className="avatar-circle">{s.name?.charAt(0)}</div>
+            <span>{s.name}</span>
+            <div className="person-actions">
+              <button className="btn-icon-sm" title="Gửi email">
+                <Info size={16} />
+              </button>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="person-row placeholder">
+          Danh sách sinh viên đang được cập nhật...
+        </div>
+      )}
+    </section>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   GIAO DIỆN HỌC SINH – People
+───────────────────────────────────────────── */
+const StudentPeople = ({ classData, currentUserId }) => (
+  <div className="tab-people fade-in">
+    <section className="people-section">
+      <h2>Giáo viên</h2>
+      <div className="person-row">
+        <div className="avatar-circle teacher">
+          {classData.teacherName?.charAt(0)}
+        </div>
+        <span>{classData.teacherName}</span>
+      </div>
+    </section>
+    <section className="people-section">
+      <div className="section-header">
+        <h2>Bạn cùng lớp</h2>
+        <span>{classData.studentCount} sinh viên</span>
+      </div>
+      {classData.students?.length > 0 ? (
+        classData.students.map((s) => (
+          <div
+            key={s.id}
+            className={`person-row ${s.id === currentUserId ? "me" : ""}`}
+          >
+            <div className="avatar-circle">{s.name?.charAt(0)}</div>
+            <span>{s.name}</span>
+            {s.id === currentUserId && (
+              <span className="role-tag me-tag">Bạn</span>
+            )}
+          </div>
+        ))
+      ) : (
+        <div className="person-row placeholder">
+          Danh sách sinh viên đang được cập nhật...
+        </div>
+      )}
+    </section>
+  </div>
+);
+
+/* ═══════════════════════════════════════════════════════
+   COMPONENT CHÍNH
+══════════════════════════════════════════════════════════ */
 const ClassDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, token } = useContext(AuthContext);
-  const userRole = user?.role?.toLowerCase();
+
+  // Chuẩn hoá role: "teacher" hoặc "student"
+  const isTeacher = user?.role?.toLowerCase() === "teacher";
 
   const [classData, setClassData] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [newPost, setNewPost] = useState("");
   const [activeTab, setActiveTab] = useState("stream");
   const [isAsmModalOpen, setIsAsmModalOpen] = useState(false);
-  const [asmData, setAsmData] = useState({
-    title: "",
-    description: "",
-    dueDate: "",
-    maxScore: 100,
-  });
 
   const headers = {
     "Content-Type": "application/json",
@@ -67,239 +447,198 @@ const ClassDetail = () => {
     fetchData();
   }, [fetchData]);
 
-  const handlePostAnnouncement = async () => {
-    if (!newPost.trim()) return;
-    const res = await fetch(`http://localhost:5187/api/announcement`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        title: "Thông báo lớp",
-        content: newPost,
-        classroomId: id,
-      }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setAnnouncements([data, ...announcements]);
-      setNewPost("");
-    }
+  /* Callback khi giáo viên đăng thông báo mới */
+  const handleAnnouncementPosted = (newAnn) => {
+    setAnnouncements((prev) => [newAnn, ...prev]);
   };
 
-  const handleCreateAssignment = async (e) => {
-    e.preventDefault();
-    const res = await fetch(`http://localhost:5187/api/assignment`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ ...asmData, classroomId: id }),
-    });
-    if (res.ok) {
-      setIsAsmModalOpen(false);
-      setAsmData({ title: "", description: "", dueDate: "", maxScore: 100 });
-      fetchData();
-    }
-  };
-
+  /* ── Loading / Error ── */
   if (loading)
     return (
-      <div className="edu-loading">
-        <div className="edu-spinner"></div>
+      <div className="gc-loading-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  if (!classData)
+    return (
+      <div className="gc-error-state">
+        <h2>Lớp học không tồn tại</h2>
+        <Link to="/home">Quay lại</Link>
       </div>
     );
 
-  if (!classData)
-    return <div className="edu-error">Không tìm thấy lớp học.</div>;
-
+  /* ── Render ── */
   return (
-    <div className="edu-layout">
-      {/* NÚT QUAY LẠI LƠ LỬNG BÊN TRÁI */}
-      <Link to="/home" className="floating-back-btn" title="Quay lại">
-        <ArrowLeft size={22} />
-        <span>Quay lại</span>
-      </Link>
-
-      <main className="edu-main-container">
-        <section className="edu-hero-card">
-          <div className="hero-inner">
-            <div className="hero-text">
-              <span className="hero-badge">Mã lớp: {classData.classCode}</span>
-              <h1>{classData.name}</h1>
-              <p>
-                {classData.description || "Chào mừng bạn đến với khóa học."}
-              </p>
-            </div>
-            <button
-              className="btn-copy-code"
-              onClick={() => navigator.clipboard.writeText(classData.classCode)}
+    <div
+      className={`gc-dashboard-root ${isTeacher ? "role-teacher" : "role-student"}`}
+    >
+      {/* 1. GLOBAL HEADER */}
+      <header className="gc-top-nav">
+        <div className="nav-left">
+          <button className="btn-circle" onClick={() => navigate("/home")}>
+            <ArrowLeft size={20} />
+          </button>
+          <div className="mini-info">
+            <span className="name">{classData.name}</span>
+            {/* Badge role nhỏ bên header */}
+            <span
+              className={`role-chip ${isTeacher ? "chip-teacher" : "chip-student"}`}
             >
-              <Copy size={18} />
-              <span>{classData.classCode}</span>
-            </button>
+              {isTeacher ? "Giáo viên" : "Học sinh"}
+            </span>
           </div>
-        </section>
+        </div>
+        <div className="nav-right">
+          <button className="btn-circle">
+            <Bell size={20} />
+          </button>
+          <button className="btn-circle">
+            <Info size={20} />
+          </button>
+          <div className="user-avatar">{user?.name?.charAt(0)}</div>
+        </div>
+      </header>
 
-        <div className="edu-content-grid">
-          <aside className="edu-sidebar">
-            <div className="sidebar-card menu-card">
-              <button
-                className={`menu-item ${activeTab === "stream" ? "active" : ""}`}
-                onClick={() => setActiveTab("stream")}
-              >
-                <Layout size={18} />
-                <span>Bảng tin</span>
-              </button>
-              <button
-                className={`menu-item ${activeTab === "docs" ? "active" : ""}`}
-                onClick={() => setActiveTab("docs")}
-              >
-                <BookOpen size={18} />
-                <span>Tài liệu</span>
-              </button>
-              <button
-                className={`menu-item ${activeTab === "members" ? "active" : ""}`}
-                onClick={() => setActiveTab("members")}
-              >
-                <Users size={18} />
-                <span>Thành viên</span>
-              </button>
-            </div>
-
-            <div className="sidebar-card upcoming-card">
-              <h3>Sắp đến hạn</h3>
-              <p className="no-data">Không có bài tập nào sắp đến hạn.</p>
-              <Link to="#" className="view-link">
-                Xem tất cả
-              </Link>
-            </div>
-
-            <div className="sidebar-card stats-card">
-              <div className="stat-line">
-                <Users size={18} className="icon-blue" />
-                <span>{classData.studentCount} Học viên</span>
-              </div>
-              <div className="stat-line">
-                <BookOpen size={18} className="icon-purple" />
-                <span>{classData.assignments?.length || 0} Bài học</span>
-              </div>
-            </div>
-          </aside>
-
-          <section className="edu-stream">
-            {userRole === "teacher" && (
-              <div className="edu-composer">
-                <div className="composer-top">
-                  <div className="avatar-circle">
-                    {classData.teacherName?.charAt(0)}
-                  </div>
-                  <textarea
-                    placeholder="Thông báo nội dung mới cho lớp học..."
-                    value={newPost}
-                    onChange={(e) => setNewPost(e.target.value)}
-                  />
-                </div>
-                {newPost.trim() && (
-                  <div className="composer-bottom">
-                    <button
-                      className="btn-secondary"
-                      onClick={() => setIsAsmModalOpen(true)}
-                    >
-                      <Plus size={18} /> Giao bài tập
-                    </button>
-                    <div className="btn-group">
-                      <button
-                        className="btn-ghost"
-                        onClick={() => setNewPost("")}
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        className="btn-primary"
-                        onClick={handlePostAnnouncement}
-                      >
-                        Đăng tin
-                      </button>
-                    </div>
-                  </div>
-                )}
+      {/* 2. MAIN CONTENT GRID */}
+      <div className="gc-main-layout">
+        {/* SIDEBAR */}
+        <aside className="gc-sidebar">
+          <div className="sidebar-header">
+            <h1>{classData.name}</h1>
+            <p>{classData.description || "Niên khóa 2023-2024"}</p>
+            {/* Giáo viên: hiện mã lớp trên sidebar */}
+            {isTeacher && (
+              <div className="sidebar-class-code">
+                <span>Mã lớp:</span>
+                <strong>{classData.classCode}</strong>
+                <Copy
+                  size={13}
+                  style={{ cursor: "pointer", marginLeft: 4 }}
+                  onClick={() =>
+                    navigator.clipboard.writeText(classData.classCode)
+                  }
+                />
               </div>
             )}
+          </div>
 
-            <div className="edu-feed-list">
-              {announcements.map((ann) => (
-                <article key={ann.id} className="feed-card announcement">
-                  <div className="card-icon">
-                    <Megaphone size={20} />
-                  </div>
-                  <div className="card-content">
-                    <header>
-                      <div className="info">
-                        <span className="author">{classData.teacherName}</span>
-                        <span className="date">
-                          {new Date(ann.createdAt).toLocaleDateString("vi-VN")}
-                        </span>
-                      </div>
-                      <MoreVertical size={16} className="opt-btn" />
-                    </header>
-                    <p>{ann.content}</p>
-                  </div>
-                </article>
-              ))}
+          <nav className="vertical-tabs">
+            <button
+              className={`tab-link ${activeTab === "stream" ? "active" : ""}`}
+              onClick={() => setActiveTab("stream")}
+            >
+              <LayoutGrid size={20} /> <span>Bảng tin</span>
+            </button>
+            <button
+              className={`tab-link ${activeTab === "classwork" ? "active" : ""}`}
+              onClick={() => setActiveTab("classwork")}
+            >
+              <ClipboardList size={20} /> <span>Bài tập</span>
+            </button>
+            <button
+              className={`tab-link ${activeTab === "people" ? "active" : ""}`}
+              onClick={() => setActiveTab("people")}
+            >
+              <Users size={20} /> <span>Mọi người</span>
+            </button>
+          </nav>
 
-              {classData.assignments?.map((asm) => (
-                <Link
-                  key={asm.id}
-                  to={`/assignment/${asm.id}`}
-                  className="feed-card-link" 
-                  style={{ textDecoration: "none" }}
-                >
-                  <article className="feed-card assignment">
-                    <div className="card-icon">
-                      <ClipboardList size={20} />
-                    </div>
-                    <div className="card-content">
-                      <header>
-                        <div className="info">
-                          <span className="author">
-                            {classData.teacherName} đã đăng bài mới
-                          </span>
-                          <span className="date">
-                            {new Date(asm.dueDate).toLocaleDateString("vi-VN")}
-                          </span>
-                        </div>
-          
-                        <div className="opt-btn-wrap">
-                          <MoreVertical size={16} className="opt-btn" />
-                        </div>
-                      </header>
-                      <div className="body">
-                        <h4>{asm.title}</h4>
-                        <div className="meta-footer">
-                          <span className="due">
-                            <Clock size={14} /> Hạn chót:{" "}
-                            {new Date(asm.dueDate).toLocaleDateString("vi-VN")}
-                          </span>
-                          <span className="points">
-                            <Award size={14} /> {asm.maxScore} điểm
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          </section>
-        </div>
-      </main>
+          <div className="sidebar-widgets">
+            {isTeacher ? (
+              /* Giáo viên: widget thống kê nhanh */
+              <div className="upcoming-card teacher-stats">
+                <h3>Thống kê lớp</h3>
+                <p>👨‍🎓 {classData.studentCount ?? 0} học sinh</p>
+                <p>📋 {classData.assignments?.length ?? 0} bài tập</p>
+              </div>
+            ) : (
+              /* Học sinh: widget bài sắp đến hạn */
+              <div className="upcoming-card">
+                <h3>Sắp đến hạn</h3>
+                {classData.assignments?.filter(
+                  (a) =>
+                    a.submissionStatus !== "submitted" &&
+                    new Date(a.dueDate) > new Date(),
+                ).length === 0 ? (
+                  <p>Tuyệt vời! Không có bài tập nào sắp đến hạn.</p>
+                ) : (
+                  classData.assignments
+                    ?.filter(
+                      (a) =>
+                        a.submissionStatus !== "submitted" &&
+                        new Date(a.dueDate) > new Date(),
+                    )
+                    .slice(0, 3)
+                    .map((a) => (
+                      <Link
+                        key={a.id}
+                        to={`/assignment/${a.id}`}
+                        className="upcoming-item"
+                      >
+                        <ClipboardList size={13} />
+                        <span>{a.title}</span>
+                        <small>
+                          {new Date(a.dueDate).toLocaleDateString("vi-VN")}
+                        </small>
+                      </Link>
+                    ))
+                )}
+                <Link to="#">Xem tất cả</Link>
+              </div>
+            )}
+          </div>
+        </aside>
 
-      {/* Modal tạo bài tập */}
-      <div>
+        {/* NỘI DUNG CHÍNH */}
+        <main className="gc-content-area">
+          {/* ── TAB STREAM ── */}
+          {activeTab === "stream" &&
+            (isTeacher ? (
+              <TeacherStream
+                classData={classData}
+                announcements={announcements}
+                user={user}
+                id={id}
+                headers={headers}
+                onAnnouncementPosted={handleAnnouncementPosted}
+              />
+            ) : (
+              <StudentStream
+                classData={classData}
+                announcements={announcements}
+              />
+            ))}
+
+          {/* ── TAB CLASSWORK ── */}
+          {activeTab === "classwork" &&
+            (isTeacher ? (
+              <TeacherClasswork
+                classData={classData}
+                onCreateClick={() => setIsAsmModalOpen(true)}
+              />
+            ) : (
+              <StudentClasswork classData={classData} />
+            ))}
+
+          {/* ── TAB PEOPLE ── */}
+          {activeTab === "people" &&
+            (isTeacher ? (
+              <TeacherPeople classData={classData} />
+            ) : (
+              <StudentPeople classData={classData} currentUserId={user?.id} />
+            ))}
+        </main>
+      </div>
+
+      {/* Modal tạo bài tập – chỉ giáo viên mới mount */}
+      {isTeacher && (
         <CreateAssignmentModal
           isOpen={isAsmModalOpen}
           onClose={() => setIsAsmModalOpen(false)}
           classroomId={id}
           onRefresh={fetchData}
         />
-      </div>
+      )}
     </div>
   );
 };
