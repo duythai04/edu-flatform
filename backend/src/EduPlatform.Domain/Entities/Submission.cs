@@ -5,6 +5,8 @@ namespace EduPlatform.Domain.Entities
 
     public class Submission : BaseEntity
     {
+        public string? FileName { get; set; }
+        public string? FileUrl { get; set; }
         public Guid AssignmentId { get; set; }
         public virtual Assignment Assignment { get; set; }
 

@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { X, FileText, Paperclip, Send, Loader2, Clock } from "lucide-react";
-import "./CreateAssignmentModal.scss";
+import {
+  X,
+  FileText,
+  Paperclip,
+  Save,
+  Loader2,
+  Clock,
+  Trash2,
+} from "lucide-react";
+import "./EditAssignmentModal.scss";
 
 const API_BASE_URL = "http://localhost:5187";
 
-const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
+// assignment prop: object chứa dữ liệu bài tập cần sửa
+// { id, title, description, dueDate, maxScore, files: [] }
+const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
   const [asmData, setAsmData] = useState({
     title: "",
     description: "",
@@ -13,44 +23,57 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
     maxScore: 100,
   });
 
-  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [existingFiles, setExistingFiles] = useState([]); // file đã có trong DB
+  const [newFiles, setNewFiles] = useState([]); // file mới thêm vào
+  const [deletedFileIds, setDeletedFileIds] = useState([]); // id file cần xoá
   const [loading, setLoading] = useState(false);
 
+  // Khi mở modal, điền dữ liệu hiện tại vào form
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && assignment) {
+      const due = assignment.dueDate ? new Date(assignment.dueDate) : null;
+
       setAsmData({
-        title: "",
-        description: "",
-        dueDate: "",
-        dueTime: "23:59",
-        maxScore: 100,
+        title: assignment.title ?? "",
+        description: assignment.description ?? "",
+        dueDate: due ? due.toISOString().slice(0, 10) : "",
+        dueTime: due ? due.toTimeString().slice(0, 5) : "23:59",
+        maxScore: assignment.maxScore ?? 100,
       });
-      setSelectedFiles([]);
+
+      setExistingFiles(assignment.files ?? []);
+      setNewFiles([]);
+      setDeletedFileIds([]);
     }
-  }, [isOpen]);
+  }, [isOpen, assignment]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setAsmData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleNewFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setSelectedFiles((prev) => [...prev, ...files]);
+    setNewFiles((prev) => [...prev, ...files]);
   };
 
-  const removeFile = (index) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  const removeNewFile = (index) => {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Ghép dueDate + dueTime thành ISO string
+  // Đánh dấu xoá file cũ (chưa xoá thật, chờ submit)
+  const markDeleteExisting = (fileId) => {
+    setDeletedFileIds((prev) => [...prev, fileId]);
+    setExistingFiles((prev) => prev.filter((f) => f.id !== fileId));
+  };
+
   const buildDueDate = () => {
     if (!asmData.dueDate) return null;
     const time = asmData.dueTime || "23:59";
     return new Date(`${asmData.dueDate}T${time}:00`).toISOString();
   };
 
-  const handleCreateAssignment = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!asmData.title.trim()) return;
 
@@ -58,42 +81,52 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
     const token = localStorage.getItem("token");
 
     try {
+      // 1. Cập nhật thông tin bài tập
       const payload = {
         title: asmData.title.trim(),
         description: asmData.description || "",
         dueDate: buildDueDate(),
         maxScore: parseInt(asmData.maxScore) || 100,
-        classroomId: classroomId,
       };
 
-      const res = await fetch(`${API_BASE_URL}/api/assignment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        `${API_BASE_URL}/api/assignment/${assignment.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
 
       if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Lỗi từ server:", errorData);
-        throw new Error("Lỗi khi tạo bài tập. Vui lòng kiểm tra Console.");
+        const err = await res.json();
+        console.error("Lỗi cập nhật:", err);
+        throw new Error("Cập nhật bài tập thất bại.");
       }
 
-      const assignment = await res.json();
-
-      // Upload file đính kèm
-      if (selectedFiles.length > 0) {
-        for (const file of selectedFiles) {
-          const formData = new FormData();
-          formData.append("file", file);
-          await fetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
-            method: "POST",
+      // 2. Xoá các file đã đánh dấu
+      for (const fileId of deletedFileIds) {
+        await fetch(
+          `${API_BASE_URL}/api/assignment/${assignment.id}/files/${fileId}`,
+          {
+            method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
-            body: formData,
-          });
-        }
+          },
+        );
+      }
+
+      // 3. Upload file mới
+      for (const file of newFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+        await fetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
       }
 
       onRefresh();
@@ -105,17 +138,22 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !assignment) return null;
 
   return (
     <div className="cam-overlay">
-      <form className="cam-container" onSubmit={handleCreateAssignment}>
+      <form className="cam-container" onSubmit={handleSubmit}>
         <header className="cam-header">
           <div className="cam-header__left">
             <FileText size={20} />
-            <h2>Tạo bài tập mới</h2>
+            <h2>Chỉnh sửa bài tập</h2>
           </div>
-          <button type="button" onClick={onClose} className="cam-header__close">
+          <button
+            type="button"
+            onClick={onClose}
+            className="cam-header__close"
+            disabled={loading}
+          >
             <X size={20} />
           </button>
         </header>
@@ -148,28 +186,52 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
               />
             </div>
 
-            {/* Đính kèm file */}
+            {/* File đã có */}
+            {existingFiles.length > 0 && (
+              <div className="cam-attach">
+                <p className="cam-attach__label">Tệp đính kèm hiện tại</p>
+                <div className="cam-file-list">
+                  {existingFiles.map((f) => (
+                    <div key={f.id} className="cam-file-item">
+                      <Paperclip size={14} />
+                      <span>{f.fileName}</span>
+                      <button
+                        type="button"
+                        className="cam-file-remove"
+                        onClick={() => markDeleteExisting(f.id)}
+                        disabled={loading}
+                        title="Xoá file này"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Thêm file mới */}
             <div className="cam-attach">
               <label className="cam-attach__btn">
-                <Paperclip size={16} /> Tải lên tài liệu
+                <Paperclip size={16} /> Thêm tệp mới
                 <input
                   type="file"
                   multiple
                   hidden
-                  onChange={handleFileChange}
+                  onChange={handleNewFileChange}
                   disabled={loading}
                 />
               </label>
-              {selectedFiles.length > 0 && (
+              {newFiles.length > 0 && (
                 <div className="cam-file-list">
-                  {selectedFiles.map((f, i) => (
-                    <div key={i} className="cam-file-item">
+                  {newFiles.map((f, i) => (
+                    <div key={i} className="cam-file-item cam-file-item--new">
                       <Paperclip size={14} />
                       <span>{f.name}</span>
                       <button
                         type="button"
                         className="cam-file-remove"
-                        onClick={() => removeFile(i)}
+                        onClick={() => removeNewFile(i)}
                         disabled={loading}
                       >
                         <X size={12} />
@@ -196,7 +258,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
               />
             </div>
 
-            {/* Hạn chót — ngày */}
+            {/* Ngày hạn chót */}
             <div className="cam-field">
               <label>Ngày hạn chót</label>
               <input
@@ -208,7 +270,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
               />
             </div>
 
-            {/* Hạn chót — giờ (chỉ hiện khi đã chọn ngày) */}
+            {/* Giờ hạn chót — chỉ hiện khi đã chọn ngày */}
             {asmData.dueDate && (
               <div className="cam-field cam-field--time">
                 <label>
@@ -250,9 +312,9 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
             {loading ? (
               <Loader2 size={18} className="cam-spin" />
             ) : (
-              <Send size={18} />
+              <Save size={18} />
             )}{" "}
-            Giao bài
+            Lưu thay đổi
           </button>
         </footer>
       </form>
@@ -260,4 +322,4 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
   );
 };
 
-export default CreateAssignmentModal;
+export default EditAssignmentModal;

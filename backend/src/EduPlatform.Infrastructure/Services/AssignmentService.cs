@@ -16,19 +16,50 @@ public class AssignmentService : IAssignmentService
         _context = context;
     }
 
-    public async Task<AssignmentDetailDto> GetDetailAsync(Guid assignmentId, Guid userId, string role)
+    // ─────────────────────────────────────────────────────────────
+    // GET ALL
+    // ─────────────────────────────────────────────────────────────
+    public async Task<IEnumerable<AssignmentResponseDto>> GetAllAsync()
     {
-        // 1. Lấy Assignment kèm Files và thông tin Classroom/Teacher
-        // Sử dụng Include để lấy dữ liệu từ các bảng liên quan trong 1 lần truy vấn
+        return await _context.Assignments
+            .Include(a => a.AssignmentFiles)
+            .Select(a => new AssignmentResponseDto(
+                a.Id, a.Title, a.Description, a.DueDate, a.MaxScore, a.ClassroomId, a.CreatedAt,
+                a.AssignmentFiles.Select(f => new FileDto(f.Id, f.FileName, f.FileUrl, f.FileSize)).ToList()
+            )).ToListAsync();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // GET BY ID
+    // ─────────────────────────────────────────────────────────────
+    public async Task<AssignmentResponseDto> GetByIdAsync(Guid id)
+    {
+        var a = await _context.Assignments
+            .Include(x => x.AssignmentFiles)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (a == null) return null!;
+
+        return new AssignmentResponseDto(
+            a.Id, a.Title, a.Description, a.DueDate, a.MaxScore, a.ClassroomId, a.CreatedAt,
+            a.AssignmentFiles.Select(f => new FileDto(f.Id, f.FileName, f.FileUrl, f.FileSize)).ToList()
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // GET DETAIL (Student + Teacher view)
+    // ─────────────────────────────────────────────────────────────
+    public async Task<AssignmentDetailDto> GetDetailAsync(Guid assignmentId, Guid userId, string? role)
+    {
         var assignment = await _context.Assignments
             .Include(a => a.AssignmentFiles)
             .Include(a => a.Classroom)
                 .ThenInclude(c => c.Teacher)
             .FirstOrDefaultAsync(a => a.Id == assignmentId);
 
-        if (assignment == null) throw new Exception("Assignment not found");
+        if (assignment == null)
+            throw new Exception("Assignment not found");
 
-        // 2. Map dữ liệu cơ bản vào DTO
         var dto = new AssignmentDetailDto
         {
             Id = assignment.Id,
@@ -36,7 +67,7 @@ public class AssignmentService : IAssignmentService
             Description = assignment.Description,
             DueDate = assignment.DueDate,
             MaxScore = assignment.MaxScore,
-            // Thêm kiểm tra null an toàn cho Classroom và Teacher
+            CreatedAt = assignment.CreatedAt,
             ClassroomName = assignment.Classroom?.Name ?? "Không xác định",
             TeacherName = assignment.Classroom?.Teacher?.FullName ?? "Giáo viên",
             Files = assignment.AssignmentFiles?.Select(f => new AssignmentFileDto
@@ -48,10 +79,8 @@ public class AssignmentService : IAssignmentService
             }).ToList() ?? new List<AssignmentFileDto>()
         };
 
-        // 3. Logic xử lý theo Vai trò (Role)
-        if (role == "Student")
+        if (role?.ToLower() == "student")
         {
-            // Kiểm tra học sinh hiện tại đã nộp bài này chưa
             var submission = await _context.Set<Submission>()
                 .FirstOrDefaultAsync(s => s.AssignmentId == assignmentId && s.StudentId == userId);
 
@@ -59,45 +88,31 @@ public class AssignmentService : IAssignmentService
 
             if (submission != null)
             {
-                // Map thông tin bài nộp vào Object MySubmission trong DTO
                 dto.MySubmission = new SubmissionSummaryDto
                 {
                     Id = submission.Id,
                     SubmittedAt = submission.SubmittedAt,
-                    Score = submission.Score
+                    Score = submission.Score,
+                    FileName = submission.FileName,
+                    FileUrl = submission.FileUrl
                 };
             }
         }
-        else if (role == "Teacher")
+        else if (role?.ToLower() == "teacher")
         {
-            // Nếu là giáo viên, đếm tổng số lượt nộp bài
             dto.SubmissionCount = await _context.Set<Submission>()
                 .CountAsync(s => s.AssignmentId == assignmentId);
+
+            dto.TotalStudents = await _context.ClassroomMembers
+                .CountAsync(m => m.ClassroomId == assignment.ClassroomId);
         }
 
         return dto;
     }
 
-    public async Task<IEnumerable<AssignmentResponseDto>> GetAllAsync()
-    {
-        return await _context.Assignments
-            .Include(a => a.AssignmentFiles)
-            .Select(a => new AssignmentResponseDto(
-                a.Id, a.Title, a.Description, a.DueDate, a.MaxScore, a.ClassroomId, a.CreatedAt,
-                a.AssignmentFiles.Select(f => new FileDto(f.Id, f.FileName, f.FileUrl, f.FileSize)).ToList()
-            )).ToListAsync();
-    }
-
-    public async Task<AssignmentResponseDto> GetByIdAsync(Guid id)
-    {
-        var a = await _context.Assignments.Include(x => x.AssignmentFiles).FirstOrDefaultAsync(x => x.Id == id);
-        if (a == null) return null!;
-        return new AssignmentResponseDto(
-            a.Id, a.Title, a.Description, a.DueDate, a.MaxScore, a.ClassroomId, a.CreatedAt,
-            a.AssignmentFiles.Select(f => new FileDto(f.Id, f.FileName, f.FileUrl, f.FileSize)).ToList()
-        );
-    }
-
+    // ─────────────────────────────────────────────────────────────
+    // CREATE
+    // ─────────────────────────────────────────────────────────────
     public async Task<AssignmentResponseDto> CreateAsync(CreateAssignmentDto dto)
     {
         var assignment = new Assignment
@@ -117,35 +132,42 @@ public class AssignmentService : IAssignmentService
         return await GetByIdAsync(assignment.Id);
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // UPDATE
+    // ─────────────────────────────────────────────────────────────
     public async Task UpdateAsync(Guid id, UpdateAssignmentDto dto)
     {
         var a = await _context.Assignments.FindAsync(id);
-        if (a != null)
-        {
-            a.Title = dto.Title;
-            a.Description = dto.Description;
-            a.DueDate = dto.DueDate;
-            a.MaxScore = dto.MaxScore;
-            await _context.SaveChangesAsync();
-        }
+        if (a == null) return;
+
+        a.Title = dto.Title;
+        a.Description = dto.Description;
+        a.DueDate = dto.DueDate;
+        a.MaxScore = dto.MaxScore;
+
+        await _context.SaveChangesAsync();
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // DELETE assignment
+    // ─────────────────────────────────────────────────────────────
     public async Task DeleteAsync(Guid id)
     {
         var a = await _context.Assignments.FindAsync(id);
-        if (a != null)
-        {
-            _context.Assignments.Remove(a);
-            await _context.SaveChangesAsync();
-        }
+        if (a == null) return;
+
+        _context.Assignments.Remove(a);
+        await _context.SaveChangesAsync();
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // UPLOAD FILE (cũ — giữ lại để không break)
+    // ─────────────────────────────────────────────────────────────
     public async Task<FileDto> UploadFileAsync(Guid assignmentId, IFormFile file)
     {
-        var fileId = Guid.NewGuid();
         var assignmentFile = new AssignmentFile
         {
-            Id = fileId,
+            Id = Guid.NewGuid(),
             FileName = file.FileName,
             FileUrl = $"/uploads/{file.FileName}",
             FileSize = file.Length,
@@ -158,13 +180,63 @@ public class AssignmentService : IAssignmentService
         return new FileDto(assignmentFile.Id, assignmentFile.FileName, assignmentFile.FileUrl, assignmentFile.FileSize);
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // SAVE FILE (mới — dùng safeFileName từ Controller)
+    // ─────────────────────────────────────────────────────────────
+    public async Task SaveAssignmentFileAsync(Guid assignmentId, string fileUrl, string fileName, long fileSize)
+    {
+        var assignmentFile = new AssignmentFile
+        {
+            Id = Guid.NewGuid(),
+            FileName = fileName,
+            FileUrl = fileUrl,
+            FileSize = fileSize,
+            AssignmentId = assignmentId
+        };
+
+        _context.AssignmentFiles.Add(assignmentFile);
+        await _context.SaveChangesAsync();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // GET FILE (dùng để xoá file vật lý ở Controller)
+    // ─────────────────────────────────────────────────────────────
+    public async Task<AssignmentFileDto?> GetAssignmentFileAsync(Guid fileId)
+    {
+        var f = await _context.AssignmentFiles.FindAsync(fileId);
+        if (f == null) return null;
+
+        return new AssignmentFileDto
+        {
+            Id = f.Id,
+            FileName = f.FileName,
+            FileUrl = f.FileUrl,
+            FileSize = f.FileSize
+        };
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // DELETE FILE (record DB — file vật lý xoá ở Controller)
+    // ─────────────────────────────────────────────────────────────
     public async Task DeleteFileAsync(Guid fileId)
     {
-        var file = await _context.AssignmentFiles.FindAsync(fileId);
-        if (file != null)
-        {
-            _context.AssignmentFiles.Remove(file);
-            await _context.SaveChangesAsync();
-        }
+        var f = await _context.AssignmentFiles.FindAsync(fileId);
+        if (f == null) return;
+
+        _context.AssignmentFiles.Remove(f);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAssignmentFileAsync(Guid fileId)
+        => await DeleteFileAsync(fileId);
+
+    // ─────────────────────────────────────────────────────────────
+    // ADD COMMENT
+    // ─────────────────────────────────────────────────────────────
+    public async Task AddCommentAsync(Guid assignmentId, Guid userId, string content)
+    {
+        // Nếu bạn có entity Comment, thêm vào đây.
+        // Hiện tại để trống để build pass — bổ sung sau khi có entity.
+        await Task.CompletedTask;
     }
 }

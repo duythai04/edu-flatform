@@ -1,28 +1,28 @@
 using EduPlatform.Application.DTOs.Assignment;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace EduPlatform.Application.Interfaces
+namespace EduPlatform.Application.Interfaces;
+
+public interface IAssignmentService
 {
-    public interface IAssignmentService
-    {
+    Task<IEnumerable<AssignmentResponseDto>> GetAllAsync();
+    Task<AssignmentResponseDto> GetByIdAsync(Guid id);
+    Task<AssignmentResponseDto> CreateAsync(CreateAssignmentDto dto);
+    Task UpdateAsync(Guid id, UpdateAssignmentDto dto);
+    Task DeleteAsync(Guid id);
 
-        Task<IEnumerable<AssignmentResponseDto>> GetAllAsync();
+    // File cũ — giữ lại để không break code khác
+    Task<FileDto> UploadFileAsync(Guid assignmentId, IFormFile file);
+    Task DeleteFileAsync(Guid fileId);
 
-        Task<AssignmentResponseDto> GetByIdAsync(Guid id);
+    // Detail
+    Task<AssignmentDetailDto> GetDetailAsync(Guid assignmentId, Guid userId, string? role);
 
-        Task<AssignmentResponseDto> CreateAsync(CreateAssignmentDto dto);
+    // File mới (được dùng từ Controller đã fix)
+    Task SaveAssignmentFileAsync(Guid assignmentId, string fileUrl, string fileName, long fileSize);
+    Task<AssignmentFileDto?> GetAssignmentFileAsync(Guid fileId);
+    Task DeleteAssignmentFileAsync(Guid fileId);
 
-        Task UpdateAsync(Guid id, UpdateAssignmentDto dto);
-
-        Task DeleteAsync(Guid id);
-
-        Task<FileDto> UploadFileAsync(Guid assignmentId, IFormFile file);
-
-        Task DeleteFileAsync(Guid fileId);
-
-        Task<AssignmentDetailDto> GetDetailAsync(Guid assignmentId, Guid userId, string role);
-    }
+    // Comment
+    Task AddCommentAsync(Guid assignmentId, Guid userId, string content);
 }

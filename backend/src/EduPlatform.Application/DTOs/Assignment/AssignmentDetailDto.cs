@@ -24,6 +24,8 @@ public class AssignmentDetailDto
 
     public int SubmissionCount { get; set; }
     public int TotalStudents { get; set; }
+
+    public DateTime CreatedAt { get; set; }
 }
 
 public class SubmissionSummaryDto
