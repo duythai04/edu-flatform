@@ -46,7 +46,7 @@ const StatusBadge = ({ isSubmitted, isLate }) => {
   return <span className="status-badge assigned">Đã giao</span>;
 };
 
-// ─── Student Sidebar ──────────────────────────────────────────────────────────
+// Student Sidebar 
 const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
   const [uploading, setUploading] = useState(false);
   const [unsubmitting, setUnsubmitting] = useState(false);
@@ -155,7 +155,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
         )}
 
         {data.isSubmitted ? (
-          // ── Đã nộp bài ──────────────────────────────────────────────────
+          //  Đã nộp bài
           <div className="submitted-view">
             {/* Link tải file đã nộp */}
             {data.mySubmission?.fileUrl && (
@@ -217,7 +217,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
             </button>
           </div>
         ) : (
-          // ── Chưa nộp bài ────────────────────────────────────────────────
+          //  Chưa nộp bài
           <div className="empty-view">
             <input
               ref={fileRef}
@@ -272,7 +272,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
   );
 };
 
-// ─── Teacher Sidebar ──────────────────────────────────────────────────────────
+//  Teacher Sidebar 
 const TeacherSidebar = ({ data, assignmentId, navigate }) => {
   const totalStudents = data.totalStudents || 0;
   const submittedCount = data.submissionCount || 0;
@@ -310,7 +310,7 @@ const TeacherSidebar = ({ data, assignmentId, navigate }) => {
   );
 };
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// main
 const AssignmentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();

@@ -16,6 +16,7 @@ import JoinClass from "./pages/JoinClass/JoinClass";
 
 import ClassroomDetail from "./pages/ClassroomDetail/ClassDetail";
 import AssignmentDetail from "./pages/AssignmentDetail/AssignmentDetail";
+import SubmissionList from "./pages/SubmissionList/SubmissionList";
 
 import "./App.css";
 
@@ -74,6 +75,10 @@ function App() {
                 <Route path="/join-class" element={<JoinClass />} />
                 <Route path="/class/:id" element={<ClassroomDetail />} />
                 <Route path="/assignment/:id" element={<AssignmentDetail />} />
+                <Route
+                  path="/assignment/:id/submissions"
+                  element={<SubmissionList />}
+                />
 
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>

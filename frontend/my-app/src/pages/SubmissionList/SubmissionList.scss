@@ -1,0 +1,580 @@
+// Variables
+$primary-blue: #1a73e8;
+$primary-hover: #1765cc;
+$primary-light: #e8f0fe;
+$text-main: #3c4043;
+$text-secondary: #5f6368;
+$border-light: #dadce0;
+$white: #ffffff;
+$bg-light: #f8f9fa;
+$error-red: #d93025;
+$success-green: #188038;
+$warning-orange: #b06000;
+$shadow-google:
+  0 1px 2px 0 rgba(60, 64, 67, 0.3),
+  0 1px 3px 1px rgba(60, 64, 67, 0.15);
+
+.sl-page {
+  min-height: 100vh;
+  background-color: $white;
+  color: $text-main;
+  font-family: "Roboto", "Google Sans", sans-serif;
+
+  // 1. Navigation
+  .sl-nav {
+    height: 64px;
+    border-bottom: 1px solid $border-light;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    background: $white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 16px;
+
+    .btn-back {
+      background: none;
+      border: none;
+      border-radius: 50%;
+      padding: 10px;
+      cursor: pointer;
+      color: $text-secondary;
+      display: flex;
+      &:hover {
+        background: $bg-light;
+        color: $text-main;
+      }
+    }
+
+    .sl-nav-titles {
+      display: flex;
+      flex-direction: column;
+      .sl-class-name {
+        font-size: 13px;
+        color: $primary-blue;
+        font-weight: 500;
+      }
+      .sl-assign-title {
+        font-size: 16px;
+        font-weight: 500;
+        color: $text-main;
+      }
+    }
+  }
+
+  // 2. Container & Stats
+  .sl-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .sl-stats-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .stat-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid $border-light;
+      background: $white;
+
+      &.total {
+        color: $text-main;
+      }
+      &.graded {
+        color: $success-green;
+        background: #e6f4ea;
+        border-color: transparent;
+      }
+      &.ungraded {
+        color: $warning-orange;
+        background: #fef7e0;
+        border-color: transparent;
+      }
+      &.maxscore {
+        color: $primary-blue;
+        background: $primary-light;
+        border-color: transparent;
+      }
+    }
+  }
+
+  // 3. Toolbar (Search & Filter)
+  .sl-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 16px;
+
+    @media (max-width: 600px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $text-secondary;
+      }
+      .search-input {
+        width: 100%;
+        padding: 10px 12px 10px 40px;
+        border: 1px solid $border-light;
+        border-radius: 8px;
+        background: $bg-light;
+        font-size: 14px;
+        &:focus {
+          outline: none;
+          border-color: $primary-blue;
+          background: $white;
+          box-shadow: 0 0 0 2px rgba($primary-blue, 0.1);
+        }
+      }
+    }
+
+    .filter-tabs {
+      display: flex;
+      background: $bg-light;
+      padding: 4px;
+      border-radius: 8px;
+      .filter-tab {
+        padding: 8px 16px;
+        border: none;
+        background: none;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-secondary;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.2s;
+        &.active {
+          background: $white;
+          color: $primary-blue;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        &:hover:not(.active) {
+          color: $text-main;
+        }
+      }
+    }
+  }
+
+  // 4. Table Design
+  .sl-table-wrap {
+    background: $white;
+    border: 1px solid $border-light;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  .sl-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+
+    thead {
+      background: $bg-light;
+      th {
+        padding: 16px;
+        font-weight: 500;
+        color: $text-secondary;
+        border-bottom: 1px solid $border-light;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid $border-light;
+        transition: background 0.2s;
+        &:hover {
+          background: #f8faff;
+        }
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 12px 16px;
+        vertical-align: middle;
+      }
+    }
+
+    // Custom Cells
+    .student-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      .avatar-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: $primary-blue;
+        color: $white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+    }
+
+    .file-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: $primary-blue;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      background: $primary-light;
+      font-size: 13px;
+      max-width: 180px;
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      &:hover {
+        text-decoration: underline;
+        background: #d0e3ff;
+      }
+    }
+
+    .time-cell {
+      display: flex;
+      flex-direction: column;
+      .late-badge {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        color: $error-red;
+        font-size: 11px;
+        font-weight: 600;
+      }
+    }
+
+    .badge-graded {
+      color: $success-green;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-pending {
+      color: $text-secondary;
+      font-style: italic;
+    }
+
+    .score-display {
+      strong {
+        font-size: 16px;
+        color: $text-main;
+      }
+      .score-max {
+        color: $text-secondary;
+        font-size: 12px;
+      }
+    }
+
+    .btn-grade {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 4px;
+      border: 1px solid $primary-blue;
+      background: $white;
+      color: $primary-blue;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      &:hover {
+        background: $primary-blue;
+        color: $white;
+      }
+      &.btn-regrade {
+        border-color: $border-light;
+        color: $text-secondary;
+        &:hover {
+          background: $bg-light;
+          color: $text-main;
+          border-color: $text-secondary;
+        }
+      }
+    }
+  }
+
+  .sl-empty {
+    text-align: center;
+    padding: 60px;
+    color: $text-secondary;
+    svg {
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+  }
+}
+
+// 5. Grade Modal
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+
+.grade-modal {
+  background: $white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: modalIn 0.3s ease-out;
+
+  .modal-header {
+    padding: 20px;
+    border-bottom: 1px solid $border-light;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    .modal-header-info {
+      display: flex;
+      gap: 16px;
+      .student-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: $primary-blue;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 500;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 0 0 4px;
+        color: $text-main;
+      }
+      .submitted-time {
+        font-size: 13px;
+        color: $text-secondary;
+        margin: 0;
+      }
+      .late-tag {
+        color: $error-red;
+        font-weight: 600;
+      }
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: $text-secondary;
+      cursor: pointer;
+      padding: 4px;
+      &:hover {
+        color: $text-main;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 20px;
+
+    // File Preview Box
+    .file-preview-row {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid $border-light;
+      border-radius: 8px;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 24px;
+      &:hover {
+        background: $bg-light;
+        .file-open-hint {
+          color: $primary-blue;
+        }
+      }
+
+      .file-icon-wrap {
+        color: $primary-blue;
+        margin-right: 12px;
+      }
+      .file-meta {
+        flex: 1;
+        .file-name-text {
+          display: block;
+          font-size: 14px;
+          font-weight: 500;
+          margin-bottom: 2px;
+        }
+        .file-open-hint {
+          font-size: 12px;
+          color: $text-secondary;
+          transition: color 0.2s;
+        }
+      }
+      .ext-icon {
+        color: $text-secondary;
+      }
+    }
+
+    .content-preview {
+      background: $bg-light;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      .content-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: $text-secondary;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+      }
+      .content-text {
+        font-size: 14px;
+        color: $text-main;
+        line-height: 1.5;
+        white-space: pre-wrap;
+      }
+    }
+
+    // Grade Input
+    .grade-section {
+      .grade-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        margin-bottom: 12px;
+      }
+      .grade-input-row {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        .grade-input {
+          width: 120px;
+          padding: 12px;
+          font-size: 24px;
+          font-weight: 600;
+          text-align: center;
+          border: 2px solid $border-light;
+          border-radius: 8px;
+          &:focus {
+            outline: none;
+            border-color: $primary-blue;
+          }
+        }
+        .grade-max {
+          font-size: 18px;
+          color: $text-secondary;
+        }
+      }
+      .grade-error {
+        color: $error-red;
+        font-size: 13px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
+
+  .modal-footer {
+    padding: 16px 20px;
+    background: $bg-light;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+
+    button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-cancel {
+      background: none;
+      border: 1px solid $border-light;
+      color: $text-secondary;
+      &:hover {
+        background: #e8eaed;
+        color: $text-main;
+      }
+    }
+    .btn-save-grade {
+      background: $primary-blue;
+      border: none;
+      color: white;
+      &:hover:not(:disabled) {
+        background: $primary-hover;
+      }
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@keyframes modalIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.sl-loading {
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $primary-blue;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

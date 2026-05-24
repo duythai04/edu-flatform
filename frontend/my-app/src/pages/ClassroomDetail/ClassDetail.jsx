@@ -21,13 +21,12 @@ import {
 import "./ClassDetail.scss";
 import { AuthContext } from "../../contexts/AuthContext";
 
-// Import các Modal
 import CreateAssignmentModal from "../CreateAssignmentModal/CreateAssignmentModal";
 import EditAssignmentModal from "../EditAssignmentModal/EditAssignmentModal";
 
-/* ─────────────────────────────────────────────
-   Helper: badge trạng thái nộp bài (học sinh)
-───────────────────────────────────────────── */
+
+
+// badge trạng thái nộp bài ( student )
 const SubmissionBadge = ({ status }) => {
   const map = {
     submitted: {
@@ -54,9 +53,9 @@ const SubmissionBadge = ({ status }) => {
   );
 };
 
-/* ─────────────────────────────────────────────
-   GIAO DIỆN GIÁO VIÊN – Stream
-───────────────────────────────────────────── */
+
+
+// giao diện teacher - stream 
 const TeacherStream = ({
   classData,
   announcements,
@@ -147,9 +146,9 @@ const TeacherStream = ({
   );
 };
 
-/* ─────────────────────────────────────────────
-   GIAO DIỆN HỌC SINH – Stream
-───────────────────────────────────────────── */
+
+
+// giao diện student - stream 
 const StudentStream = ({ classData, announcements }) => (
   <div className="tab-stream fade-in">
     <div
@@ -170,9 +169,9 @@ const StudentStream = ({ classData, announcements }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────────
-   Feed chung
-───────────────────────────────────────────── */
+
+
+// feed chung
 const FeedList = ({ classData, announcements }) => (
   <div className="feed-list">
     {announcements.map((ann) => (
@@ -222,9 +221,9 @@ const FeedList = ({ classData, announcements }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────────
-   GIAO DIỆN GIÁO VIÊN – Classwork (Cập nhật Sửa/Xóa)
-───────────────────────────────────────────── */
+
+
+// giao diện teacher
 const TeacherClasswork = ({
   classData,
   onCreateClick,
@@ -292,9 +291,9 @@ const TeacherClasswork = ({
   </div>
 );
 
-/* ─────────────────────────────────────────────
-   GIAO DIỆN HỌC SINH – Classwork
-───────────────────────────────────────────── */
+
+
+// giao diện student
 const StudentClasswork = ({ classData }) => (
   <div className="tab-classwork fade-in">
     <div className="classwork-top student-classwork-header">
@@ -342,9 +341,9 @@ const StudentClasswork = ({ classData }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────────
-   GIAO DIỆN PEOPLE (Rút gọn để tiết kiệm không gian)
-───────────────────────────────────────────── */
+
+
+// giao diện people
 const TeacherPeople = ({ classData }) => (
   <div className="tab-people fade-in">
     <section className="people-section">
@@ -403,9 +402,9 @@ const StudentPeople = ({ classData, currentUserId }) => (
   </div>
 );
 
-/* ═══════════════════════════════════════════════════════
-   COMPONENT CHÍNH
-══════════════════════════════════════════════════════════ */
+
+
+// component chính
 const ClassDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
