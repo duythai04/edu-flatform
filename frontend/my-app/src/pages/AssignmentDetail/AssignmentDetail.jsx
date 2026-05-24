@@ -20,7 +20,6 @@ import {
 import "./AssignmentDetail.scss";
 import { AuthContext } from "../../contexts/AuthContext";
 
-// Cấu hình URL cơ sở để dễ quản lý và sửa lỗi Port
 const API_BASE_URL = "http://localhost:5187";
 
 const formatFileSize = (bytes) => {
@@ -47,10 +46,12 @@ const StatusBadge = ({ isSubmitted, isLate }) => {
   return <span className="status-badge assigned">Đã giao</span>;
 };
 
+// ─── Student Sidebar ──────────────────────────────────────────────────────────
 const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
   const [uploading, setUploading] = useState(false);
   const [unsubmitting, setUnsubmitting] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const fileRef = useRef(null);
 
   const isLate =
@@ -59,43 +60,79 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
     new Date(data.mySubmission.submittedAt) > new Date(data.dueDate);
 
   const handleFileChange = (e) => {
-    if (e.target.files[0]) setSelectedFile(e.target.files[0]);
+    if (e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+      setErrorMsg(null);
+    }
   };
 
+  // POST /api/submission  — multipart/form-data: { file, assignmentId }
   const handleSubmit = async () => {
     if (!selectedFile) return;
+
+    // Kiểm tra kích thước phía client (20 MB)
+    const MAX_SIZE = 20 * 1024 * 1024;
+    if (selectedFile.size > MAX_SIZE) {
+      setErrorMsg("File vượt quá giới hạn 20 MB.");
+      return;
+    }
+
     setUploading(true);
+    setErrorMsg(null);
     try {
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("assignmentId", assignmentId);
+
       const res = await fetch(`${API_BASE_URL}/api/submission`, {
         method: "POST",
         headers: { Authorization: "Bearer " + token },
         body: formData,
       });
+
       if (res.ok) {
         setSelectedFile(null);
         onRefresh();
+      } else {
+        // Đọc lỗi từ body text (API trả về BadRequest với message)
+        const msg = await res.text();
+        setErrorMsg(msg || "Nộp bài thất bại. Vui lòng thử lại.");
       }
     } catch (err) {
       console.error("Lỗi nộp bài:", err);
+      setErrorMsg("Lỗi kết nối. Vui lòng kiểm tra mạng.");
     } finally {
       setUploading(false);
     }
   };
 
+  // DELETE /api/submission/{id}  — hủy nộp bài
   const handleUnsubmit = async () => {
     if (!window.confirm("Bạn có chắc muốn hủy nộp bài?")) return;
+
     setUnsubmitting(true);
+    setErrorMsg(null);
     try {
       const res = await fetch(
-        `${API_BASE_URL}/api/submission/` + data.mySubmission?.id,
-        { method: "DELETE", headers: { Authorization: "Bearer " + token } },
+        `${API_BASE_URL}/api/submission/${data.mySubmission?.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: "Bearer " + token },
+        },
       );
-      if (res.ok) onRefresh();
+
+      if (res.ok) {
+        onRefresh();
+      } else if (res.status === 403) {
+        setErrorMsg("Bạn không có quyền hủy bài nộp này.");
+      } else if (res.status === 404) {
+        setErrorMsg("Không tìm thấy bài nộp.");
+      } else {
+        setErrorMsg("Hủy nộp thất bại. Vui lòng thử lại.");
+      }
     } catch (err) {
       console.error("Lỗi hủy nộp:", err);
+      setErrorMsg("Lỗi kết nối. Vui lòng kiểm tra mạng.");
     } finally {
       setUnsubmitting(false);
     }
@@ -107,9 +144,20 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
         <h2>Bài tập của bạn</h2>
         <StatusBadge isSubmitted={data.isSubmitted} isLate={isLate} />
       </div>
+
       <div className="card-content">
+        {/* Hiển thị lỗi nếu có */}
+        {errorMsg && (
+          <div className="error-banner">
+            <AlertCircle size={14} />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
         {data.isSubmitted ? (
+          // ── Đã nộp bài ──────────────────────────────────────────────────
           <div className="submitted-view">
+            {/* Link tải file đã nộp */}
             {data.mySubmission?.fileUrl && (
               <a
                 href={
@@ -126,6 +174,15 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
                 <ExternalLink size={14} />
               </a>
             )}
+
+            {/* Hiển thị nội dung text nếu không có file */}
+            {!data.mySubmission?.fileUrl && data.mySubmission?.content && (
+              <div className="submitted-content">
+                <p>{data.mySubmission.content}</p>
+              </div>
+            )}
+
+            {/* Điểm số */}
             {data.mySubmission?.score != null ? (
               <div className="grade-display">
                 <span className="score">{data.mySubmission.score}</span>
@@ -134,6 +191,18 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
             ) : (
               <p className="grade-pending">Chờ chấm điểm...</p>
             )}
+
+            {/* Thời gian nộp */}
+            {data.mySubmission?.submittedAt && (
+              <p className="submitted-time">
+                Đã nộp lúc:{" "}
+                {new Date(data.mySubmission.submittedAt).toLocaleString(
+                  "vi-VN",
+                )}
+              </p>
+            )}
+
+            {/* Nút hủy nộp */}
             <button
               className="btn-unsubmit"
               onClick={handleUnsubmit}
@@ -148,6 +217,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
             </button>
           </div>
         ) : (
+          // ── Chưa nộp bài ────────────────────────────────────────────────
           <div className="empty-view">
             <input
               ref={fileRef}
@@ -155,13 +225,20 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
               style={{ display: "none" }}
               onChange={handleFileChange}
             />
+
             {selectedFile ? (
               <div className="selected-file-row">
                 <FileText size={16} />
                 <span className="sf-name">{selectedFile.name}</span>
+                <span className="sf-size">
+                  ({formatFileSize(selectedFile.size)})
+                </span>
                 <button
                   className="btn-remove-file"
-                  onClick={() => setSelectedFile(null)}
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setErrorMsg(null);
+                  }}
                 >
                   <X size={14} />
                 </button>
@@ -174,6 +251,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
                 <UploadCloud size={18} /> Thêm hoặc tạo
               </button>
             )}
+
             <button
               className="btn-mark-done"
               disabled={!selectedFile || uploading}
@@ -194,6 +272,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
   );
 };
 
+// ─── Teacher Sidebar ──────────────────────────────────────────────────────────
 const TeacherSidebar = ({ data, assignmentId, navigate }) => {
   const totalStudents = data.totalStudents || 0;
   const submittedCount = data.submissionCount || 0;
@@ -231,6 +310,7 @@ const TeacherSidebar = ({ data, assignmentId, navigate }) => {
   );
 };
 
+// ─── Main Page ────────────────────────────────────────────────────────────────
 const AssignmentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -242,6 +322,7 @@ const AssignmentDetail = () => {
   const [error, setError] = useState(null);
   const [privateComment, setPrivateComment] = useState("");
 
+  // GET /api/assignment/{id}/detail
   const fetchDetail = async () => {
     setLoading(true);
     try {
@@ -267,6 +348,7 @@ const AssignmentDetail = () => {
     if (token) fetchDetail();
   }, [id, token]);
 
+  // POST /api/assignment/{id}/comment
   const handleSendComment = async () => {
     if (!privateComment.trim()) return;
     try {
@@ -290,6 +372,7 @@ const AssignmentDetail = () => {
         <Loader2 className="spin" />
       </div>
     );
+
   if (error || !data)
     return (
       <div className="gc-error">
@@ -303,6 +386,7 @@ const AssignmentDetail = () => {
     <div
       className={`gc-assignment-page ${isTeacher ? "role-teacher" : "role-student"}`}
     >
+      {/* Nav */}
       <nav className="gc-assign-nav">
         <div className="nav-left">
           <button className="btn-icon" onClick={() => navigate(-1)}>
@@ -317,6 +401,7 @@ const AssignmentDetail = () => {
 
       <main className="gc-assign-container">
         <div className="gc-assign-content-grid">
+          {/* Main content */}
           <section className="gc-assign-main">
             <header className="main-header">
               <div className="header-icon">
@@ -342,19 +427,20 @@ const AssignmentDetail = () => {
             </header>
 
             <div className="main-divider" />
+
             <div className="instructions-section">
               <p className="desc-text">
                 {data.description || "Không có hướng dẫn chi tiết."}
               </p>
             </div>
 
+            {/* File đính kèm của giáo viên */}
             {data.files && data.files.length > 0 && (
               <div className="attachments-section">
                 <div className="attachment-grid">
                   {data.files.map((file) => (
                     <a
                       key={file.id}
-                      // Kiểm tra xem URL đã có http chưa để tránh nối chuỗi sai
                       href={
                         file.fileUrl.startsWith("http")
                           ? file.fileUrl
@@ -380,6 +466,7 @@ const AssignmentDetail = () => {
             )}
           </section>
 
+          {/* Sidebar */}
           <aside className="gc-assign-sidebar">
             {isTeacher ? (
               <TeacherSidebar
