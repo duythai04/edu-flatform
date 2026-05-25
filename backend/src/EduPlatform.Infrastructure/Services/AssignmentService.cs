@@ -16,9 +16,7 @@ public class AssignmentService : IAssignmentService
         _context = context;
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // GET ALL
-    // ─────────────────────────────────────────────────────────────
+    // get all
     public async Task<IEnumerable<AssignmentResponseDto>> GetAllAsync()
     {
         return await _context.Assignments
@@ -29,9 +27,7 @@ public class AssignmentService : IAssignmentService
             )).ToListAsync();
     }
 
-    // ─────────────────────────────────────────────────────────────
     // GET BY ID
-    // ─────────────────────────────────────────────────────────────
     public async Task<AssignmentResponseDto> GetByIdAsync(Guid id)
     {
         var a = await _context.Assignments

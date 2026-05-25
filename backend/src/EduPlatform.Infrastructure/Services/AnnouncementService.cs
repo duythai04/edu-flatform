@@ -3,10 +3,7 @@ using EduPlatform.Application.Interfaces;
 using EduPlatform.Domain.Entities;
 using EduPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace EduPlatform.Infrastructure.Services;
 
