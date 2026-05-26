@@ -14,21 +14,21 @@
 
 ---
 
-# 📖 Giới Thiệu
+# Giới Thiệu
 
 **Edu Platform** là hệ thống quản lý học tập trực tuyến (LMS - Learning Management System) hỗ trợ:
 
-* Quản lý lớp học
-* Quản lý bài tập
-* Đăng thông báo
-* Upload tài liệu
-* Theo dõi học tập
-* Xác thực JWT
-* Phân quyền người dùng
+- Quản lý lớp học
+- Quản lý bài tập
+- Đăng thông báo
+- Upload tài liệu
+- Theo dõi học tập
+- Xác thực JWT
+- Phân quyền người dùng
 
 ---
 
-# 🏗️ Kiến Trúc Dự Án
+# Kiến Trúc Dự Án
 
 ```bash
 edu-platform/
@@ -53,106 +53,106 @@ edu-platform/
 
 ---
 
-# ⚙️ Công Nghệ Sử Dụng
+# Công Nghệ Sử Dụng
 
 ## 🔹 Backend
 
-* ASP.NET Core Web API
-* Entity Framework Core
-* SQL Server
-* JWT Authentication
-* AutoMapper
-* FluentValidation
-* Swagger/OpenAPI
-* Dependency Injection
-* Repository Pattern
-* Clean Architecture
+- ASP.NET Core Web API
+- Entity Framework Core
+- SQL Server
+- JWT Authentication
+- AutoMapper
+- FluentValidation
+- Swagger/OpenAPI
+- Dependency Injection
+- Repository Pattern
+- Clean Architecture
 
 ---
 
 ## 🔹 Frontend
 
-* ReactJS
-* React Router DOM
-* Axios
-* SCSS
-* Context API
-* React Hook Form
-* Toastify
-* Lucide React
+- ReactJS
+- React Router DOM
+- Axios
+- SCSS
+- Context API
+- React Hook Form
+- Toastify
+- Lucide React
 
 ---
 
-# ✨ Chức Năng Chính
+# Chức Năng Chính
 
-## 👨‍🏫 Giảng Viên
+## Giảng Viên
 
-* Tạo lớp học
-* Quản lý lớp học
-* Tạo bài tập
-* Chấm điểm
-* Đăng thông báo
-* Upload tài liệu
-
----
-
-## 👨‍🎓 Học Sinh
-
-* Tham gia lớp học
-* Nộp bài tập
-* Xem tài liệu
-* Nhận thông báo
+- Tạo lớp học
+- Quản lý lớp học
+- Tạo bài tập
+- Chấm điểm
+- Đăng thông báo
+- Upload tài liệu
 
 ---
 
-# 🔐 Authentication & Authorization
+## Học Sinh
 
-* Đăng ký
-* Đăng nhập
-* JWT Token
-* Refresh Token
-* Role-based Authorization
-
----
-
-# 🧱 Clean Architecture
-
-## 1️⃣ Domain Layer
-
-* Entities
-* Interfaces
-* Business Rules
+- Tham gia lớp học
+- Nộp bài tập
+- Xem tài liệu
+- Nhận thông báo
 
 ---
 
-## 2️⃣ Application Layer
+# Authentication & Authorization
 
-* DTOs
-* Services
-* Validators
-* CQRS
-
----
-
-## 3️⃣ Infrastructure Layer
-
-* DbContext
-* Repository
-* JWT Services
-* File Services
+- Đăng ký
+- Đăng nhập
+- JWT Token
+- Refresh Token
+- Role-based Authorization
 
 ---
 
-## 4️⃣ API Layer
+# Clean Architecture
 
-* Controllers
-* Middleware
-* Swagger
-* Dependency Injection
+## 1 Domain Layer
+
+- Entities
+- Interfaces
+- Business Rules
 
 ---
 
-# 🔑 Authentication Flow
+## 2 Application Layer
+
+- DTOs
+- Services
+- Validators
+- CQRS
+
+---
+
+## 3 Infrastructure Layer
+
+- DbContext
+- Repository
+- JWT Services
+- File Services
+
+---
+
+## 4 API Layer
+
+- Controllers
+- Middleware
+- Swagger
+- Dependency Injection
+
+---
+
+# Authentication Flow
 
 ```text
 User Login
@@ -170,22 +170,22 @@ Authorization Header
 
 ---
 
-# 🗄️ Database Tables
+# Database Tables
 
-* Users
-* Roles
-* Classrooms
-* Assignments
-* Submissions
-* Announcements
-* Materials
-* Enrollments
+- Users
+- Roles
+- Classrooms
+- Assignments
+- Submissions
+- Announcements
+- Materials
+- Enrollments
 
 ---
 
-# 📦 Cài Đặt Dự Án
+# Cài Đặt Dự Án
 
-# 1️⃣ Clone Repository
+# 1 Clone Repository
 
 ```bash
 git clone https://github.com/duythai04/edu-flatform.git
@@ -193,7 +193,7 @@ git clone https://github.com/duythai04/edu-flatform.git
 
 ---
 
-# 2️⃣ Backend Setup
+# 2 Backend Setup
 
 ```bash
 cd backend
@@ -225,7 +225,7 @@ https://localhost:5001/swagger
 
 ---
 
-# 3️⃣ Frontend Setup
+# 3 Frontend Setup
 
 ```bash
 cd frontend
@@ -246,7 +246,7 @@ http://localhost:3000
 
 ---
 
-# ⚙️ Environment Variables
+# Environment Variables
 
 ## Backend - appsettings.json
 
@@ -266,9 +266,9 @@ http://localhost:3000
 
 ---
 
-# 📡 API Endpoints
+# API Endpoints
 
-## 🔐 Authentication
+## Authentication
 
 | Method | Endpoint                  | Description   |
 | ------ | ------------------------- | ------------- |
@@ -278,7 +278,7 @@ http://localhost:3000
 
 ---
 
-## 🏫 Classrooms
+## Classrooms
 
 | Method | Endpoint               |
 | ------ | ---------------------- |
@@ -290,7 +290,7 @@ http://localhost:3000
 
 ---
 
-## 📝 Assignments
+## Assignments
 
 | Method | Endpoint           |
 | ------ | ------------------ |
@@ -300,28 +300,28 @@ http://localhost:3000
 
 ---
 
-# 🛡️ Security Features
+# Security Features
 
-* JWT Authentication
-* Password Hashing
-* Role-based Access Control
-* Middleware Exception Handling
-* CORS Configuration
-
----
-
-# 🎨 Frontend Features
-
-* Responsive UI
-* Dashboard
-* Loading State
-* Toast Notification
-* Error Handling
-* Search & Filter
+- JWT Authentication
+- Password Hashing
+- Role-based Access Control
+- Middleware Exception Handling
+- CORS Configuration
 
 ---
 
-# 📸 Screenshots
+# Frontend Features
+
+- Responsive UI
+- Dashboard
+- Loading State
+- Toast Notification
+- Error Handling
+- Search & Filter
+
+---
+
+# Screenshots
 
 ## Login Page
 
@@ -343,7 +343,7 @@ http://localhost:3000
 
 ---
 
-# 🧪 Testing
+# Testing
 
 ```bash
 dotnet test
@@ -351,27 +351,27 @@ dotnet test
 
 ---
 
-# 🚀 Deployment
+# Deployment
 
 ## Backend
 
-* Azure
-* Railway
-* Render
-* Docker
-* VPS Ubuntu
+- Azure
+- Railway
+- Render
+- Docker
+- VPS Ubuntu
 
 ---
 
 ## Frontend
 
-* Vercel
-* Netlify
-* Firebase Hosting
+- Vercel
+- Netlify
+- Firebase Hosting
 
 ---
 
-# 🐳 Docker
+# Docker
 
 ```bash
 docker-compose up --build
@@ -379,18 +379,18 @@ docker-compose up --build
 
 ---
 
-# 📚 Future Features
+# Future Features
 
-* Video Call
-* Realtime Chat
-* Quiz System
-* Attendance Tracking
-* AI Assistant
-* Mobile App
+- Video Call
+- Realtime Chat
+- Quiz System
+- Attendance Tracking
+- AI Assistant
+- Mobile App
 
 ---
 
-# 🤝 Contributing
+# Contributing
 
 ## Fork project
 
@@ -418,12 +418,12 @@ git push origin feature/your-feature
 
 ---
 
-# 👨‍💻 Author
+# Author
 
 ## Thai Nguyen
 
-* Full Stack Developer
-* ASP.NET Core & ReactJS Developer
+- Full Stack Developer
+- ASP.NET Core & ReactJS Developer
 
 GitHub:
 
@@ -431,12 +431,12 @@ GitHub:
 
 ---
 
-# 📄 License
+# License
 
 This project is licensed under the MIT License.
 
 ---
 
-# ⭐ Support
+# Support
 
 Nếu bạn thấy dự án hữu ích hãy cho repository một ⭐ nhé ❤️
