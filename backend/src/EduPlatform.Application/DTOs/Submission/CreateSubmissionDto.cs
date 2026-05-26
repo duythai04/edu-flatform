@@ -1,5 +1,5 @@
 namespace EduPlatform.Application.DTOs.Submission;
-
+using Microsoft.AspNetCore.Http;
 public class SubmissionDto
 {
     public Guid Id { get; set; }
@@ -17,3 +17,11 @@ public class GradeSubmissionDto
 {
     public double Score { get; set; }
 }
+
+public class SubmitRequestDto
+{
+    public Guid AssignmentId { get; set; }
+    public string? Content { get; set; }
+    public IFormFile? File { get; set; }
+}
+ 

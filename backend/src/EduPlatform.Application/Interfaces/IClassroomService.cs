@@ -1,4 +1,4 @@
-using EduPlatform.Application.DTOs;
+using EduPlatform.Application.DTOs.Classroom;
 
 namespace EduPlatform.Application.Interfaces
 {

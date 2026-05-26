@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using EduPlatform.Application.Interfaces;
 using EduPlatform.Infrastructure.Persistence;
 
-namespace EduPlatform.Services
+namespace EduPlatform.Infrastructure.Services
 {
     public class ClassroomService : IClassroomService
     {

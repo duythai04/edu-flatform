@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using EduPlatform.Application.Interfaces;
 using EduPlatform.Infrastructure.Persistence;
 using EduPlatform.Infrastructure.Services;
-using EduPlatform.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
@@ -70,6 +69,7 @@ builder.Services.AddScoped<IClassroomService, ClassroomService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 
 builder.Services.AddEndpointsApiExplorer();

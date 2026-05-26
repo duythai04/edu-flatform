@@ -16,4 +16,7 @@ public class Classroom : BaseEntity
     public virtual User Teacher { get; set; }
     public virtual ICollection<ClassroomMember> ClassroomMembers { get; set; } = new List<ClassroomMember>();
     public virtual ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+
 }

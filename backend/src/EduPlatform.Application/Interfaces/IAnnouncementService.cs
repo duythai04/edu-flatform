@@ -1,6 +1,5 @@
 using EduPlatform.Application.DTOs;
-using System;
-using System.Collections.Generic;
+
 
 namespace EduPlatform.Application.Interfaces
 

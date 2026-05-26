@@ -12,4 +12,6 @@ public class User : BaseEntity
     public string PasswordHash { get; set; }
 
     public Role Role { get; set; }
+
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }
