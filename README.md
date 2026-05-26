@@ -143,8 +143,8 @@ edu-platform/
 | `Assignments`   | Bài tập              |
 | `Submissions`   | Bài nộp              |
 | `Announcements` | Thông báo            |
+| `Comments`      | BÌnh luận            |
 | `Materials`     | Tài liệu             |
-| `Enrollments`   | Đăng ký lớp học      |
 
 ---
 
