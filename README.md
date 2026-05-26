@@ -1,4 +1,4 @@
-# 🚀 Edu Platform
+# Edu Platform
 
 > Một nền tảng quản lý lớp học trực tuyến (Learning Management System) được xây dựng với ASP.NET Core Web API và ReactJS.
 
@@ -55,7 +55,7 @@ edu-platform/
 
 # Công Nghệ Sử Dụng
 
-## 🔹 Backend
+## Backend
 
 - ASP.NET Core Web API
 - Entity Framework Core
@@ -70,7 +70,7 @@ edu-platform/
 
 ---
 
-## 🔹 Frontend
+## Frontend
 
 - ReactJS
 - React Router DOM
@@ -117,7 +117,7 @@ edu-platform/
 
 # Clean Architecture
 
-## 1 Domain Layer
+## 1. Domain Layer
 
 - Entities
 - Interfaces
@@ -125,7 +125,7 @@ edu-platform/
 
 ---
 
-## 2 Application Layer
+## 2. Application Layer
 
 - DTOs
 - Services
@@ -134,7 +134,7 @@ edu-platform/
 
 ---
 
-## 3 Infrastructure Layer
+## 3. Infrastructure Layer
 
 - DbContext
 - Repository
@@ -143,7 +143,7 @@ edu-platform/
 
 ---
 
-## 4 API Layer
+## 4. API Layer
 
 - Controllers
 - Middleware
@@ -185,7 +185,7 @@ Authorization Header
 
 # Cài Đặt Dự Án
 
-# 1 Clone Repository
+# 1. Clone Repository
 
 ```bash
 git clone https://github.com/duythai04/edu-flatform.git
@@ -193,7 +193,7 @@ git clone https://github.com/duythai04/edu-flatform.git
 
 ---
 
-# 2 Backend Setup
+# 2. Backend Setup
 
 ```bash
 cd backend
@@ -225,7 +225,7 @@ https://localhost:5001/swagger
 
 ---
 
-# 3 Frontend Setup
+# 3. Frontend Setup
 
 ```bash
 cd frontend
