@@ -143,6 +143,7 @@ edu-platform/
 | `Assignments`   | Bài tập              |
 | `Submissions`   | Bài nộp              |
 | `Announcements` | Thông báo            |
+| `AssignmentFiles`| File bài tập        |
 | `Comments`      | BÌnh luận            |
 | `Materials`     | Tài liệu             |
 
