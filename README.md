@@ -1,46 +1,108 @@
-# Edu Platform
+# 🎓 Edu Platform
 
-> Một nền tảng quản lý lớp học trực tuyến (Learning Management System) được xây dựng với ASP.NET Core Web API và ReactJS.
-
----
+> Hệ thống quản lý lớp học trực tuyến (LMS) xây dựng với **ASP.NET Core Web API** và **ReactJS**, theo kiến trúc **Clean Architecture**.
 
 <p align="center">
   <img src="https://img.shields.io/badge/.NET-ASP.NET_Core-blueviolet?style=for-the-badge&logo=dotnet" />
   <img src="https://img.shields.io/badge/Frontend-ReactJS-61DAFB?style=for-the-badge&logo=react" />
-  <img src="https://img.shields.io/badge/Database-SQL_Server-red?style=for-the-badge&logo=microsoftsqlserver" />
-  <img src="https://img.shields.io/badge/Architecture-Clean_Architecture-success?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Database-SQL_Server-CC2927?style=for-the-badge&logo=microsoftsqlserver" />
+  <img src="https://img.shields.io/badge/Architecture-Clean_Architecture-2ea44f?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Auth-JWT-orange?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" />
 </p>
 
 ---
 
-# Giới Thiệu
+## 📋 Mục Lục
 
-**Edu Platform** là hệ thống quản lý học tập trực tuyến (LMS - Learning Management System) hỗ trợ:
-
-- Quản lý lớp học
-- Quản lý bài tập
-- Đăng thông báo
-- Upload tài liệu
-- Theo dõi học tập
-- Xác thực JWT
-- Phân quyền người dùng
+- [Giới thiệu](#-giới-thiệu)
+- [Tính năng](#-tính-năng)
+- [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
+- [Kiến trúc dự án](#-kiến-trúc-dự-án)
+- [Cài đặt](#-cài-đặt)
+- [API Endpoints](#-api-endpoints)
+- [Bảo mật](#-bảo-mật)
+- [Triển khai](#-triển-khai)
+- [Tác giả](#-tác-giả)
 
 ---
 
-# Kiến Trúc Dự Án
+## 🧩 Giới Thiệu
 
-```bash
+**Edu Platform** là hệ thống quản lý học tập trực tuyến hỗ trợ đầy đủ các nghiệp vụ giáo dục:
+
+- 📚 Quản lý lớp học & bài tập
+- 📢 Đăng thông báo
+- 📁 Upload & quản lý tài liệu
+- 📊 Theo dõi tiến độ học tập
+- 🔐 Xác thực JWT & phân quyền người dùng
+
+---
+
+## ✨ Tính Năng
+
+### 👨‍🏫 Giảng Viên
+
+- Tạo và quản lý lớp học
+- Tạo bài tập và chấm điểm
+- Đăng thông báo cho học sinh
+- Upload tài liệu học tập
+
+### 👨‍🎓 Học Sinh
+
+- Tham gia lớp học bằng mã lớp
+- Nộp bài tập
+- Xem tài liệu và thông báo
+
+### 🔐 Xác Thực & Phân Quyền
+
+- Đăng ký / Đăng nhập
+- JWT Access Token + Refresh Token
+- Role-based Authorization (Giảng viên / Học sinh)
+
+---
+
+## 🛠️ Công Nghệ Sử Dụng
+
+### Backend
+
+| Công nghệ             | Mô tả           |
+| --------------------- | --------------- |
+| ASP.NET Core Web API  | Framework chính |
+| Entity Framework Core | ORM             |
+| SQL Server            | Cơ sở dữ liệu   |
+| JWT Authentication    | Xác thực        |
+| AutoMapper            | Mapping DTO     |
+| FluentValidation      | Validation      |
+| Swagger / OpenAPI     | Tài liệu API    |
+
+### Frontend
+
+| Công nghệ        | Mô tả            |
+| ---------------- | ---------------- |
+| ReactJS          | Framework UI     |
+| React Router DOM | Routing          |
+| Axios            | HTTP Client      |
+| SCSS             | Styling          |
+| Context API      | State Management |
+| React Hook Form  | Form handling    |
+| Lucide React     | Icon library     |
+| Toastify         | Thông báo toast  |
+
+---
+
+## 🏗️ Kiến Trúc Dự Án
+
+```
 edu-platform/
 │
 ├── backend/
 │   ├── src/
-│   │   ├── EduPlatform.API
-│   │   ├── EduPlatform.Application
-│   │   ├── EduPlatform.Domain
-│   │   ├── EduPlatform.Infrastructure
-│   │   └── EduPlatform.Shared
-│   │
+│   │   ├── EduPlatform.API            # Controllers, Middleware, Swagger
+│   │   ├── EduPlatform.Application    # DTOs, Services, Validators, CQRS
+│   │   ├── EduPlatform.Domain         # Entities, Interfaces, Business Rules
+│   │   ├── EduPlatform.Infrastructure # DbContext, Repositories, JWT, Files
+│   │   └── EduPlatform.Shared         # Shared utilities
 │   └── tests/
 │
 ├── frontend/
@@ -51,204 +113,68 @@ edu-platform/
 └── README.md
 ```
 
----
+### Clean Architecture
 
-# Công Nghệ Sử Dụng
-
-## Backend
-
-- ASP.NET Core Web API
-- Entity Framework Core
-- SQL Server
-- JWT Authentication
-- AutoMapper
-- FluentValidation
-- Swagger/OpenAPI
-- Dependency Injection
-- Repository Pattern
-- Clean Architecture
-
----
-
-## Frontend
-
-- ReactJS
-- React Router DOM
-- Axios
-- SCSS
-- Context API
-- React Hook Form
-- Toastify
-- Lucide React
-
----
-
-# Chức Năng Chính
-
-## Giảng Viên
-
-- Tạo lớp học
-- Quản lý lớp học
-- Tạo bài tập
-- Chấm điểm
-- Đăng thông báo
-- Upload tài liệu
-
----
-
-## Học Sinh
-
-- Tham gia lớp học
-- Nộp bài tập
-- Xem tài liệu
-- Nhận thông báo
-
----
-
-# Authentication & Authorization
-
-- Đăng ký
-- Đăng nhập
-- JWT Token
-- Refresh Token
-- Role-based Authorization
-
----
-
-# Clean Architecture
-
-## 1. Domain Layer
-
-- Entities
-- Interfaces
-- Business Rules
-
----
-
-## 2. Application Layer
-
-- DTOs
-- Services
-- Validators
-- CQRS
-
----
-
-## 3. Infrastructure Layer
-
-- DbContext
-- Repository
-- JWT Services
-- File Services
-
----
-
-## 4. API Layer
-
-- Controllers
-- Middleware
-- Swagger
-- Dependency Injection
-
----
-
-# Authentication Flow
-
-```text
-User Login
-   ↓
-Validate User
-   ↓
-Generate JWT Token
-   ↓
-Return Access Token
-   ↓
-Frontend lưu token
-   ↓
-Authorization Header
+```
+┌─────────────────────────────────────────┐
+│              API Layer                  │
+│   Controllers · Middleware · Swagger    │
+├─────────────────────────────────────────┤
+│           Application Layer            │
+│      DTOs · Services · CQRS            │
+├─────────────────────────────────────────┤
+│          Infrastructure Layer          │
+│   DbContext · Repository · JWT · Files │
+├─────────────────────────────────────────┤
+│             Domain Layer               │
+│    Entities · Interfaces · Rules       │
+└─────────────────────────────────────────┘
 ```
 
 ---
 
-# Database Tables
+## 🗄️ Database Tables
 
-- Users
-- Roles
-- Classrooms
-- Assignments
-- Submissions
-- Announcements
-- Materials
-- Enrollments
+| Bảng            | Mô tả                |
+| --------------- | -------------------- |
+| `Users`         | Tài khoản người dùng |
+| `Roles`         | Phân quyền           |
+| `Classrooms`    | Lớp học              |
+| `Assignments`   | Bài tập              |
+| `Submissions`   | Bài nộp              |
+| `Announcements` | Thông báo            |
+| `Materials`     | Tài liệu             |
+| `Enrollments`   | Đăng ký lớp học      |
 
 ---
 
-# Cài Đặt Dự Án
+## 🚀 Cài Đặt
 
-# 1. Clone Repository
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/duythai04/edu-flatform.git
+cd edu-flatform
 ```
 
----
-
-# 2. Backend Setup
+### 2. Backend Setup
 
 ```bash
 cd backend
-```
 
-## Restore Packages
-
-```bash
+# Khôi phục packages
 dotnet restore
-```
 
-## Update Database
-
-```bash
+# Cập nhật database
 dotnet ef database update
-```
 
-## Run API
-
-```bash
+# Chạy API
 dotnet run
 ```
 
-## Swagger
+> Swagger UI: `https://localhost:5001/swagger`
 
-```bash
-https://localhost:5001/swagger
-```
-
----
-
-# 3. Frontend Setup
-
-```bash
-cd frontend
-npm install
-```
-
-## Start Frontend
-
-```bash
-npm start
-```
-
-Frontend chạy tại:
-
-```bash
-http://localhost:3000
-```
-
----
-
-# Environment Variables
-
-## Backend - appsettings.json
+#### Cấu hình `appsettings.json`
 
 ```json
 {
@@ -264,114 +190,21 @@ http://localhost:3000
 }
 ```
 
----
-
-# API Endpoints
-
-## Authentication
-
-| Method | Endpoint                  | Description   |
-| ------ | ------------------------- | ------------- |
-| POST   | `/api/auth/register`      | Đăng ký       |
-| POST   | `/api/auth/login`         | Đăng nhập     |
-| POST   | `/api/auth/refresh-token` | Refresh token |
-
----
-
-## Classrooms
-
-| Method | Endpoint               |
-| ------ | ---------------------- |
-| GET    | `/api/classrooms`      |
-| POST   | `/api/classrooms`      |
-| GET    | `/api/classrooms/{id}` |
-| PUT    | `/api/classrooms/{id}` |
-| DELETE | `/api/classrooms/{id}` |
-
----
-
-## Assignments
-
-| Method | Endpoint           |
-| ------ | ------------------ |
-| GET    | `/api/assignments` |
-| POST   | `/api/assignments` |
-| POST   | `/api/submissions` |
-
----
-
-# Security Features
-
-- JWT Authentication
-- Password Hashing
-- Role-based Access Control
-- Middleware Exception Handling
-- CORS Configuration
-
----
-
-# Frontend Features
-
-- Responsive UI
-- Dashboard
-- Loading State
-- Toast Notification
-- Error Handling
-- Search & Filter
-
----
-
-# Screenshots
-
-## Login Page
-
-```text
-(Add screenshot here)
-```
-
-## Dashboard
-
-```text
-(Add screenshot here)
-```
-
-## Classroom Page
-
-```text
-(Add screenshot here)
-```
-
----
-
-# Testing
+### 3. Frontend Setup
 
 ```bash
-dotnet test
+cd frontend
+
+# Cài đặt dependencies
+npm install
+
+# Chạy ứng dụng
+npm start
 ```
 
----
+> Frontend chạy tại: `http://localhost:3000`
 
-# Deployment
-
-## Backend
-
-- Azure
-- Railway
-- Render
-- Docker
-- VPS Ubuntu
-
----
-
-## Frontend
-
-- Vercel
-- Netlify
-- Firebase Hosting
-
----
-
-# Docker
+### 4. Docker (tuỳ chọn)
 
 ```bash
 docker-compose up --build
@@ -379,64 +212,129 @@ docker-compose up --build
 
 ---
 
-# Future Features
+## 📡 API Endpoints
 
-- Video Call
-- Realtime Chat
-- Quiz System
-- Attendance Tracking
-- AI Assistant
-- Mobile App
+### Authentication
+
+| Method | Endpoint                  | Mô tả             |
+| ------ | ------------------------- | ----------------- |
+| `POST` | `/api/auth/register`      | Đăng ký tài khoản |
+| `POST` | `/api/auth/login`         | Đăng nhập         |
+| `POST` | `/api/auth/refresh-token` | Làm mới token     |
+
+### Classrooms
+
+| Method   | Endpoint               | Mô tả             |
+| -------- | ---------------------- | ----------------- |
+| `GET`    | `/api/classrooms`      | Danh sách lớp học |
+| `POST`   | `/api/classrooms`      | Tạo lớp học       |
+| `GET`    | `/api/classrooms/{id}` | Chi tiết lớp học  |
+| `PUT`    | `/api/classrooms/{id}` | Cập nhật lớp học  |
+| `DELETE` | `/api/classrooms/{id}` | Xoá lớp học       |
+
+### Assignments & Submissions
+
+| Method | Endpoint           | Mô tả             |
+| ------ | ------------------ | ----------------- |
+| `GET`  | `/api/assignments` | Danh sách bài tập |
+| `POST` | `/api/assignments` | Tạo bài tập       |
+| `POST` | `/api/submissions` | Nộp bài           |
+
+### Authentication Flow
+
+```
+Client                        Server
+  │                              │
+  │── POST /api/auth/login ──────▶│
+  │                              │── Validate credentials
+  │                              │── Generate JWT Token
+  │◀── { accessToken, ... } ─────│
+  │                              │
+  │── Request + Authorization ──▶│
+  │   Header: Bearer <token>     │── Verify token
+  │◀── Protected resource ───────│
+```
 
 ---
 
-# Contributing
+## 🔒 Bảo Mật
 
-## Fork project
+- ✅ JWT Authentication + Refresh Token
+- ✅ Password Hashing (BCrypt)
+- ✅ Role-based Access Control
+- ✅ Middleware Exception Handling
+- ✅ CORS Configuration
+
+---
+
+## ☁️ Triển Khai
+
+### Backend
+
+| Nền tảng          | Ghi chú                    |
+| ----------------- | -------------------------- |
+| Azure App Service | Khuyến nghị cho production |
+| Railway / Render  | Miễn phí cho dự án nhỏ     |
+| VPS Ubuntu        | Tự quản lý                 |
+| Docker            | Containerized deployment   |
+
+### Frontend
+
+| Nền tảng         | Ghi chú                             |
+| ---------------- | ----------------------------------- |
+| Vercel           | Khuyến nghị, tích hợp CI/CD tự động |
+| Netlify          | Dễ cấu hình                         |
+| Firebase Hosting | Tích hợp với Google Cloud           |
+
+---
+
+## 🧪 Testing
 
 ```bash
-git fork
-```
-
-## Create branch
-
-```bash
-git checkout -b feature/your-feature
-```
-
-## Commit
-
-```bash
-git commit -m "Add new feature"
-```
-
-## Push
-
-```bash
-git push origin feature/your-feature
+dotnet test
 ```
 
 ---
 
-# Author
+## 🔮 Tính Năng Tương Lai
 
-## Thai Nguyen
-
-- Full Stack Developer
-- ASP.NET Core & ReactJS Developer
-
-GitHub:
-
-[https://github.com/duythai04/edu-flatform](https://github.com/duythai04/edu-flatform)
+- [ ] Video Call tích hợp
+- [ ] Realtime Chat (SignalR)
+- [ ] Hệ thống Quiz / Trắc nghiệm
+- [ ] Điểm danh tự động
+- [ ] AI Assistant hỗ trợ học tập
+- [ ] Mobile App (React Native)
 
 ---
 
-# License
+## 🤝 Contributing
 
-This project is licensed under the MIT License.
+```bash
+# 1. Fork dự án
+# 2. Tạo branch mới
+git checkout -b feature/ten-tinh-nang
+
+# 3. Commit thay đổi
+git commit -m "feat: thêm tính năng xyz"
+
+# 4. Push và tạo Pull Request
+git push origin feature/ten-tinh-nang
+```
 
 ---
 
-# Support
+## 👤 Tác Giả
 
-Nếu bạn thấy dự án hữu ích hãy cho repository một ⭐ nhé ❤️
+**Thai Nguyen** — Full Stack Developer
+
+- 🔗 GitHub: [github.com/duythai04/edu-flatform](https://github.com/duythai04/edu-flatform)
+
+---
+
+## 📄 License
+
+Dự án được phân phối theo giấy phép [MIT](LICENSE).
+
+---
+
+<p align="center">Nếu bạn thấy dự án hữu ích, hãy cho repository một ⭐ nhé! ❤️</p>
