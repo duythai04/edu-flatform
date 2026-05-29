@@ -17,17 +17,15 @@ import JoinClass from "./pages/JoinClass/JoinClass";
 import ClassroomDetail from "./pages/ClassroomDetail/ClassDetail";
 import AssignmentDetail from "./pages/AssignmentDetail/AssignmentDetail";
 import SubmissionList from "./pages/SubmissionList/SubmissionList";
+import NotificationPage from "./pages/NotificationPage/NotificationPage";
 
 import "./App.css";
 
 function App() {
-  // 1. Khởi tạo state token từ localStorage
   const [token, setToken] = useState(localStorage.getItem("token"));
 
-  // 2. Quản lý trạng thái Sidebar
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
-  // Lắng nghe sự thay đổi của localStorage (để đồng bộ nếu mở nhiều tab)
   useEffect(() => {
     const handleStorageChange = () => {
       setToken(localStorage.getItem("token"));
@@ -63,7 +61,6 @@ function App() {
             isSidebarOpen={isSidebarOpen}
             onLogout={handleLogout}
           />
-
           <div className="app-container">
             <Sidebar isOpen={isSidebarOpen} />
 
@@ -75,11 +72,11 @@ function App() {
                 <Route path="/join-class" element={<JoinClass />} />
                 <Route path="/class/:id" element={<ClassroomDetail />} />
                 <Route path="/assignment/:id" element={<AssignmentDetail />} />
+                <Route path="/notifications" element={<NotificationPage />} />
                 <Route
                   path="/assignment/:id/submissions"
                   element={<SubmissionList />}
                 />
-
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </main>

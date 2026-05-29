@@ -174,7 +174,12 @@ public class AssignmentController : ControllerBase
 
 
 
-    
+    [HttpGet("class/{classId:guid}/upcoming")]
+    public async Task<IActionResult> GetUpcomingByClass(Guid classId)
+    {
+        var result = await _service.GetUpcomingByClassAsync(classId);
+        return Ok(result);
+    }
 
 
 }

@@ -162,7 +162,7 @@ public class ClassroomController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetDetails(Guid id) // 1. Đổi int id thành Guid id
+    public async Task<IActionResult> GetDetails(Guid id) 
     {
         // 2. Lấy UserId từ Token (nó là chuỗi string)
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

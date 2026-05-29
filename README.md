@@ -162,13 +162,10 @@ cd edu-flatform
 ```bash
 cd backend
 
-# Khôi phục packages
 dotnet restore
 
-# Cập nhật database
 dotnet ef database update
 
-# Chạy API
 dotnet run
 ```
 
@@ -195,10 +192,8 @@ dotnet run
 ```bash
 cd frontend
 
-# Cài đặt dependencies
 npm install
 
-# Chạy ứng dụng
 npm start
 ```
 
@@ -310,14 +305,11 @@ dotnet test
 ## 🤝 Contributing
 
 ```bash
-# 1. Fork dự án
-# 2. Tạo branch mới
+
 git checkout -b feature/ten-tinh-nang
 
-# 3. Commit thay đổi
 git commit -m "feat: thêm tính năng xyz"
 
-# 4. Push và tạo Pull Request
 git push origin feature/ten-tinh-nang
 ```
 
@@ -325,15 +317,9 @@ git push origin feature/ten-tinh-nang
 
 ## 👤 Tác Giả
 
-**Thai Nguyen** — Full Stack Developer
+**Lường Duy Thái** — Full Stack Developer
 
 - 🔗 GitHub: [github.com/duythai04/edu-flatform](https://github.com/duythai04/edu-flatform)
-
----
-
-## 📄 License
-
-Dự án được phân phối theo giấy phép [MIT](LICENSE).
 
 ---
 

@@ -23,6 +23,8 @@ public interface IAssignmentService
     Task<AssignmentFileDto?> GetAssignmentFileAsync(Guid fileId);
     Task DeleteAssignmentFileAsync(Guid fileId);
 
+    Task<List<AssignmentResponseDto>> GetUpcomingByClassAsync(Guid classId);
+
     // Comment
     Task AddCommentAsync(Guid assignmentId, Guid userId, string content);
 }

@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, NavLink } from "react-router-dom";
 import {
   Home,
   Bell,
@@ -9,37 +9,119 @@ import {
   ClipboardCheck,
   Users,
 } from "lucide-react";
+import { AuthContext } from "../../../contexts/AuthContext";
 import "./Sidebar.scss";
 
+const API = "http://localhost:5187/api";
+
+const getColorFromName = (name) => {
+  const colors = [
+    "#7c3aed",
+    "#0d9488",
+    "#ea580c",
+    "#2563eb",
+    "#db2777",
+    "#16a34a",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
 export default function Sidebar({ isOpen }) {
+  const { user } = useContext(AuthContext);
+  const [myClasses, setMyClasses] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const token = localStorage.getItem("token");
+
+  // Logic phân quyền
+  const isTeacher = (user?.role || user?.Role) === "Teacher";
+  const classActionPath = isTeacher ? "/create-class" : "/join-class";
+
+  const fetchData = async () => {
+    if (!token) return;
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const classRes = await fetch(`${API}/classroom/my`, { headers });
+      const classesData = await classRes.json();
+
+      if (Array.isArray(classesData)) {
+        setMyClasses(classesData);
+
+        // Tính toán Badge thông báo mới
+        const classIds = classesData.map((c) => c.id);
+        const notifyRequests = classIds.flatMap((id) => [
+          fetch(`${API}/announcement/class/${id}`, { headers }).then((r) =>
+            r.json(),
+          ),
+          fetch(`${API}/assignment/class/${id}/upcoming`, { headers }).then(
+            (r) => r.json(),
+          ),
+        ]);
+
+        const results = await Promise.all(notifyRequests);
+        const lastRead = localStorage.getItem("lastReadNotifications");
+        const lastReadDate = lastRead ? new Date(lastRead) : new Date(0);
+
+        const totalUnread = results.reduce((acc, curr) => {
+          if (!Array.isArray(curr)) return acc;
+          const newItems = curr.filter(
+            (item) => new Date(item.createdAt) > lastReadDate,
+          );
+          return acc + newItems.length;
+        }, 0);
+
+        setUnreadCount(totalUnread);
+      }
+    } catch (err) {
+      console.error("Sidebar Error:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    fetchData();
+
+    // Lắng nghe sự kiện để xóa badge khi xem thông báo
+    window.addEventListener("notificationsRead", fetchData);
+    return () => window.removeEventListener("notificationsRead", fetchData);
+  }, [isOpen, token]);
+
   if (!isOpen) return null;
+
+  const navLinkClass = ({ isActive }) =>
+    isActive ? "nav-item active" : "nav-item";
 
   return (
     <aside className="sidebar">
       <div className="sidebar-group">
-        <div className="sidebar-wrapper">
-          <div className="nav-item active">
-            <Link to ="/" className="nav-item-content">
-              <Home size={20} />
-              <span className="nav-label">Trang chủ</span>
-            </Link>
+        <NavLink to="/" className={navLinkClass}>
+          <div className="nav-item-content">
+            <Home size={20} />
+            <span className="nav-label">Trang chủ</span>
           </div>
+        </NavLink>
 
-          <div className="nav-item">
-            <div className="nav-item-content">
-              <Bell size={20} />
-              <span className="nav-label">Thông báo</span>
-            </div>
-            <span className="nav-badge">3</span>
+        <NavLink to="/notifications" className={navLinkClass}>
+          <div className="nav-item-content">
+            <Bell size={20} />
+            <span className="nav-label">Thông báo</span>
           </div>
+          {unreadCount > 0 && (
+            <span className="nav-badge">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </NavLink>
 
-          <div className="nav-item">
-            <div className="nav-item-content">
-              <Calendar size={20} />
-              <span className="nav-label">Lịch học</span>
-            </div>
+        <NavLink to="/calendar" className={navLinkClass}>
+          <div className="nav-item-content">
+            <Calendar size={20} />
+            <span className="nav-label">Lịch học</span>
           </div>
-        </div>
+        </NavLink>
       </div>
 
       <div className="sidebar-divider" />
@@ -47,45 +129,58 @@ export default function Sidebar({ isOpen }) {
       <div className="sidebar-group">
         <div className="section-header">
           <h4 className="section-title">LỚP HỌC CỦA TÔI</h4>
-          <Link to="/create-class" className="btn-add-class">
+          <Link
+            to={classActionPath}
+            className="btn-add-class"
+            title={isTeacher ? "Tạo lớp" : "Tham gia lớp"}
+          >
             <Plus size={16} />
           </Link>
         </div>
 
-        {[
-          { letter: "T", name: "Toán giải tích 12", color: "#7c3aed" },
-          { letter: "V", name: "Vật lý nâng cao", color: "#0d9488" },
-          { letter: "H", name: "Hóa học hữu cơ", color: "#ea580c" },
-        ].map((cls) => (
-          <div key={cls.name} className="class-item">
-            <div
-              className="class-avatar"
-              style={{ backgroundColor: cls.color }}
-            >
-              {cls.letter}
+        {myClasses.map((cls) => (
+          <NavLink
+            key={cls.id}
+            to={`/class/${cls.id}`}
+            className={navLinkClass}
+          >
+            <div className="class-item-inner">
+              <div
+                className="class-avatar"
+                style={{ backgroundColor: getColorFromName(cls.name) }}
+              >
+                {cls.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="class-name">{cls.name}</span>
             </div>
-            <span className="class-name">{cls.name}</span>
-          </div>
+          </NavLink>
         ))}
+        {myClasses.length === 0 && <p className="empty-msg">Chưa có lớp học</p>}
       </div>
 
-      {/* Khối Công cụ - Mapping trực tiếp trong return */}
+      <div className="sidebar-divider" />
+
       <div className="sidebar-group tools-section">
         <h4 className="section-title">CÔNG CỤ</h4>
         {[
-          { icon: <LayoutGrid size={20} />, label: "Chấm điểm & đánh giá" },
+          {
+            icon: <LayoutGrid size={20} />,
+            label: "Chấm điểm",
+            path: "/grading",
+          },
           {
             icon: <ClipboardCheck size={20} />,
-            label: "Bài tập & đề kiểm tra",
+            label: "Bài tập",
+            path: "/assignments",
           },
-          { icon: <Users size={20} />, label: "Học sinh của tôi" },
+          { icon: <Users size={20} />, label: "Học sinh", path: "/students" },
         ].map((tool) => (
-          <div key={tool.label} className="nav-item">
+          <NavLink key={tool.label} to={tool.path} className={navLinkClass}>
             <div className="nav-item-content">
               <span className="nav-icon">{tool.icon}</span>
               <span className="nav-label">{tool.label}</span>
             </div>
-          </div>
+          </NavLink>
         ))}
       </div>
     </aside>

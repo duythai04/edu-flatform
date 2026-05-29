@@ -1,4 +1,3 @@
-// Khai báo biến màu sắc
 $purple-primary: #7c3aed;
 $purple-bg-active: #f5f3ff;
 $text-dark: #1f2937;
@@ -17,22 +16,19 @@ $border-color: #f3f4f6;
   flex-direction: column;
   padding: 24px 0;
   border-right: 1px solid $border-color;
-  font-family:
-    "Inter",
-    -apple-system,
-    sans-serif;
+  font-family: "Inter", sans-serif;
+  overflow-y: auto; // Cho phép cuộn nếu menu quá dài
 
-  // Từng nhóm menu
   .sidebar-group {
     margin-bottom: 8px;
-    padding-right: 16px; 
+    padding-right: 16px; // Để hở một chút bên phải cho hiệu ứng bo góc
 
     &.tools-section {
       margin-top: 24px;
     }
   }
 
-  // Item menu chung
+  // Item menu chung (Sử dụng cho cả NavLink)
   .nav-item {
     display: flex;
     align-items: center;
@@ -40,33 +36,39 @@ $border-color: #f3f4f6;
     padding: 12px 24px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    color: $text-dark;
+    color: $text-gray; // Mặc định màu xám
     border-radius: 0 50px 50px 0;
+    text-decoration: none; // Bỏ gạch chân của thẻ a
 
     &:hover {
       background-color: #f9fafb;
+      color: $text-dark;
     }
 
+    // Khi được nhấn (Active)
     &.active {
       background-color: $purple-bg-active;
-      color: $purple-primary;
+      color: $purple-primary !important;
       font-weight: 600;
 
-      .nav-icon {
+      .nav-item-content svg {
         color: $purple-primary;
+      }
+
+      .class-name {
+        color: $purple-primary;
+        font-weight: 600;
       }
     }
 
     .nav-item-content {
       display: flex;
-      text-decoration: none;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
 
-      .nav-icon {
-        margin-right: 16px;
-        color: $text-dark;
-        display: flex;
+      svg {
+        transition: color 0.2s;
+        color: inherit; // Thừa hưởng màu từ cha (.nav-item)
       }
 
       .nav-label {
@@ -84,82 +86,68 @@ $border-color: #f3f4f6;
     }
   }
 
-  // Đường gạch ngang
-  .sidebar-divider {
-    height: 1px;
-    background-color: $border-color;
-    margin: 16px 24px;
-  }
-
-  // Header của mỗi section
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 24px 16px 24px;
-
-    .btn-add-class {
-      width: 28px;
-      height: 28px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: $text-dark;
-      transition: all 0.2s;
-
-      &:hover {
-        background-color: #f3f4f6;
-        border-color: $text-gray;
-      }
-    }
-  }
-
-  .section-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: $text-light;
-    letter-spacing: 0.05em;
-    margin: 0;
-    padding-left: 24px; // Mặc định cho tiêu đề không có header
-  }
-
-  .section-header .section-title {
-    padding-left: 0; // Reset khi có header (flex-space-between)
-  }
-
-  // Item dành riêng cho Lớp học
-  .class-item {
+  // Style riêng cho phần lớp học trong NavLink
+  .class-item-inner {
     display: flex;
     align-items: center;
-    padding: 10px 24px;
-    cursor: pointer;
-    transition: background 0.2s;
-
-    &:hover {
-      background-color: #f9fafb;
-    }
+    gap: 12px;
 
     .class-avatar {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
       color: $white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 14px;
-      margin-right: 16px;
+      font-size: 13px;
+      flex-shrink: 0;
     }
 
     .class-name {
-      font-size: 15px;
+      font-size: 14px;
       color: $text-dark;
-      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background-color: $border-color;
+    margin: 16px 24px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 24px 12px 24px;
+
+    .btn-add-class {
+      width: 24px;
+      height: 24px;
+      border: 1px solid $border-color;
+      border-radius: 6px;
+      color: $text-gray;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        background-color: $border-color;
+        color: $text-dark;
+      }
+    }
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-light;
+    letter-spacing: 0.05em;
+    margin: 0;
+    text-transform: uppercase;
   }
 }

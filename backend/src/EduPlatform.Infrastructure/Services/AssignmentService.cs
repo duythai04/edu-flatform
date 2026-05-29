@@ -235,4 +235,25 @@ public class AssignmentService : IAssignmentService
         // Hiện tại để trống để build pass — bổ sung sau khi có entity.
         await Task.CompletedTask;
     }
+
+
+    public async Task<List<AssignmentResponseDto>> GetUpcomingByClassAsync(Guid classId)
+    {
+        var now = DateTime.UtcNow;
+
+        return await _context.Assignments
+            .Where(a => a.ClassroomId == classId && a.DueDate > now)
+            .OrderBy(a => a.DueDate)
+            .Select(a => new AssignmentResponseDto(
+                a.Id,
+                a.Title,
+                a.Description,
+                a.DueDate,
+                a.MaxScore,
+                a.ClassroomId,
+                a.CreatedAt,
+                new List<FileDto>()
+            ))
+            .ToListAsync();
+    }
 }

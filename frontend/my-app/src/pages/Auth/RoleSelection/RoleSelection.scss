@@ -1,105 +1,256 @@
-@import '../../../styles/variables';
+// --- VARIABLES ---
+$color-primary: #4f46e5;
+$color-teacher: #3b82f6;
+$color-student: #10b981;
+$color-text-title: #0f172a;
+$color-text-body: #64748b;
+$color-bg-card: #ffffff;
+$color-border: #f1f5f9;
+$shadow-elegant:
+  0 4px 6px -1px rgba(0, 0, 0, 0.05),
+  0 2px 4px -2px rgba(0, 0, 0, 0.05);
+$shadow-hover:
+  0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  0 8px 10px -6px rgba(0, 0, 0, 0.1);
 
-.role-selection {
-  text-align: center;
-  max-width: 600px;
+.role-selection-wrapper {
   width: 100%;
+  max-width: 480px;
+  padding: 10px;
+  animation: roleEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 
-  h2 {
-    color: $text-main;
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-
-  p {
-    color: $text-secondary;
-    font-size: 15px;
-    margin-bottom: 32px;
-  }
-
-  .role-options {
+  // --- Nút quay lại ---
+  .btn-back-link {
     display: flex;
-    gap: 24px;
-    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: $color-text-body;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    transition: all 0.2s ease;
 
-    // Responsive: Chuyển sang cột dọc trên màn hình nhỏ
-    @media (max-width: 480px) {
-      flex-direction: column;
+    &:hover {
+      color: $color-primary;
+      background-color: #f8fafc;
+      transform: translateX(-5px);
+    }
+  }
+
+  // --- Header ---
+  .role-header {
+    margin-bottom: 40px;
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: rgba($color-primary, 0.1);
+      color: $color-primary;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 16px;
     }
 
-    .role-card {
-      flex: 1;
-      background: $white;
-      padding: 32px 24px;
-      border: 1px solid $border-color;
-      border-radius: $radius-lg;
+    h2 {
+      font-size: 28px;
+      font-weight: 800;
+      color: $color-text-title;
+      margin-bottom: 12px;
+      letter-spacing: -0.025em;
+    }
+
+    p {
+      color: $color-text-body;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  }
+
+  // --- Danh sách Card ---
+  .role-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .role-card-item {
+      position: relative;
+      background: $color-bg-card;
+      border: 1px solid $color-border;
+      border-radius: 20px;
       cursor: pointer;
-      transition: all 0.2s ease-in-out;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+      box-shadow: $shadow-elegant;
 
-      &:hover {
-        border-color: $primary-color;
-        box-shadow: $shadow-sm;
-        transform: translateY(-4px);
-        background-color: rgba($primary-color, 0.02);
-      }
-
-      .icon-box {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
+      .role-card-content {
         display: flex;
         align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
+        padding: 24px;
+        z-index: 2;
+        position: relative;
+      }
 
-        &.teacher-bg {
-          background-color: #e8f0fe; // Màu xanh nhạt cho giáo viên
-          color: $primary-color;
+      // Hình ảnh icon
+      .role-visual {
+        margin-right: 20px;
+
+        .icon-container {
+          width: 60px;
+          height: 60px;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+        }
+      }
+
+      .role-text {
+        flex: 1;
+        h3 {
+          font-size: 18px;
+          font-weight: 700;
+          color: $color-text-title;
+          margin-bottom: 4px;
+          transition: color 0.3s;
+        }
+        p {
+          font-size: 14px;
+          color: $color-text-body;
+          line-height: 1.5;
+          margin: 0;
+        }
+      }
+
+      .role-action {
+        color: #cbd5e1;
+        transition: all 0.3s ease;
+      }
+
+      // Accent bar bên cạnh
+      .card-accent {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        transition: width 0.3s ease;
+        opacity: 0.1;
+      }
+
+      // --- Hover Effects ---
+      &:hover {
+        transform: scale(1.02) translateY(-4px);
+        box-shadow: $shadow-hover;
+        border-color: rgba($color-primary, 0.3);
+
+        .role-action {
+          color: $color-primary;
+          transform: translateX(4px);
         }
 
-        &.student-bg {
-          background-color: #e6f4ea; // Màu xanh lá nhạt cho học sinh
-          color: #1e8e3e;
+        .icon-container {
+          transform: scale(1.1) rotate(-5deg);
+        }
+
+        .card-accent {
+          width: 6px;
         }
       }
 
-      h3 {
-        color: $text-main;
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 12px;
+      // --- Custom colors for specific cards ---
+      &.teacher-card {
+        .icon-container {
+          background: linear-gradient(
+            135deg,
+            rgba($color-teacher, 0.1) 0%,
+            rgba($color-teacher, 0.2) 100%
+          );
+          color: $color-teacher;
+        }
+        &:hover {
+          .card-accent {
+            background-color: $color-teacher;
+            opacity: 1;
+          }
+          h3 {
+            color: $color-teacher;
+          }
+        }
       }
 
-      p {
-        color: $text-secondary;
-        font-size: 14px;
-        line-height: 1.5;
-        margin-bottom: 0;
+      &.student-card {
+        .icon-container {
+          background: linear-gradient(
+            135deg,
+            rgba($color-student, 0.1) 0%,
+            rgba($color-student, 0.2) 100%
+          );
+          color: $color-student;
+        }
+        &:hover {
+          .card-accent {
+            background-color: $color-student;
+            opacity: 1;
+          }
+          h3 {
+            color: $color-student;
+          }
+        }
       }
+    }
+  }
 
-      &:active {
-        transform: scale(0.98);
+  // --- Footer ---
+  .role-footer-note {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 14px;
+    color: $color-text-body;
+
+    a {
+      color: $color-primary;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: all 0.2s;
+
+      &:hover {
+        border-bottom-color: $color-primary;
       }
     }
   }
 }
 
+// --- ANIMATIONS ---
+@keyframes roleEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-.auth-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: $bg-light;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
+// --- RESPONSIVE ---
+@media (max-width: 640px) {
+  .role-selection-wrapper {
+    .role-header h2 {
+      font-size: 24px;
+    }
+    .role-card-item .role-card-content {
+      padding: 20px;
+    }
+  }
 }
