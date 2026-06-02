@@ -3,8 +3,8 @@ import { Bell, Megaphone, FileText, Clock, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import "./NotificationPage.scss";
+import { API_BASE_URL } from "../../config/api";
 
-const API = "http://localhost:5187/api";
 
 
 function timeAgo(dateStr) {
@@ -50,7 +50,7 @@ const NotificationPage = () => {
         const headers = { Authorization: `Bearer ${token}` };
 
         // 1. Lấy danh sách lớp
-        const classRes = await fetch(`${API}/classroom/my`, { headers });
+        const classRes = await fetch(`${API_BASE_URL}/classroom/my`, { headers });
         const myClasses = await classRes.json();
         if (!Array.isArray(myClasses)) {
           setLoading(false);
@@ -63,21 +63,21 @@ const NotificationPage = () => {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API}/announcement/class/${id}`, { headers }).then((r) =>
+              fetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }).then((r) =>
                 r.json(),
               ),
             ),
           ),
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API}/assignment/class/${id}/upcoming`, { headers }).then(
+              fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers }).then(
                 (r) => r.json(),
               ),
             ),
           ),
         ]);
 
-        // 3. Format dữ liệu
+        //  Format dữ liệu
         const formattedAnn = annResults.flat().map((item) => ({
           ...item,
           type: "announcement",
@@ -98,7 +98,7 @@ const NotificationPage = () => {
 
         setFeedItems(merged);
 
-        // 4. Đánh dấu đã xem: Lưu thời điểm hiện tại và báo cho Sidebar
+        //  Đánh dấu đã xem: Lưu thời điểm hiện tại và báo cho Sidebar
         localStorage.setItem("lastReadNotifications", new Date().toISOString());
         window.dispatchEvent(new Event("notificationsRead"));
       } catch (err) {

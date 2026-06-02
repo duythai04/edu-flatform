@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../contexts/AuthContext";
 import "./JoinClass.scss";
+import { API_BASE_URL } from "../../config/api";
 
 const JoinClass = () => {
   const [classCode, setClassCode] = useState("");
@@ -26,19 +27,17 @@ const JoinClass = () => {
     setStatus({ type: null, message: "" });
 
     try {
-      const res = await fetch("http://localhost:5187/api/classroom/join", {
+      const res = await fetch(`${API_BASE_URL}/api/classroom/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        // ĐỔI TÊN TRƯỜNG Ở ĐÂY: classCode -> Code
         body: JSON.stringify({
           Code: classCode.trim(),
         }),
       });
 
-      // Kiểm tra nếu trả về text thuần túy (vì Backend của bạn trả về Ok("Joined successfully"))
       const contentType = res.headers.get("content-type");
       let data;
       if (contentType && contentType.includes("application/json")) {
@@ -48,7 +47,6 @@ const JoinClass = () => {
       }
 
       if (!res.ok) {
-        // Trả về lỗi từ BadRequest("Already joined") hoặc NotFound("Classroom not found")
         throw new Error(data.message || data || "Lỗi khi tham gia lớp học");
       }
 
@@ -93,7 +91,6 @@ const JoinClass = () => {
             />
           </div>
 
-          {/* Hiển thị thông báo lỗi/thành công */}
           {status.message && (
             <div className={`status-box ${status.type}`}>
               {status.type === "success" ? (

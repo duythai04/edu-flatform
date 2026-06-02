@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../contexts/AuthContext";
 import "./CommnentSection.scss";
+import { API_BASE_URL } from "../../config/api";
 
-const API = "http://localhost:5187";
 
 const timeAgo = (dateStr) => {
   const diff = (Date.now() - new Date(dateStr)) / 1000;
@@ -195,7 +195,7 @@ const CommentItem = ({
     setLoading(true);
     try {
       const res = await fetch(
-        `${API}/api/classrooms/${classroomId}/comments/${comment.id}`,
+        `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${comment.id}`,
         {
           method: "PUT",
           headers,
@@ -215,14 +215,14 @@ const CommentItem = ({
   const handleDelete = async () => {
     if (!window.confirm("Xóa bình luận này?")) return;
     const res = await fetch(
-      `${API}/api/classrooms/${classroomId}/comments/${comment.id}`,
+      `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${comment.id}`,
       { method: "DELETE", headers },
     );
     if (res.ok) onDeleted(comment.id);
   };
 
   const handleReply = async (content) => {
-    const res = await fetch(`${API}/api/classrooms/${classroomId}/comments`, {
+    const res = await fetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -242,7 +242,7 @@ const CommentItem = ({
 
   const handleUpdateReply = async (replyId, content) => {
     const res = await fetch(
-      `${API}/api/classrooms/${classroomId}/comments/${replyId}`,
+      `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${replyId}`,
       { method: "PUT", headers, body: JSON.stringify({ content }) },
     );
     if (res.ok) {
@@ -254,7 +254,7 @@ const CommentItem = ({
   const handleDeleteReply = async (replyId) => {
     if (!window.confirm("Xóa reply này?")) return;
     const res = await fetch(
-      `${API}/api/classrooms/${classroomId}/comments/${replyId}`,
+      `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${replyId}`,
       { method: "DELETE", headers },
     );
     if (res.ok) onDeleted(replyId, comment.id);
@@ -414,7 +414,7 @@ const CommentSection = ({
   }, [comments]);
 
   const handleCreate = async (content) => {
-    const res = await fetch(`${API}/api/classrooms/${classroomId}/comments`, {
+    const res = await fetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
       method: "POST",
       headers,
       body: JSON.stringify({

@@ -17,8 +17,7 @@ import {
 } from "lucide-react";
 import "./SubmissionList.scss";
 import { AuthContext } from "../../contexts/AuthContext";
-
-const API_BASE_URL = "http://localhost:5187";
+import { API_BASE_URL } from "../../config/api";
 
 // Grade Modal
 const GradeModal = ({ submission, maxScore, token, onClose, onGraded }) => {

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { API_BASE_URL } from "../../../config/api";
 
 const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5187/api/v1/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -25,7 +26,7 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
         localStorage.setItem("user_name", data.fullName);
         localStorage.setItem("user_role", data.role);
 
-        onLoginSuccess(data.accessToken); // Truyền token ra App.js
+        onLoginSuccess(data.accessToken);
       } else {
         const errorText = await response.text();
         setError(errorText || "Email hoặc mật khẩu không đúng.");

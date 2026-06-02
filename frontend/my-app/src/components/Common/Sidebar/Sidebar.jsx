@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../../contexts/AuthContext";
 import "./Sidebar.scss";
+import { API_BASE_URL } from "../../../config/api";
 
-const API = "http://localhost:5187/api";
 
 const getColorFromName = (name) => {
   const colors = [
@@ -44,7 +44,7 @@ export default function Sidebar({ isOpen }) {
     if (!token) return;
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const classRes = await fetch(`${API}/classroom/my`, { headers });
+      const classRes = await fetch(`${API_BASE_URL}/classroom/my`, { headers });
       const classesData = await classRes.json();
 
       if (Array.isArray(classesData)) {
@@ -53,10 +53,10 @@ export default function Sidebar({ isOpen }) {
         // Tính toán Badge thông báo mới
         const classIds = classesData.map((c) => c.id);
         const notifyRequests = classIds.flatMap((id) => [
-          fetch(`${API}/announcement/class/${id}`, { headers }).then((r) =>
+          fetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }).then((r) =>
             r.json(),
           ),
-          fetch(`${API}/assignment/class/${id}/upcoming`, { headers }).then(
+          fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers }).then(
             (r) => r.json(),
           ),
         ]);

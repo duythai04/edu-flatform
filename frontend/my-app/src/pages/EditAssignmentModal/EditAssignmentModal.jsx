@@ -9,11 +9,9 @@ import {
   Trash2,
 } from "lucide-react";
 import "./EditAssignmentModal.scss";
+import { API_BASE_URL } from "../../config/api";
 
-const API_BASE_URL = "http://localhost:5187";
 
-// assignment prop: object chứa dữ liệu bài tập cần sửa
-// { id, title, description, dueDate, maxScore, files: [] }
 const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
   const [asmData, setAsmData] = useState({
     title: "",

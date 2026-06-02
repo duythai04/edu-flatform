@@ -19,8 +19,7 @@ import {
 } from "lucide-react";
 import "./AssignmentDetail.scss";
 import { AuthContext } from "../../contexts/AuthContext";
-
-const API_BASE_URL = "http://localhost:5187";
+import { API_BASE_URL } from "../../config/api";
 
 const formatFileSize = (bytes) => {
   if (!bytes) return "0 Bytes";

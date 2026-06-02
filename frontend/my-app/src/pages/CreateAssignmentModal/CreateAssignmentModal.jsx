@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { X, FileText, Paperclip, Send, Loader2, Clock } from "lucide-react";
 import "./CreateAssignmentModal.scss";
+import { API_BASE_URL } from "../../config/api";
 
-const API_BASE_URL = "http://localhost:5187";
 
 const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
   const [asmData, setAsmData] = useState({

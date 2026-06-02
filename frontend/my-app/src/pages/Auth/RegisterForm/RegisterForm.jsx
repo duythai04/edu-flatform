@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { API_BASE_URL } from "../../../config/api";
 
 const RegisterForm = ({ role, onBack, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -16,20 +17,17 @@ const RegisterForm = ({ role, onBack, onSwitchToLogin }) => {
     setError("");
 
     try {
-      const response = await fetch(
-        "http://localhost:5187/api/v1/auth/register",
-        {
-          // Thay port của bạn vào
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fullName: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-            role: role, // 'Teacher' hoặc 'Student'
-          }),
-        },
-      );
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+        // Thay port của bạn vào
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: role, // 'Teacher' hoặc 'Student'
+        }),
+      });
 
       if (response.ok) {
         alert("Đăng ký thành công! Mời bạn đăng nhập.");

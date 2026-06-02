@@ -18,8 +18,8 @@ import {
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import "./Home.scss";
+import { API_BASE_URL } from "../../config/api";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const getBannerColor = (index) => {
   const colors = [
@@ -79,7 +79,6 @@ function deadlineUrgency(dateStr) {
   return "normal";
 }
 
-const API = "http://localhost:5187/api";
 
 const Home = () => {
   const { user } = useContext(AuthContext);
@@ -100,7 +99,7 @@ const Home = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await fetch(`${API}/classroom/my`, { headers });
+        const res = await fetch(`${API_BASE_URL}/classroom/my`, { headers });
         const data = await res.json();
         setMyClasses(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -112,20 +111,20 @@ const Home = () => {
     fetchClasses();
   }, []);
 
-  // 2. Khi có lớp → tải feed (announcement + assignment) + deadline
+  // Khi có lớp → tải feed (announcement + assignment) + deadline
   useEffect(() => {
     if (!myClasses.length) return;
 
     const classIds = myClasses.map((c) => c.id).filter(Boolean);
 
-    // ── Feed: gộp Announcement + Assignment ──
+    //Feed: gộp Announcement + Assignment
     const fetchFeed = async () => {
       setLoadingFeed(true);
       try {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API}/announcement/class/${id}`, { headers })
+              fetch(`${API_BASE_URL}/announcement/class/${id}`, { headers })
                 .then((r) => r.json())
                 .then((data) =>
                   (Array.isArray(data) ? data : []).map((item) => ({
@@ -144,7 +143,7 @@ const Home = () => {
           // Tải tất cả bài tập
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API}/assignment/class/${id}/upcoming`, { headers })
+              fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
                 .then((r) => r.json())
                 .then((data) =>
                   (Array.isArray(data) ? data : []).map((item) => ({
@@ -182,13 +181,13 @@ const Home = () => {
       }
     };
 
-    // ── Deadline ──
+    //  Deadline
     const fetchDeadlines = async () => {
       setLoadingDead(true);
       try {
         const results = await Promise.all(
           classIds.map((id) =>
-            fetch(`${API}/assignment/class/${id}/upcoming`, { headers })
+            fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
               .then((r) => r.json())
               .then((data) =>
                 (Array.isArray(data) ? data : []).map((item) => ({
@@ -318,7 +317,7 @@ const Home = () => {
 
           {/* Cột phải */}
           <div className="right-column">
-            {/* ── Widget: Thông báo (feed gộp) ── */}
+            {/* Widget: Thông báo (feed gộp) */}
             <section className="side-card">
               <div className="side-header">
                 <h3>
@@ -356,7 +355,6 @@ const Home = () => {
                       key={`${item.type}-${item.id}`}
                       className="activity-item"
                     >
-                      {/* Màu dot: xanh = thông báo, cam = bài tập */}
                       <div
                         className={`dot ${item.type === "assignment" ? "orange" : "blue"}`}
                       ></div>
@@ -364,7 +362,6 @@ const Home = () => {
                         <p>
                           <strong>{item.className}</strong>:{" "}
                           {item.type === "assignment" ? (
-                            // Icon + nhãn bài tập
                             <span>
                               <FileText
                                 size={12}
@@ -376,7 +373,6 @@ const Home = () => {
                               Bài tập mới: {item.title}
                             </span>
                           ) : (
-                            // Icon + nhãn thông báo
                             <span>
                               <Megaphone
                                 size={12}
@@ -390,7 +386,6 @@ const Home = () => {
                           )}
                         </p>
 
-                        {/* Preview nội dung */}
                         {item.preview && (
                           <p className="ann-preview">
                             {item.preview.length > 60
@@ -399,7 +394,6 @@ const Home = () => {
                           </p>
                         )}
 
-                        {/* Deadline nếu là bài tập */}
                         {item.type === "assignment" && item.dueDate && (
                           <p
                             className="ann-preview"
@@ -423,7 +417,6 @@ const Home = () => {
               </div>
             </section>
 
-            {/* ── Widget: Sắp hết hạn ── */}
             <section className="side-card">
               <div className="side-header">
                 <h3>

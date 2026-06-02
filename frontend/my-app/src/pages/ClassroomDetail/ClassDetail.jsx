@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import "./ClassDetail.scss";
 import { AuthContext } from "../../contexts/AuthContext";
+import { API_BASE_URL } from "../../config/api";
 
 import CreateAssignmentModal from "../CreateAssignmentModal/CreateAssignmentModal";
 import EditAssignmentModal from "../EditAssignmentModal/EditAssignmentModal";
@@ -74,7 +75,7 @@ const FeedList = ({ classData, announcements, classroomId }) => {
         if (type === "assignment") params.append("assignmentId", id);
 
         const res = await fetch(
-          `http://localhost:5187/api/classrooms/${classroomId}/comments?${params}`,
+          `${API_BASE_URL}/api/classrooms/${classroomId}/comments?${params}`,
           { headers },
         );
         if (!res.ok) return;
@@ -223,7 +224,7 @@ const TeacherStream = ({
 
   const handlePost = async () => {
     if (!newPost.trim()) return;
-    const res = await fetch(`http://localhost:5187/api/announcement`, {
+    const res = await fetch(`${API_BASE_URL}/api/announcement`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -466,8 +467,8 @@ const ClassDetail = () => {
     if (!token) return;
     try {
       const [classRes, announceRes] = await Promise.all([
-        fetch(`http://localhost:5187/api/classroom/${id}`, { headers }),
-        fetch(`http://localhost:5187/api/announcement/class/${id}`, {
+        fetch(`${API_BASE_URL}/api/classroom/${id}`, { headers }),
+        fetch(`${API_BASE_URL}/api/announcement/class/${id}`, {
           headers,
         }),
       ]);
@@ -486,7 +487,7 @@ const ClassDetail = () => {
 
   const handleDeleteAssignment = async (asmId) => {
     if (!window.confirm("Xóa bài tập này?")) return;
-    const res = await fetch(`http://localhost:5187/api/assignment/${asmId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/assignment/${asmId}`, {
       method: "DELETE",
       headers,
     });
