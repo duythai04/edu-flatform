@@ -8,8 +8,4 @@
   <ItemGroup>
     <ProjectReference Include="..\EduPlatform.Domain\EduPlatform.Domain.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="9.0.0" />
-  </ItemGroup>
 </Project>
