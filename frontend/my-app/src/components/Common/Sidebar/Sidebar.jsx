@@ -36,7 +36,6 @@ export default function Sidebar({ isOpen }) {
   const [unreadCount, setUnreadCount] = useState(0);
   const token = localStorage.getItem("token");
 
-  // Logic phân quyền
   const isTeacher = (user?.role || user?.Role) === "Teacher";
   const classActionPath = isTeacher ? "/create-class" : "/join-class";
 
@@ -45,22 +44,34 @@ export default function Sidebar({ isOpen }) {
     try {
       const headers = { Authorization: `Bearer ${token}` };
 
-      const classesData = await safeFetch(`${API_BASE_URL}/classroom/my`);
-      setMyClasses(classesData);
+      const { ok: classOk, data: classesData } = await safeFetch(
+        `${API_BASE_URL}/classroom/my`,
+        { headers },
+      );
 
-      const classIds = classesData.map((c) => c.id);
+      const classes = classOk && Array.isArray(classesData) ? classesData : [];
+      setMyClasses(classes);
+
+      if (classes.length === 0) return;
+
+      const classIds = classes.map((c) => c.id).filter(Boolean);
+
       const notifyRequests = classIds.flatMap((id) => [
-        safeFetch(`${API_BASE_URL}/announcement/class/${id}`),
-        safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`),
+        safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }),
+        safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+          headers,
+        }),
       ]);
 
       const results = await Promise.all(notifyRequests);
       const lastRead = localStorage.getItem("lastReadNotifications");
       const lastReadDate = lastRead ? new Date(lastRead) : new Date(0);
 
-      const totalUnread = results.reduce((acc, curr) => {
-        const newItems = curr.filter(
-          (item) => new Date(item.createdAt) > lastReadDate,
+      const totalUnread = results.reduce((acc, result) => {
+        // ✅ Kiểm tra an toàn trước khi destructure
+        if (!result || !result.ok || !Array.isArray(result.data)) return acc;
+        const newItems = result.data.filter(
+          (item) => item?.createdAt && new Date(item.createdAt) > lastReadDate,
         );
         return acc + newItems.length;
       }, 0);
@@ -74,8 +85,6 @@ export default function Sidebar({ isOpen }) {
   useEffect(() => {
     if (!isOpen) return;
     fetchData();
-
-    // Lắng nghe sự kiện để xóa badge khi xem thông báo
     window.addEventListener("notificationsRead", fetchData);
     return () => window.removeEventListener("notificationsRead", fetchData);
   }, [isOpen, token]);
@@ -129,23 +138,24 @@ export default function Sidebar({ isOpen }) {
           </Link>
         </div>
 
-        {myClasses.map((cls) => (
-          <NavLink
-            key={cls.id}
-            to={`/class/${cls.id}`}
-            className={navLinkClass}
-          >
-            <div className="class-item-inner">
-              <div
-                className="class-avatar"
-                style={{ backgroundColor: getColorFromName(cls.name) }}
-              >
-                {cls.name.charAt(0).toUpperCase()}
+        {Array.isArray(myClasses) &&
+          myClasses.map((cls) => (
+            <NavLink
+              key={cls.id}
+              to={`/class/${cls.id}`}
+              className={navLinkClass}
+            >
+              <div className="class-item-inner">
+                <div
+                  className="class-avatar"
+                  style={{ backgroundColor: getColorFromName(cls.name || "") }}
+                >
+                  {(cls.name || "?").charAt(0).toUpperCase()}
+                </div>
+                <span className="class-name">{cls.name}</span>
               </div>
-              <span className="class-name">{cls.name}</span>
-            </div>
-          </NavLink>
-        ))}
+            </NavLink>
+          ))}
         {myClasses.length === 0 && <p className="empty-msg">Chưa có lớp học</p>}
       </div>
 
