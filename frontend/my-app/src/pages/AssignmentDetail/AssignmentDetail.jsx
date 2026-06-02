@@ -70,7 +70,6 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
   const handleSubmit = async () => {
     if (!selectedFile) return;
 
-    // Kiểm tra kích thước phía client (20 MB)
     const MAX_SIZE = 20 * 1024 * 1024;
     if (selectedFile.size > MAX_SIZE) {
       setErrorMsg("File vượt quá giới hạn 20 MB.");
@@ -94,8 +93,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
         setSelectedFile(null);
         onRefresh();
       } else {
-        // Đọc lỗi từ body text (API trả về BadRequest với message)
-        const msg = await res.text();
+        const msg = typeof res.data === "string" ? res.data : null;
         setErrorMsg(msg || "Nộp bài thất bại. Vui lòng thử lại.");
       }
     } catch (err) {
