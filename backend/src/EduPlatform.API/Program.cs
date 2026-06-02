@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ Set port TRƯỚC khi Build
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
@@ -104,7 +103,6 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// ✅ Swagger bật ở mọi môi trường
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -116,8 +114,7 @@ var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 
-// ❌ Bỏ UseHttpsRedirection vì Railway không cần (đã có reverse proxy)
-// app.UseHttpsRedirection();
+
 
 app.UseStaticFiles();
 app.UseRouting();

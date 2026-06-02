@@ -45,7 +45,7 @@ const StatusBadge = ({ isSubmitted, isLate }) => {
   return <span className="status-badge assigned">Đã giao</span>;
 };
 
-// Student Sidebar 
+// Student Sidebar
 const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
   const [uploading, setUploading] = useState(false);
   const [unsubmitting, setUnsubmitting] = useState(false);
@@ -271,7 +271,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
   );
 };
 
-//  Teacher Sidebar 
+//  Teacher Sidebar
 const TeacherSidebar = ({ data, assignmentId, navigate }) => {
   const totalStudents = data.totalStudents || 0;
   const submittedCount = data.submissionCount || 0;
@@ -331,12 +331,19 @@ const AssignmentDetail = () => {
           "Content-Type": "application/json",
         },
       });
+
       if (res.ok) {
-        setData(await res.json());
+        const text = await res.text();
+        if (!text) {
+          setError("Máy chủ trả về dữ liệu rỗng.");
+          return;
+        }
+        setData(JSON.parse(text));
       } else {
         setError("Không thể tải thông tin bài tập.");
       }
     } catch (err) {
+      console.error("fetchDetail error:", err);
       setError("Lỗi kết nối đến máy chủ.");
     } finally {
       setLoading(false);
