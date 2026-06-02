@@ -326,20 +326,22 @@ const AssignmentDetail = () => {
   const fetchDetail = async () => {
     setLoading(true);
     try {
-      const res = await safeFetch(`${API_BASE_URL}/api/assignment/${id}/detail`, {
-        headers: {
-          Authorization: "Bearer " + token,
-          "Content-Type": "application/json",
+      const res = await safeFetch(
+        `${API_BASE_URL}/api/assignment/${id}/detail`,
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (res.ok) {
-        const text = await res.text();
-        if (!text) {
+        if (!res.data) {
           setError("Máy chủ trả về dữ liệu rỗng.");
           return;
         }
-        setData(JSON.parse(text));
+        setData(res.data);
       } else {
         setError("Không thể tải thông tin bài tập.");
       }
