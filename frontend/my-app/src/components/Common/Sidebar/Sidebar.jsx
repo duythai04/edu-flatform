@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen }) {
       const headers = { Authorization: `Bearer ${token}` };
 
       const { ok: classOk, data: classesData } = await safeFetch(
-        `${API_BASE_URL}/classroom/my`,
+        `${API_BASE_URL}/api/classroom/my`,
         { headers },
       );
 
@@ -57,8 +57,8 @@ export default function Sidebar({ isOpen }) {
       const classIds = classes.map((c) => c.id).filter(Boolean);
 
       const notifyRequests = classIds.flatMap((id) => [
-        safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }),
-        safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+        safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, { headers }),
+        safeFetch(`${API_BASE_URL}/api/assignment/class/${id}/upcoming`, {
           headers,
         }),
       ]);
