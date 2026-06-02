@@ -110,8 +110,8 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8000";
-builder.WebHost.UseUrls("http://0.0.0.0:8000");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 if (!Directory.Exists(uploadsPath))
