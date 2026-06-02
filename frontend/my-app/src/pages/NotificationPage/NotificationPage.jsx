@@ -50,7 +50,7 @@ const NotificationPage = () => {
 
         // 1. Lấy danh sách lớp
         const { ok: classOk, data: myClasses } = await safeFetch(
-          `${API_BASE_URL}/classroom/my`,
+          `${API_BASE_URL}/api/classroom/my`,
           { headers },
         );
 
@@ -65,14 +65,14 @@ const NotificationPage = () => {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers })
+              safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, { headers })
                 .then(({ ok, data }) => (ok && Array.isArray(data) ? data : []))
                 .catch(() => []),
             ),
           ),
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+              safeFetch(`${API_BASE_URL}/api/assignment/class/${id}/upcoming`, {
                 headers,
               })
                 .then(({ ok, data }) => (ok && Array.isArray(data) ? data : []))
