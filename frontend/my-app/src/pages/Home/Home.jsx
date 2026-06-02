@@ -21,7 +21,6 @@ import "./Home.scss";
 import { API_BASE_URL } from "../../config/api";
 import { safeFetch } from "../../config/fetchHelper";
 
-
 const getBannerColor = (index) => {
   const colors = [
     "#4f46e5",
@@ -80,7 +79,6 @@ function deadlineUrgency(dateStr) {
   return "normal";
 }
 
-
 const Home = () => {
   const { user } = useContext(AuthContext);
   const [myClasses, setMyClasses] = useState([]);
@@ -100,9 +98,10 @@ const Home = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await safeFetch(`${API_BASE_URL}/classroom/my`, { headers });
-        const data = await res.json();
-        setMyClasses(Array.isArray(data) ? data : []);
+        const { ok, data } = await safeFetch(`${API_BASE_URL}/classroom/my`, {
+          headers,
+        });
+        setMyClasses(ok && Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -126,9 +125,8 @@ const Home = () => {
           Promise.all(
             classIds.map((id) =>
               safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers })
-                .then((r) => r.json())
-                .then((data) =>
-                  (Array.isArray(data) ? data : []).map((item) => ({
+                .then(({ ok, data }) =>
+                  (ok && Array.isArray(data) ? data : []).map((item) => ({
                     id: item.id,
                     type: "announcement",
                     className:
@@ -141,13 +139,13 @@ const Home = () => {
                 .catch(() => []),
             ),
           ),
-          // Tải tất cả bài tập
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
-                .then((r) => r.json())
-                .then((data) =>
-                  (Array.isArray(data) ? data : []).map((item) => ({
+              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+                headers,
+              })
+                .then(({ ok, data }) =>
+                  (ok && Array.isArray(data) ? data : []).map((item) => ({
                     id: item.id,
                     type: "assignment",
                     className:
@@ -188,10 +186,11 @@ const Home = () => {
       try {
         const results = await Promise.all(
           classIds.map((id) =>
-            safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
-              .then((r) => r.json())
-              .then((data) =>
-                (Array.isArray(data) ? data : []).map((item) => ({
+            safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+              headers,
+            })
+              .then(({ ok, data }) =>
+                (ok && Array.isArray(data) ? data : []).map((item) => ({
                   ...item,
                   className:
                     myClasses.find((c) => c.id === id)?.name || "Lớp học",
