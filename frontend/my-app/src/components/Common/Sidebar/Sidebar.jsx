@@ -13,7 +13,6 @@ import { AuthContext } from "../../../contexts/AuthContext";
 import "./Sidebar.scss";
 import { API_BASE_URL } from "../../../config/api";
 
-
 const getColorFromName = (name) => {
   const colors = [
     "#7c3aed",
@@ -44,37 +43,41 @@ export default function Sidebar({ isOpen }) {
     if (!token) return;
     try {
       const headers = { Authorization: `Bearer ${token}` };
-      const classRes = await fetch(`${API_BASE_URL}/classroom/my`, { headers });
-      const classesData = await classRes.json();
 
-      if (Array.isArray(classesData)) {
-        setMyClasses(classesData);
+      const safeFetch = async (url) => {
+        try {
+          const res = await fetch(url, { headers });
+          if (!res.ok) return [];
+          const text = await res.text();
+          if (!text) return [];
+          const data = JSON.parse(text);
+          return Array.isArray(data) ? data : [];
+        } catch {
+          return [];
+        }
+      };
 
-        // Tính toán Badge thông báo mới
-        const classIds = classesData.map((c) => c.id);
-        const notifyRequests = classIds.flatMap((id) => [
-          fetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }).then((r) =>
-            r.json(),
-          ),
-          fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers }).then(
-            (r) => r.json(),
-          ),
-        ]);
+      const classesData = await safeFetch(`${API_BASE_URL}/classroom/my`);
+      setMyClasses(classesData);
 
-        const results = await Promise.all(notifyRequests);
-        const lastRead = localStorage.getItem("lastReadNotifications");
-        const lastReadDate = lastRead ? new Date(lastRead) : new Date(0);
+      const classIds = classesData.map((c) => c.id);
+      const notifyRequests = classIds.flatMap((id) => [
+        safeFetch(`${API_BASE_URL}/announcement/class/${id}`),
+        safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`),
+      ]);
 
-        const totalUnread = results.reduce((acc, curr) => {
-          if (!Array.isArray(curr)) return acc;
-          const newItems = curr.filter(
-            (item) => new Date(item.createdAt) > lastReadDate,
-          );
-          return acc + newItems.length;
-        }, 0);
+      const results = await Promise.all(notifyRequests);
+      const lastRead = localStorage.getItem("lastReadNotifications");
+      const lastReadDate = lastRead ? new Date(lastRead) : new Date(0);
 
-        setUnreadCount(totalUnread);
-      }
+      const totalUnread = results.reduce((acc, curr) => {
+        const newItems = curr.filter(
+          (item) => new Date(item.createdAt) > lastReadDate,
+        );
+        return acc + newItems.length;
+      }, 0);
+
+      setUnreadCount(totalUnread);
     } catch (err) {
       console.error("Sidebar Error:", err);
     }
