@@ -15,6 +15,7 @@ import {
 import { AuthContext } from "../../contexts/AuthContext";
 import "./CommnentSection.scss";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 
 const timeAgo = (dateStr) => {
@@ -194,7 +195,7 @@ const CommentItem = ({
   const handleUpdate = async (newContent) => {
     setLoading(true);
     try {
-      const res = await fetch(
+      const res = await safeFetch(
         `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${comment.id}`,
         {
           method: "PUT",
@@ -214,7 +215,7 @@ const CommentItem = ({
 
   const handleDelete = async () => {
     if (!window.confirm("Xóa bình luận này?")) return;
-    const res = await fetch(
+    const res = await safeFetch(
       `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${comment.id}`,
       { method: "DELETE", headers },
     );
@@ -222,7 +223,7 @@ const CommentItem = ({
   };
 
   const handleReply = async (content) => {
-    const res = await fetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
+    const res = await safeFetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -241,7 +242,7 @@ const CommentItem = ({
   };
 
   const handleUpdateReply = async (replyId, content) => {
-    const res = await fetch(
+    const res = await safeFetch(
       `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${replyId}`,
       { method: "PUT", headers, body: JSON.stringify({ content }) },
     );
@@ -253,7 +254,7 @@ const CommentItem = ({
 
   const handleDeleteReply = async (replyId) => {
     if (!window.confirm("Xóa reply này?")) return;
-    const res = await fetch(
+    const res = await safeFetch(
       `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${replyId}`,
       { method: "DELETE", headers },
     );
@@ -381,7 +382,7 @@ const CommentSection = ({
       if (announcementId) params.append("announcementId", announcementId);
       if (assignmentId) params.append("assignmentId", assignmentId);
 
-      const res = await fetch(
+      const res = await safeFetch(
         `${API}/api/classrooms/${classroomId}/comments?${params}`,
         { headers },
       );
@@ -414,7 +415,7 @@ const CommentSection = ({
   }, [comments]);
 
   const handleCreate = async (content) => {
-    const res = await fetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
+    const res = await safeFetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
       method: "POST",
       headers,
       body: JSON.stringify({

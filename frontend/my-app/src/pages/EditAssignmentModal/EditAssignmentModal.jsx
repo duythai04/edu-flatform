@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import "./EditAssignmentModal.scss";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 
 const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
@@ -87,7 +88,7 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
         maxScore: parseInt(asmData.maxScore) || 100,
       };
 
-      const res = await fetch(
+      const res = await safeFetch(
         `${API_BASE_URL}/api/assignment/${assignment.id}`,
         {
           method: "PUT",
@@ -107,7 +108,7 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
 
       // 2. Xoá các file đã đánh dấu
       for (const fileId of deletedFileIds) {
-        await fetch(
+        await safeFetch(
           `${API_BASE_URL}/api/assignment/${assignment.id}/files/${fileId}`,
           {
             method: "DELETE",
@@ -120,7 +121,7 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
       for (const file of newFiles) {
         const formData = new FormData();
         formData.append("file", file);
-        await fetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
+        await safeFetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           body: formData,

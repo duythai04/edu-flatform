@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import "./Home.scss";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 
 const getBannerColor = (index) => {
@@ -99,7 +100,7 @@ const Home = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/classroom/my`, { headers });
+        const res = await safeFetch(`${API_BASE_URL}/classroom/my`, { headers });
         const data = await res.json();
         setMyClasses(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -124,7 +125,7 @@ const Home = () => {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API_BASE_URL}/announcement/class/${id}`, { headers })
+              safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers })
                 .then((r) => r.json())
                 .then((data) =>
                   (Array.isArray(data) ? data : []).map((item) => ({
@@ -143,7 +144,7 @@ const Home = () => {
           // Tải tất cả bài tập
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
+              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
                 .then((r) => r.json())
                 .then((data) =>
                   (Array.isArray(data) ? data : []).map((item) => ({
@@ -187,7 +188,7 @@ const Home = () => {
       try {
         const results = await Promise.all(
           classIds.map((id) =>
-            fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
+            safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers })
               .then((r) => r.json())
               .then((data) =>
                 (Array.isArray(data) ? data : []).map((item) => ({

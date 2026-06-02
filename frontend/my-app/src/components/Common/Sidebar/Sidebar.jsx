@@ -12,6 +12,7 @@ import {
 import { AuthContext } from "../../../contexts/AuthContext";
 import "./Sidebar.scss";
 import { API_BASE_URL } from "../../../config/api";
+import { safeFetch } from "../../../config/fetchHelper";
 
 const getColorFromName = (name) => {
   const colors = [
@@ -43,19 +44,6 @@ export default function Sidebar({ isOpen }) {
     if (!token) return;
     try {
       const headers = { Authorization: `Bearer ${token}` };
-
-      const safeFetch = async (url) => {
-        try {
-          const res = await fetch(url, { headers });
-          if (!res.ok) return [];
-          const text = await res.text();
-          if (!text) return [];
-          const data = JSON.parse(text);
-          return Array.isArray(data) ? data : [];
-        } catch {
-          return [];
-        }
-      };
 
       const classesData = await safeFetch(`${API_BASE_URL}/classroom/my`);
       setMyClasses(classesData);

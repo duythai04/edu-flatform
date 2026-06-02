@@ -21,6 +21,7 @@ import {
 import "./ClassDetail.scss";
 import { AuthContext } from "../../contexts/AuthContext";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 import CreateAssignmentModal from "../CreateAssignmentModal/CreateAssignmentModal";
 import EditAssignmentModal from "../EditAssignmentModal/EditAssignmentModal";
@@ -74,7 +75,7 @@ const FeedList = ({ classData, announcements, classroomId }) => {
         if (type === "announcement") params.append("announcementId", id);
         if (type === "assignment") params.append("assignmentId", id);
 
-        const res = await fetch(
+        const res = await safeFetch(
           `${API_BASE_URL}/api/classrooms/${classroomId}/comments?${params}`,
           { headers },
         );
@@ -224,7 +225,7 @@ const TeacherStream = ({
 
   const handlePost = async () => {
     if (!newPost.trim()) return;
-    const res = await fetch(`${API_BASE_URL}/api/announcement`, {
+    const res = await safeFetch(`${API_BASE_URL}/api/announcement`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -467,8 +468,8 @@ const ClassDetail = () => {
     if (!token) return;
     try {
       const [classRes, announceRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/classroom/${id}`, { headers }),
-        fetch(`${API_BASE_URL}/api/announcement/class/${id}`, {
+        safeFetch(`${API_BASE_URL}/api/classroom/${id}`, { headers }),
+        safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, {
           headers,
         }),
       ]);
@@ -487,7 +488,7 @@ const ClassDetail = () => {
 
   const handleDeleteAssignment = async (asmId) => {
     if (!window.confirm("Xóa bài tập này?")) return;
-    const res = await fetch(`${API_BASE_URL}/api/assignment/${asmId}`, {
+    const res = await safeFetch(`${API_BASE_URL}/api/assignment/${asmId}`, {
       method: "DELETE",
       headers,
     });

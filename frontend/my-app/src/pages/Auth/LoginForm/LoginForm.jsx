@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { API_BASE_URL } from "../../../config/api";
+import { safeFetch } from "../../../config/fetchHelper";
 
 const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
   const [email, setEmail] = useState("");
@@ -14,7 +15,7 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      const response = await safeFetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -10,6 +10,7 @@ import {
 import { AuthContext } from "../../contexts/AuthContext";
 import "./JoinClass.scss";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 const JoinClass = () => {
   const [classCode, setClassCode] = useState("");
@@ -27,7 +28,7 @@ const JoinClass = () => {
     setStatus({ type: null, message: "" });
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/classroom/join`, {
+      const res = await safeFetch(`${API_BASE_URL}/api/classroom/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

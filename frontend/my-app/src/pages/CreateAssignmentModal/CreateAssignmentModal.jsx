@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, FileText, Paperclip, Send, Loader2, Clock } from "lucide-react";
 import "./CreateAssignmentModal.scss";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 
 const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
@@ -66,7 +67,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
         classroomId: classroomId,
       };
 
-      const res = await fetch(`${API_BASE_URL}/api/assignment`, {
+      const res = await safeFetch(`${API_BASE_URL}/api/assignment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +89,7 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
         for (const file of selectedFiles) {
           const formData = new FormData();
           formData.append("file", file);
-          await fetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
+          await safeFetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
             body: formData,

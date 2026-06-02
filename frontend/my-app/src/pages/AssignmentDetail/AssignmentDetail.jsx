@@ -20,6 +20,7 @@ import {
 import "./AssignmentDetail.scss";
 import { AuthContext } from "../../contexts/AuthContext";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 const formatFileSize = (bytes) => {
   if (!bytes) return "0 Bytes";
@@ -83,7 +84,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
       formData.append("file", selectedFile);
       formData.append("assignmentId", assignmentId);
 
-      const res = await fetch(`${API_BASE_URL}/api/submission`, {
+      const res = await safeFetch(`${API_BASE_URL}/api/submission`, {
         method: "POST",
         headers: { Authorization: "Bearer " + token },
         body: formData,
@@ -112,7 +113,7 @@ const StudentSidebar = ({ data, assignmentId, token, onRefresh }) => {
     setUnsubmitting(true);
     setErrorMsg(null);
     try {
-      const res = await fetch(
+      const res = await safeFetch(
         `${API_BASE_URL}/api/submission/${data.mySubmission?.id}`,
         {
           method: "DELETE",
@@ -325,7 +326,7 @@ const AssignmentDetail = () => {
   const fetchDetail = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/assignment/${id}/detail`, {
+      const res = await safeFetch(`${API_BASE_URL}/api/assignment/${id}/detail`, {
         headers: {
           Authorization: "Bearer " + token,
           "Content-Type": "application/json",
@@ -358,7 +359,7 @@ const AssignmentDetail = () => {
   const handleSendComment = async () => {
     if (!privateComment.trim()) return;
     try {
-      await fetch(`${API_BASE_URL}/api/assignment/${id}/comment`, {
+      await safeFetch(`${API_BASE_URL}/api/assignment/${id}/comment`, {
         method: "POST",
         headers: {
           Authorization: "Bearer " + token,

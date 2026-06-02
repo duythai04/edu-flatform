@@ -18,7 +18,7 @@ import {
 import "./SubmissionList.scss";
 import { AuthContext } from "../../contexts/AuthContext";
 import { API_BASE_URL } from "../../config/api";
-
+import { safeFetch } from "../../config/fetchHelper";
 // Grade Modal
 const GradeModal = ({ submission, maxScore, token, onClose, onGraded }) => {
   const [score, setScore] = useState(
@@ -38,7 +38,7 @@ const GradeModal = ({ submission, maxScore, token, onClose, onGraded }) => {
     setError(null);
     try {
       // POST /api/submission/{id}/grade
-      const res = await fetch(
+      const res = await safeFetch(
         `${API_BASE_URL}/api/submission/${submission.id}/grade`,
         {
           method: "POST",
@@ -194,7 +194,7 @@ const SubmissionList = () => {
   // GET /api/assignment/{id}/detail  — lấy thông tin bài tập
   const fetchAssignment = async () => {
     try {
-      const res = await fetch(
+      const res = await safeFetch(
         `${API_BASE_URL}/api/assignment/${assignmentId}/detail`,
         { headers: { Authorization: "Bearer " + token } },
       );
@@ -206,7 +206,7 @@ const SubmissionList = () => {
   const fetchSubmissions = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
+      const res = await safeFetch(
         `${API_BASE_URL}/api/submission/assignment/${assignmentId}`,
         { headers: { Authorization: "Bearer " + token } },
       );
@@ -256,7 +256,7 @@ const SubmissionList = () => {
   const ungradedCount = submissions.length - gradedCount;
   const maxScore = assignmentInfo?.maxScore ?? 100;
 
-  // ── Loading / Error ──────────────────────────────────────────────────────
+ 
   if (loading)
     return (
       <div className="sl-loading">

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import "./NotificationPage.scss";
 import { API_BASE_URL } from "../../config/api";
+import { safeFetch } from "../../config/fetchHelper";
 
 
 
@@ -50,7 +51,7 @@ const NotificationPage = () => {
         const headers = { Authorization: `Bearer ${token}` };
 
         // 1. Lấy danh sách lớp
-        const classRes = await fetch(`${API_BASE_URL}/classroom/my`, { headers });
+        const classRes = await safeFetch(`${API_BASE_URL}/classroom/my`, { headers });
         const myClasses = await classRes.json();
         if (!Array.isArray(myClasses)) {
           setLoading(false);
@@ -63,14 +64,14 @@ const NotificationPage = () => {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }).then((r) =>
+              safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }).then((r) =>
                 r.json(),
               ),
             ),
           ),
           Promise.all(
             classIds.map((id) =>
-              fetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers }).then(
+              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers }).then(
                 (r) => r.json(),
               ),
             ),

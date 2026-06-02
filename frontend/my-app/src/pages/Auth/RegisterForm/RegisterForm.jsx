@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { API_BASE_URL } from "../../../config/api";
+import { safeFetch } from "../../../config/fetchHelper";
 
 const RegisterForm = ({ role, onBack, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ const RegisterForm = ({ role, onBack, onSwitchToLogin }) => {
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
+      const response = await safeFetch(`${API_BASE_URL}/api/v1/auth/register`, {
         // Thay port của bạn vào
         method: "POST",
         headers: { "Content-Type": "application/json" },
