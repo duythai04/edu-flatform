@@ -8,4 +8,8 @@
   <ItemGroup>
     <ProjectReference Include="..\EduPlatform.Domain\EduPlatform.Domain.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 </Project>
