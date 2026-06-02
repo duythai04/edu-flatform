@@ -98,7 +98,7 @@ const Home = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const { ok, data } = await safeFetch(`${API_BASE_URL}/classroom/my`, {
+        const { ok, data } = await safeFetch(`${API_BASE_URL}/api/classroom/my`, {
           headers,
         });
         setMyClasses(ok && Array.isArray(data) ? data : []);
@@ -124,7 +124,7 @@ const Home = () => {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers })
+              safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, { headers })
                 .then(({ ok, data }) =>
                   (ok && Array.isArray(data) ? data : []).map((item) => ({
                     id: item.id,
@@ -141,7 +141,7 @@ const Home = () => {
           ),
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+              safeFetch(`${API_BASE_URL}/api/assignment/class/${id}/upcoming`, {
                 headers,
               })
                 .then(({ ok, data }) =>
@@ -186,7 +186,7 @@ const Home = () => {
       try {
         const results = await Promise.all(
           classIds.map((id) =>
-            safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+            safeFetch(`${API_BASE_URL}/api/assignment/class/${id}/upcoming`, {
               headers,
             })
               .then(({ ok, data }) =>
