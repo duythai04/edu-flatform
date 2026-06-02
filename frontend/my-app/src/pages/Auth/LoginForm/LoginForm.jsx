@@ -13,24 +13,25 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
-      const response = await safeFetch(`${API_BASE_URL}/api/v1/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const { ok, data } = await safeFetch(
+        `${API_BASE_URL}/api/v1/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        },
+      );
 
-      if (response.ok) {
-        const data = await response.json();
-        // data lúc này là AuthResponseDto: { accessToken, fullName, role, email }
+      if (ok && data) {
         localStorage.setItem("user_name", data.fullName);
         localStorage.setItem("user_role", data.role);
-
         onLoginSuccess(data.accessToken);
       } else {
-        const errorText = await response.text();
-        setError(errorText || "Email hoặc mật khẩu không đúng.");
+        setError(
+          (typeof data === "string" ? data : data?.message) ||
+            "Email hoặc mật khẩu không đúng.",
+        );
       }
     } catch (err) {
       setError("Lỗi kết nối máy chủ.");
