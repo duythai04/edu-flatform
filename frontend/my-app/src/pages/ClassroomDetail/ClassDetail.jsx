@@ -455,9 +455,7 @@ const ClassDetail = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  handlePost;
   const [selectedAssignment, setSelectedAssignment] = useState(null);
-
   const headers = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
