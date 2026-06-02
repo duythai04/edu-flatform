@@ -12,16 +12,14 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =====================
-// CORS (FIX CHO VERCEL)
-// =====================
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
             .WithOrigins(
-                "https://edu-flatform.vercel.app", // <-- đổi thành domain Vercel của bạn
+                "https://edu-flatform-project.vercel.app",
                 "http://localhost:5173"
             )
             .AllowAnyHeader()
@@ -29,18 +27,14 @@ builder.Services.AddCors(options =>
     });
 });
 
-// =====================
-// CONTROLLERS
-// =====================
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
-// =====================
-// DB
-// =====================
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -48,9 +42,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
-// =====================
-// JWT AUTH
-// =====================
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -72,9 +64,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// =====================
-// SERVICES
-// =====================
+
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
@@ -82,9 +72,7 @@ builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
-// =====================
-// SWAGGER
-// =====================
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -121,22 +109,15 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-// =====================
-// FIX RAILWAY PORT (QUAN TRỌNG NHẤT)
-// =====================
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Urls.Add($"http://0.0.0.0:{port}");
 
-// =====================
-// UPLOADS FOLDER
-// =====================
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8000";
+builder.WebHost.UseUrls("http://0.0.0.0:8000");
+
 var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 
-// =====================
-// PIPELINE
-// =====================
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -149,13 +130,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// ⚠️ CORS PHẢI ĐẶT SAU ROUTING, TRƯỚC AUTH
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// static files uploads
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(uploadsPath),
