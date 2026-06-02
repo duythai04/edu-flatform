@@ -23,32 +23,24 @@ const JoinClass = () => {
   const handleJoin = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-
     setLoading(true);
     setStatus({ type: null, message: "" });
-
     try {
-      const res = await safeFetch(`${API_BASE_URL}/api/classroom/join`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const { ok, data } = await safeFetch(
+        `${API_BASE_URL}/api/classroom/join`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ Code: classCode.trim() }),
         },
-        body: JSON.stringify({
-          Code: classCode.trim(),
-        }),
-      });
+      );
 
-      const contentType = res.headers.get("content-type");
-      let data;
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        data = { message: await res.text() };
-      }
-
-      if (!res.ok) {
-        throw new Error(data.message || data || "Lỗi khi tham gia lớp học");
+      if (!ok) {
+        const msg = typeof data === "string" ? data : data?.message;
+        throw new Error(msg || "Lỗi khi tham gia lớp học");
       }
 
       setStatus({ type: "success", message: "Tham gia lớp học thành công!" });

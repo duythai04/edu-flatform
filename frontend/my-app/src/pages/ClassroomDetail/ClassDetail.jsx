@@ -75,12 +75,11 @@ const FeedList = ({ classData, announcements, classroomId }) => {
         if (type === "announcement") params.append("announcementId", id);
         if (type === "assignment") params.append("assignmentId", id);
 
-        const res = await safeFetch(
+        const { ok, data } = await safeFetch(
           `${API_BASE_URL}/api/classrooms/${classroomId}/comments?${params}`,
           { headers },
         );
-        if (!res.ok) return;
-        const data = await res.json();
+        if (!ok || !Array.isArray(data)) return;
         const total = data.reduce(
           (sum, c) => sum + 1 + (c.replies?.length ?? 0),
           0,
@@ -225,7 +224,7 @@ const TeacherStream = ({
 
   const handlePost = async () => {
     if (!newPost.trim()) return;
-    const res = await safeFetch(`${API_BASE_URL}/api/announcement`, {
+    const { ok, data } = await safeFetch(`${API_BASE_URL}/api/announcement`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -234,8 +233,7 @@ const TeacherStream = ({
         classroomId: id,
       }),
     });
-    if (res.ok) {
-      const data = await res.json();
+    if (ok && data) {
       onAnnouncementPosted(data);
       setNewPost("");
       setIsExpanding(false);
@@ -457,6 +455,7 @@ const ClassDetail = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  handlePost;
   const [selectedAssignment, setSelectedAssignment] = useState(null);
 
   const headers = {
@@ -469,12 +468,11 @@ const ClassDetail = () => {
     try {
       const [classRes, announceRes] = await Promise.all([
         safeFetch(`${API_BASE_URL}/api/classroom/${id}`, { headers }),
-        safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, {
-          headers,
-        }),
+        safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, { headers }),
       ]);
-      if (classRes.ok) setClassData(await classRes.json());
-      if (announceRes.ok) setAnnouncements(await announceRes.json());
+      if (classRes.ok && classRes.data) setClassData(classRes.data);
+      if (announceRes.ok && Array.isArray(announceRes.data))
+        setAnnouncements(announceRes.data);
     } catch (err) {
       console.error(err);
     } finally {

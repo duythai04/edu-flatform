@@ -12,7 +12,6 @@ import "./EditAssignmentModal.scss";
 import { API_BASE_URL } from "../../config/api";
 import { safeFetch } from "../../config/fetchHelper";
 
-
 const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
   const [asmData, setAsmData] = useState({
     title: "",
@@ -80,7 +79,7 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
     const token = localStorage.getItem("token");
 
     try {
-      // 1. Cập nhật thông tin bài tập
+      //  Cập nhật thông tin bài tập
       const payload = {
         title: asmData.title.trim(),
         description: asmData.description || "",
@@ -88,7 +87,7 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
         maxScore: parseInt(asmData.maxScore) || 100,
       };
 
-      const res = await safeFetch(
+      const { ok, data: err } = await safeFetch(
         `${API_BASE_URL}/api/assignment/${assignment.id}`,
         {
           method: "PUT",
@@ -100,13 +99,12 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
         },
       );
 
-      if (!res.ok) {
-        const err = await res.json();
+      if (!ok) {
         console.error("Lỗi cập nhật:", err);
         throw new Error("Cập nhật bài tập thất bại.");
       }
 
-      // 2. Xoá các file đã đánh dấu
+      //  Xoá các file đã đánh dấu
       for (const fileId of deletedFileIds) {
         await safeFetch(
           `${API_BASE_URL}/api/assignment/${assignment.id}/files/${fileId}`,
@@ -117,15 +115,18 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
         );
       }
 
-      // 3. Upload file mới
+      //  Upload file mới
       for (const file of newFiles) {
         const formData = new FormData();
         formData.append("file", file);
-        await safeFetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
+        await safeFetch(
+          `${API_BASE_URL}/api/assignment/${assignment.id}/files`,
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          },
+        );
       }
 
       onRefresh();

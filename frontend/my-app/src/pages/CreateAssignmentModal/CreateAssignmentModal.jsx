@@ -4,7 +4,6 @@ import "./CreateAssignmentModal.scss";
 import { API_BASE_URL } from "../../config/api";
 import { safeFetch } from "../../config/fetchHelper";
 
-
 const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
   const [asmData, setAsmData] = useState({
     title: "",
@@ -67,33 +66,39 @@ const CreateAssignmentModal = ({ isOpen, onClose, classroomId, onRefresh }) => {
         classroomId: classroomId,
       };
 
-      const res = await safeFetch(`${API_BASE_URL}/api/assignment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const { ok, data: assignment } = await safeFetch(
+        `${API_BASE_URL}/api/assignment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Lỗi từ server:", errorData);
-        throw new Error("Lỗi khi tạo bài tập. Vui lòng kiểm tra Console.");
+      if (!ok) {
+        const msg =
+          typeof assignment === "string" ? assignment : assignment?.message;
+        throw new Error(
+          msg || "Lỗi khi tạo bài tập. Vui lòng kiểm tra Console.",
+        );
       }
 
-      const assignment = await res.json();
-
       // Upload file đính kèm
-      if (selectedFiles.length > 0) {
+      if (selectedFiles.length > 0 && assignment?.id) {
         for (const file of selectedFiles) {
           const formData = new FormData();
           formData.append("file", file);
-          await safeFetch(`${API_BASE_URL}/api/assignment/${assignment.id}/files`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: formData,
-          });
+          await safeFetch(
+            `${API_BASE_URL}/api/assignment/${assignment.id}/files`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` },
+              body: formData,
+            },
+          );
         }
       }
 

@@ -33,12 +33,10 @@ const GradeModal = ({ submission, maxScore, token, onClose, onGraded }) => {
       setError(`Điểm phải từ 0 đến ${maxScore}.`);
       return;
     }
-
     setSaving(true);
     setError(null);
     try {
-      // POST /api/submission/{id}/grade
-      const res = await safeFetch(
+      const { ok, data: updated } = await safeFetch(
         `${API_BASE_URL}/api/submission/${submission.id}/grade`,
         {
           method: "POST",
@@ -49,9 +47,7 @@ const GradeModal = ({ submission, maxScore, token, onClose, onGraded }) => {
           body: JSON.stringify({ score: parsed }),
         },
       );
-
-      if (res.ok) {
-        const updated = await res.json();
+      if (ok && updated) {
         onGraded(updated);
         onClose();
       } else {
@@ -192,26 +188,28 @@ const SubmissionList = () => {
   const [filter, setFilter] = useState("all"); // all | graded | ungraded
 
   // GET /api/assignment/{id}/detail  — lấy thông tin bài tập
+  // fetchAssignment
   const fetchAssignment = async () => {
     try {
-      const res = await safeFetch(
+      const { ok, data } = await safeFetch(
         `${API_BASE_URL}/api/assignment/${assignmentId}/detail`,
         { headers: { Authorization: "Bearer " + token } },
       );
-      if (res.ok) setAssignmentInfo(await res.json());
+      if (ok && data) setAssignmentInfo(data);
     } catch {}
   };
 
   // GET /api/submission/assignment/{assignmentId}  — danh sách bài nộp
+  // fetchSubmissions
   const fetchSubmissions = async () => {
     setLoading(true);
     try {
-      const res = await safeFetch(
+      const { ok, data } = await safeFetch(
         `${API_BASE_URL}/api/submission/assignment/${assignmentId}`,
         { headers: { Authorization: "Bearer " + token } },
       );
-      if (res.ok) {
-        setSubmissions(await res.json());
+      if (ok && Array.isArray(data)) {
+        setSubmissions(data);
       } else {
         setError("Không thể tải danh sách bài nộp.");
       }
@@ -256,7 +254,6 @@ const SubmissionList = () => {
   const ungradedCount = submissions.length - gradedCount;
   const maxScore = assignmentInfo?.maxScore ?? 100;
 
- 
   if (loading)
     return (
       <div className="sl-loading">

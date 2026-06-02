@@ -6,8 +6,6 @@ import "./NotificationPage.scss";
 import { API_BASE_URL } from "../../config/api";
 import { safeFetch } from "../../config/fetchHelper";
 
-
-
 function timeAgo(dateStr) {
   if (!dateStr) return "";
   const normalized = dateStr.endsWith("Z") ? dateStr : dateStr + "Z";
@@ -51,9 +49,12 @@ const NotificationPage = () => {
         const headers = { Authorization: `Bearer ${token}` };
 
         // 1. Lấy danh sách lớp
-        const classRes = await safeFetch(`${API_BASE_URL}/classroom/my`, { headers });
-        const myClasses = await classRes.json();
-        if (!Array.isArray(myClasses)) {
+        const { ok: classOk, data: myClasses } = await safeFetch(
+          `${API_BASE_URL}/classroom/my`,
+          { headers },
+        );
+
+        if (!classOk || !Array.isArray(myClasses)) {
           setLoading(false);
           return;
         }
@@ -64,21 +65,22 @@ const NotificationPage = () => {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers }).then((r) =>
-                r.json(),
-              ),
+              safeFetch(`${API_BASE_URL}/announcement/class/${id}`, { headers })
+                .then(({ ok, data }) => (ok && Array.isArray(data) ? data : []))
+                .catch(() => []),
             ),
           ),
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, { headers }).then(
-                (r) => r.json(),
-              ),
+              safeFetch(`${API_BASE_URL}/assignment/class/${id}/upcoming`, {
+                headers,
+              })
+                .then(({ ok, data }) => (ok && Array.isArray(data) ? data : []))
+                .catch(() => []),
             ),
           ),
         ]);
 
-        //  Format dữ liệu
         const formattedAnn = annResults.flat().map((item) => ({
           ...item,
           type: "announcement",
@@ -99,7 +101,6 @@ const NotificationPage = () => {
 
         setFeedItems(merged);
 
-        //  Đánh dấu đã xem: Lưu thời điểm hiện tại và báo cho Sidebar
         localStorage.setItem("lastReadNotifications", new Date().toISOString());
         window.dispatchEvent(new Event("notificationsRead"));
       } catch (err) {

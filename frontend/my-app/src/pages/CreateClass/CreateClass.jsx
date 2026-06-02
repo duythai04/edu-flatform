@@ -67,22 +67,25 @@ const CreateClass = () => {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const response = await safeFetch(`${API_BASE_URL}/api/classroom`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const { ok, status, data } = await safeFetch(
+        `${API_BASE_URL}/api/classroom`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name, description }),
         },
-        body: JSON.stringify({ name, description }),
-      });
-      if (response.ok) {
-        const data = await response.json();
+      );
+
+      if (ok && data) {
         setClassCode(data.classCode);
-      } else if (response.status === 403) {
+      } else if (status === 403) {
         alert("Lỗi: Chỉ tài khoản Giáo viên mới có quyền tạo lớp!");
       } else {
-        const errorMsg = await response.text();
-        alert("Lỗi: " + errorMsg);
+        const errorMsg = typeof data === "string" ? data : data?.message;
+        alert("Lỗi: " + (errorMsg || "Không thể tạo lớp học."));
       }
     } catch (error) {
       console.error("Error creating classroom:", error);

@@ -17,7 +17,6 @@ import "./CommnentSection.scss";
 import { API_BASE_URL } from "../../config/api";
 import { safeFetch } from "../../config/fetchHelper";
 
-
 const timeAgo = (dateStr) => {
   const diff = (Date.now() - new Date(dateStr)) / 1000;
   if (diff < 60) return "Vừa xong";
@@ -121,7 +120,6 @@ const ReplyItem = ({ reply, onUpdate, onDelete }) => {
           <span className="cs-time">{timeAgo(reply.createdAt)}</span>
           {reply.updatedAt && <span className="cs-edited">· đã sửa</span>}
         </div>
-
         {editing ? (
           <div className="cs-edit-area">
             <textarea
@@ -153,7 +151,6 @@ const ReplyItem = ({ reply, onUpdate, onDelete }) => {
         ) : (
           <p className="cs-text">{reply.content}</p>
         )}
-
         {reply.isOwner && !editing && (
           <div className="cs-actions">
             <button className="cs-action-btn" onClick={() => setEditing(true)}>
@@ -195,7 +192,7 @@ const CommentItem = ({
   const handleUpdate = async (newContent) => {
     setLoading(true);
     try {
-      const res = await safeFetch(
+      const { ok, data: updated } = await safeFetch(
         `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${comment.id}`,
         {
           method: "PUT",
@@ -203,8 +200,7 @@ const CommentItem = ({
           body: JSON.stringify({ content: newContent }),
         },
       );
-      if (res.ok) {
-        const updated = await res.json();
+      if (ok && updated) {
         onUpdated(updated);
         setEditing(false);
       }
@@ -215,50 +211,49 @@ const CommentItem = ({
 
   const handleDelete = async () => {
     if (!window.confirm("Xóa bình luận này?")) return;
-    const res = await safeFetch(
+    const { ok } = await safeFetch(
       `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${comment.id}`,
       { method: "DELETE", headers },
     );
-    if (res.ok) onDeleted(comment.id);
+    if (ok) onDeleted(comment.id);
   };
 
   const handleReply = async (content) => {
-    const res = await safeFetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        content,
-        classroomId,
-        parentCommentId: comment.id,
-        announcementId,
-        assignmentId,
-      }),
-    });
-    if (res.ok) {
-      const reply = await res.json();
+    const { ok, data: reply } = await safeFetch(
+      `${API_BASE_URL}/api/classrooms/${classroomId}/comments`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          content,
+          classroomId,
+          parentCommentId: comment.id,
+          announcementId,
+          assignmentId,
+        }),
+      },
+    );
+    if (ok && reply) {
       onReplyAdded(comment.id, reply);
       setShowReply(false);
     }
   };
 
   const handleUpdateReply = async (replyId, content) => {
-    const res = await safeFetch(
+    const { ok, data: updated } = await safeFetch(
       `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${replyId}`,
       { method: "PUT", headers, body: JSON.stringify({ content }) },
     );
-    if (res.ok) {
-      const updated = await res.json();
-      onUpdated(updated, comment.id);
-    }
+    if (ok && updated) onUpdated(updated, comment.id);
   };
 
   const handleDeleteReply = async (replyId) => {
     if (!window.confirm("Xóa reply này?")) return;
-    const res = await safeFetch(
+    const { ok } = await safeFetch(
       `${API_BASE_URL}/api/classrooms/${classroomId}/comments/${replyId}`,
       { method: "DELETE", headers },
     );
-    if (res.ok) onDeleted(replyId, comment.id);
+    if (ok) onDeleted(replyId, comment.id);
   };
 
   return (
@@ -271,7 +266,6 @@ const CommentItem = ({
             <span className="cs-time">{timeAgo(comment.createdAt)}</span>
             {comment.updatedAt && <span className="cs-edited">· đã sửa</span>}
           </div>
-
           {editing ? (
             <div className="cs-edit-area">
               <textarea
@@ -382,13 +376,12 @@ const CommentSection = ({
       if (announcementId) params.append("announcementId", announcementId);
       if (assignmentId) params.append("assignmentId", assignmentId);
 
-      const res = await safeFetch(
-        `${API}/api/classrooms/${classroomId}/comments?${params}`,
+      const { ok, data } = await safeFetch(
+        `${API_BASE_URL}/api/classrooms/${classroomId}/comments?${params}`,
         { headers },
       );
-      if (!res.ok) throw new Error("Không thể tải bình luận");
-      const data = await res.json();
-      if (isMounted.current) setComments(data);
+      if (!ok) throw new Error("Không thể tải bình luận");
+      if (isMounted.current) setComments(Array.isArray(data) ? data : []);
     } catch (err) {
       if (isMounted.current) setError(err.message);
     } finally {
@@ -415,18 +408,20 @@ const CommentSection = ({
   }, [comments]);
 
   const handleCreate = async (content) => {
-    const res = await safeFetch(`${API_BASE_URL}/api/classrooms/${classroomId}/comments`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        content,
-        classroomId,
-        announcementId,
-        assignmentId,
-      }),
-    });
-    if (res.ok) {
-      const newComment = await res.json();
+    const { ok, data: newComment } = await safeFetch(
+      `${API_BASE_URL}/api/classrooms/${classroomId}/comments`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          content,
+          classroomId,
+          announcementId,
+          assignmentId,
+        }),
+      },
+    );
+    if (ok && newComment) {
       setComments((prev) => [{ ...newComment, replies: [] }, ...prev]);
     }
   };
