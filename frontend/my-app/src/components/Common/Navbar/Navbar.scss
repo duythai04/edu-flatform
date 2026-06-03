@@ -5,76 +5,81 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 16px;
   background-color: $white;
   border-bottom: 1px solid $border-color;
   position: sticky;
   top: 0;
-  z-index: 1000;
-  // font-family: $font-sans; // Đảm bảo biến này tồn tại trong file variables của bạn
+  z-index: 1100; 
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.05);
 
-  // Cột trái: Toggle & Logo
   .navbar-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 
     .navbar-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       text-decoration: none;
-      cursor: pointer;
+      padding-left: 4px;
 
       .logo-icon {
-        background-color: $primary-color; // Màu xanh chủ đạo mới
+        background-color: $primary-color;
         color: $white;
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: $radius-md; // Bo góc 8px
-        font-weight: 700;
-        font-size: 1.1rem;
+        border-radius: $radius-md;
+        font-weight: 800;
+        font-size: 1.2rem;
+        box-shadow: 0 2px 4px rgba($primary-color, 0.2);
       }
 
       .logo-text {
-        font-size: 1.25rem;
-        font-weight: 500;
-        color: $text-main; // Màu chữ #3c4043
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: $text-main;
         letter-spacing: -0.5px;
 
         @media (max-width: 640px) {
-          display: none;
+          display: none; // Ẩn chữ EduClass trên mobile cực nhỏ
         }
       }
     }
   }
 
-  // Cột giữa: Thanh tìm kiếm
   .navbar-middle {
     flex: 0 1 600px;
-    margin: 0 20px;
+    margin: 0 24px;
 
     .search-bar {
       display: flex;
       align-items: center;
-      background-color: $bg-light; // Màu xám nhẹ #f8f9fa
-      padding: 8px 16px;
-      border-radius: $radius-md; // Sử dụng radius của bạn
-      transition: all 0.2s ease;
+      background-color: $bg-light;
+      padding: 0 16px;
+      height: 48px;
+      border-radius: $radius-md;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       border: 1px solid transparent;
 
       &:focus-within {
         background-color: $white;
         border-color: $primary-color;
-        box-shadow: $shadow-sm; // Đổ bóng nhẹ khi focus
+        box-shadow: $shadow-sm;
+
+        .search-icon {
+          color: $primary-color;
+        }
       }
 
       .search-icon {
-        color: $text-secondary; // Màu chữ #5f6368
+        color: $text-secondary;
         margin-right: 12px;
+        transition: color 0.2s;
       }
 
       input {
@@ -82,56 +87,54 @@
         background: transparent;
         outline: none;
         width: 100%;
-        font-size: 0.95rem;
+        font-size: 15px;
         color: $text-main;
 
         &::placeholder {
           color: $text-secondary;
-          opacity: 0.7;
+          opacity: 0.8;
         }
       }
     }
 
     @media (max-width: 850px) {
-      display: none;
+      display: none; // Ẩn thanh search khi màn hình trung bình/nhỏ
     }
   }
 
-  // Cột phải: Actions & Profile
   .navbar-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 
     .navbar-profile {
       width: 36px;
       height: 36px;
       border-radius: 50%;
-      overflow: hidden;
-      margin-left: 10px;
+      margin-left: 8px;
       cursor: pointer;
+      background-color: $bg-light;
       border: 2px solid transparent;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: url("https://ui-avatars.com/api/?name=User&background=random"); 
+      background-size: cover;
 
       &:hover {
         border-color: $primary-color;
-      }
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        transform: scale(1.05);
       }
     }
   }
 
-  // Common Icon Button Style
   .icon-btn {
     background: transparent;
     border: none;
     width: 40px;
     height: 40px;
-    border-radius: 50%; // Nút icon nên để tròn hoàn toàn
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,14 +144,13 @@
     text-decoration: none;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-      color: $primary-color;
+      background-color: rgba($text-secondary, 0.1);
+      color: $text-main;
     }
 
     &.sidebar-toggle {
-      @media (max-width: 1024px) {
-        color: $primary-color;
-        background-color: rgba($primary-color, 0.05);
+      &:active {
+        background-color: rgba($primary-color, 0.1);
       }
     }
   }

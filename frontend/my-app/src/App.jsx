@@ -24,14 +24,27 @@ import "./App.css";
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
 
   useEffect(() => {
     const handleStorageChange = () => {
       setToken(localStorage.getItem("token"));
     };
     window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+
+    const handleResize = () => {
+      if (window.innerWidth <= 1024) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const handleLoginSuccess = (newToken) => {
@@ -48,26 +61,30 @@ function App() {
     setSidebarOpen(!isSidebarOpen);
   };
 
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
     <Router>
       {!token ? (
         <AuthMain onLoginSuccess={handleLoginSuccess} />
       ) : (
-        <div
-          className={`app-layout ${!isSidebarOpen ? "sidebar-collapsed" : ""}`}
-        >
+        <div className="app-layout">
           <Navbar
             onToggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
             onLogout={handleLogout}
           />
-          <div className="app-container">
-            <Sidebar isOpen={isSidebarOpen} />
 
-            <main className="main-content">
+          <div className="app-container">
+            <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+
+            <main
+              className={`main-content ${isSidebarOpen ? "expanded" : "collapsed"}`}
+            >
               <Routes>
                 <Route path="/" element={<Home />} />
-
                 <Route path="/create-class" element={<CreateClass />} />
                 <Route path="/join-class" element={<JoinClass />} />
                 <Route path="/class/:id" element={<ClassroomDetail />} />
