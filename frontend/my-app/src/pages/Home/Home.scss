@@ -1,162 +1,205 @@
-@import '../../styles/variables';
+@import "../../styles/variables";
 
+// Mixin cho thanh cuộn tinh tế
 @mixin custom-scrollbar {
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: #dadce0;
+    background: darken($bg-light, 10%);
     border-radius: 10px;
     &:hover {
-      background: #bdc1c6;
+      background: darken($bg-light, 20%);
     }
   }
 }
 
 .modern-home {
-  background-color: $bg-body; 
+  background-color: $bg-body;
   min-height: 100vh;
-  padding: 32px 24px;
+  padding: 24px;
   color: $text-main;
-  font-family: "Segoe UI", Roboto, sans-serif;  
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+
+  @media (max-width: 768px) {
+    padding: 16px 12px;
+  }
 
   .main-content {
-    max-width: 1280px;
+    max-width: 1200px;
     margin: 0 auto;
   }
 
+  // --- HERO SECTION ---
   .hero-section {
-    background: #f8f9ff;
-    border: 1px solid #e8f0fe;
-    border-radius: $radius-lg;
-    padding: 32px 40px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+    border: 1px solid $border-color;
+    border-radius: 20px;
+    padding: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 32px;
-    // Không dùng đổ bóng đậm, chỉ dùng bóng sm của bạn
-    box-shadow: $shadow-sm;
+    box-shadow: 0 10px 25px -5px rgba($primary-color, 0.05);
+    position: relative;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+      gap: 20px;
+    }
 
     .hero-content {
       .date-badge {
         color: $primary-color;
-        font-size: 13px;
-        font-weight: 500;
-        background: $white;
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba($primary-color, 0.08);
         padding: 4px 12px;
-        border-radius: 20px;
-        border: 1px solid #e8f0fe;
+        border-radius: 100px;
+        display: inline-block;
+        margin-bottom: 12px;
       }
+
       h1 {
-        font-size: 28px;
-        margin: 12px 0 6px;
-        font-weight: 500;
-        color: $text-main;
+        font-size: clamp(22px, 5vw, 32px);
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #1a1a1a;
       }
+
       p {
         color: $text-secondary;
         font-size: 15px;
+        max-width: 500px;
+        line-height: 1.5;
       }
     }
 
-    .btn-glass {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: $primary-color;
-      padding: 12px 24px;
-      border-radius: $radius-md;
-      color: $white;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 14px;
-      transition: all 0.2s ease;
+    .hero-actions {
+      .btn-glass {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: $primary-color;
+        padding: 14px 32px;
+        border-radius: 12px;
+        color: $white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px 0 rgba($primary-color, 0.3);
 
-      &:hover {
-        background: #1557b0;
-        box-shadow: $shadow-md;
+        &:hover {
+          background: darken($primary-color, 5%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba($primary-color, 0.25);
+        }
+
+        @media (max-width: 768px) {
+          width: 100%;
+        }
       }
     }
   }
 
-  // GRID LAYOUT
+  // --- GRID LAYOUT ---
   .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 340px;
-    gap: 24px;
+    gap: 32px;
     align-items: start;
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1100px) {
       grid-template-columns: 1fr;
     }
   }
 
-  // LEFT COLUMN
+  // --- LEFT COLUMN ---
   .left-column {
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
 
       .title-group {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         h2 {
           font-size: 18px;
-          font-weight: 500;
+          font-weight: 700;
           color: $text-main;
         }
-        .icon-blue {
+        svg {
           color: $primary-color;
         }
       }
       .count-badge {
+        font-size: 12px;
         color: $text-secondary;
-        font-size: 13px;
+        background: #eee;
+        padding: 2px 8px;
+        border-radius: 6px;
       }
     }
 
     .scrollable-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-      max-height: 75vh;
-      overflow-y: auto;
-      padding-right: 8px;
-      @include custom-scrollbar;
+      gap: 24px;
+
+      @media (min-width: 1100px) {
+        max-height: 80vh;
+        overflow-y: auto;
+        padding-right: 12px;
+        @include custom-scrollbar;
+      }
     }
   }
 
-  // MODERN CLASS CARD - Nhẹ nhàng, dùng bóng sm
+  // --- CLASS CARD ---
   .modern-class-card {
     background: $white;
-    border-radius: $radius-lg;
+    border-radius: 16px;
     overflow: hidden;
     border: 1px solid $border-color;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
 
     &:hover {
-      box-shadow: $shadow-md;
-      border-color: $primary-color;
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      border-color: rgba($primary-color, 0.2);
     }
 
     .card-banner {
-      height: 80px;
+      height: 100px;
       padding: 16px;
       position: relative;
       color: $white;
 
       .class-code {
-        font-size: 11px;
-        background: rgba(0, 0, 0, 0.15);
-        padding: 2px 8px;
+        font-size: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 3px 8px;
         border-radius: 4px;
-        font-weight: 500;
+        font-weight: 600;
       }
 
       .role-tag {
@@ -165,46 +208,53 @@
         left: 16px;
         display: flex;
         align-items: center;
-        gap: 4px;
-        background: rgba(255, 255, 255, 0.9);
+        gap: 6px;
+        background: rgba($white, 0.95);
         color: $text-main;
-        padding: 2px 8px;
-        border-radius: 4px;
+        padding: 4px 10px;
+        border-radius: 8px;
         font-size: 11px;
-        font-weight: 500;
+        font-weight: 700;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
     }
 
     .card-body {
-      padding: 16px;
+      padding: 20px;
+      flex-grow: 1;
+
       h3 {
-        font-size: 16px;
-        font-weight: 500;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 8px;
         color: $text-main;
-        margin-bottom: 4px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       p {
-        font-size: 13px;
+        font-size: 14px;
         color: $text-secondary;
         line-height: 1.5;
-        height: 40px;
+        height: 44px;
         overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        margin-bottom: 16px;
       }
 
       .card-footer {
-        margin-top: 16px;
-        padding-top: 12px;
-        border-top: 1px solid $bg-light;
+        padding-top: 16px;
+        border-top: 1px solid #f5f5f5;
         display: flex;
         justify-content: space-between;
         align-items: center;
 
         .meta {
           display: flex;
-          gap: 10px;
+          gap: 12px;
           color: $text-secondary;
           font-size: 12px;
           span {
@@ -216,27 +266,28 @@
 
         .btn-enter-arrow {
           color: $primary-color;
-          font-weight: 500;
+          font-weight: 700;
           text-decoration: none;
-          font-size: 13px;
+          font-size: 14px;
           display: flex;
           align-items: center;
           gap: 4px;
           &:hover {
-            gap: 6px;
+            gap: 8px;
           }
         }
       }
     }
   }
 
-  // RIGHT COLUMN - SIDE CARDS
+  // --- RIGHT COLUMN ---
   .side-card {
-    background: $bg-light;
-    border-radius: $radius-lg;
-    padding: 20px;
-    margin-bottom: 20px;
+    background: $white;
+    border-radius: 16px;
+    padding: 24px;
     border: 1px solid $border-color;
+    margin-bottom: 24px;
+    box-shadow: $shadow-sm;
 
     .side-header {
       display: flex;
@@ -244,24 +295,22 @@
       align-items: center;
       margin-bottom: 16px;
       h3 {
-        font-size: 15px;
-        font-weight: 500;
+        font-size: 16px;
+        font-weight: 700;
         display: flex;
         align-items: center;
         gap: 8px;
       }
       .btn-text {
-        background: none;
-        border: none;
         color: $primary-color;
-        font-size: 12px;
-        font-weight: 500;
-        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
       }
     }
 
     .side-scroll {
-      max-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
       @include custom-scrollbar;
     }
@@ -270,23 +319,38 @@
   .activity-item {
     display: flex;
     gap: 12px;
-    margin-bottom: 12px;
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: $border-color;
-      margin-top: 6px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f8f8f8;
+    &:last-child {
+      border-bottom: none;
     }
-    .dot.blue {
-      background: $primary-color;
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 6px;
+      &.blue {
+        background: $primary-color;
+      }
+      &.orange {
+        background: #f59e0b;
+      }
     }
 
     .text {
       p {
-        font-size: 13px;
+        font-size: 14px;
         color: $text-main;
         margin: 0;
+      }
+      .ann-preview {
+        font-size: 13px;
+        color: $text-secondary;
+        background: $bg-light;
+        padding: 6px 10px;
+        border-radius: 8px;
+        margin: 4px 0;
       }
       span {
         font-size: 11px;
@@ -300,28 +364,40 @@
     align-items: center;
     gap: 12px;
     padding: 12px;
-    background: $white;
-    border-radius: $radius-md;
-    border: 1px solid $border-color;
+    background: $bg-light;
+    border-radius: 12px;
     margin-bottom: 8px;
+    border: 1px solid transparent;
 
     &.urgent {
-      border-left: 3px solid #d93025;
-      background: #fffcfc;
+      border-left: 4px solid #d93025;
+      background: #fef2f2;
+    }
+    &.soon {
+      border-left: 4px solid #f59e0b;
     }
 
     .info {
       h4 {
-        font-size: 13px;
-        font-weight: 500;
+        font-size: 14px;
+        font-weight: 600;
         margin: 0;
-        color: $text-main;
       }
       p {
-        font-size: 11px;
-        color: #d93025;
-        margin-top: 2px;
+        font-size: 12px;
+        color: $text-secondary;
+        margin: 2px 0 0;
       }
     }
+  }
+
+  .skeleton-loader,
+  .empty-card {
+    text-align: center;
+    padding: 40px;
+    background: $bg-light;
+    border-radius: 16px;
+    border: 2px dashed $border-color;
+    color: $text-secondary;
   }
 }

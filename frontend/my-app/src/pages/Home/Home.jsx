@@ -17,29 +17,29 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
-import "./Home.scss";
 import { API_BASE_URL } from "../../config/api";
 import { safeFetch } from "../../config/fetchHelper";
+import "./Home.scss";
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const getBannerColor = (index) => {
   const colors = [
-    "#4f46e5",
-    "#0ea5e9",
-    "#10b981",
-    "#f59e0b",
-    "#8b5cf6",
-    "#ec4899",
+    "#1a73e8", // Blue
+    "#0d9488", // Teal
+    "#7c3aed", // Purple
+    "#ea580c", // Orange
+    "#db2777", // Pink
+    "#16a34a", // Green
   ];
   return colors[index % colors.length];
 };
 
 function timeAgo(dateStr) {
   if (!dateStr) return "";
-
   const normalized = dateStr.endsWith("Z") ? dateStr : dateStr + "Z";
   const date = new Date(normalized);
   const seconds = Math.floor((Date.now() - date) / 1000);
-
   if (seconds < 5) return "Vừa xong";
   if (seconds < 60) return `${seconds} giây trước`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`;
@@ -49,13 +49,10 @@ function timeAgo(dateStr) {
       "Hôm qua, " +
       date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
     );
-
   return date.toLocaleDateString("vi-VN", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   });
 }
 
@@ -68,7 +65,7 @@ function formatDeadline(dateStr) {
     return `Hết hạn lúc ${date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })} hôm nay`;
   if (hours < 48)
     return `Hết hạn lúc ${date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })} ngày mai`;
-  return `Hết hạn ${date.toLocaleDateString("vi-VN")}`;
+  return `Hạn: ${date.toLocaleDateString("vi-VN")}`;
 }
 
 function deadlineUrgency(dateStr) {
@@ -87,7 +84,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [loadingFeed, setLoadingFeed] = useState(false);
   const [loadingDead, setLoadingDead] = useState(false);
-  const [showAll, setShowAll] = useState(false);
 
   const isGlobalTeacher = user?.role === "Teacher";
   const userName = user?.Fullname || user?.fullname || "Người dùng";
@@ -98,9 +94,10 @@ const Home = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const { ok, data } = await safeFetch(`${API_BASE_URL}/api/classroom/my`, {
-          headers,
-        });
+        const { ok, data } = await safeFetch(
+          `${API_BASE_URL}/api/classroom/my`,
+          { headers },
+        );
         setMyClasses(ok && Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
@@ -111,76 +108,61 @@ const Home = () => {
     fetchClasses();
   }, []);
 
-  // Khi có lớp → tải feed (announcement + assignment) + deadline
+  // 2. Khi có lớp → tải feed + deadline
   useEffect(() => {
     if (!myClasses.length) return;
-
     const classIds = myClasses.map((c) => c.id).filter(Boolean);
 
-    //Feed: gộp Announcement + Assignment
     const fetchFeed = async () => {
       setLoadingFeed(true);
       try {
         const [annResults, asgResults] = await Promise.all([
           Promise.all(
             classIds.map((id) =>
-              safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, { headers })
-                .then(({ ok, data }) =>
-                  (ok && Array.isArray(data) ? data : []).map((item) => ({
-                    id: item.id,
-                    type: "announcement",
-                    className:
-                      myClasses.find((c) => c.id === id)?.name || "Lớp học",
-                    title: item.title,
-                    preview: item.content,
-                    createdAt: item.createdAt,
-                  })),
-                )
-                .catch(() => []),
+              safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, {
+                headers,
+              }).then(({ ok, data }) =>
+                (ok && Array.isArray(data) ? data : []).map((item) => ({
+                  id: item.id,
+                  type: "announcement",
+                  className:
+                    myClasses.find((c) => c.id === id)?.name || "Lớp học",
+                  title: item.title,
+                  preview: item.content,
+                  createdAt: item.createdAt,
+                })),
+              ),
             ),
           ),
           Promise.all(
             classIds.map((id) =>
               safeFetch(`${API_BASE_URL}/api/assignment/class/${id}/upcoming`, {
                 headers,
-              })
-                .then(({ ok, data }) =>
-                  (ok && Array.isArray(data) ? data : []).map((item) => ({
-                    id: item.id,
-                    type: "assignment",
-                    className:
-                      myClasses.find((c) => c.id === id)?.name || "Lớp học",
-                    title: item.title,
-                    preview: item.description,
-                    dueDate: item.dueDate,
-                    createdAt: item.createdAt,
-                  })),
-                )
-                .catch(() => []),
+              }).then(({ ok, data }) =>
+                (ok && Array.isArray(data) ? data : []).map((item) => ({
+                  id: item.id,
+                  type: "assignment",
+                  className:
+                    myClasses.find((c) => c.id === id)?.name || "Lớp học",
+                  title: item.title,
+                  preview: item.description,
+                  dueDate: item.dueDate,
+                  createdAt: item.createdAt,
+                })),
+              ),
             ),
           ),
         ]);
 
-        // Gộp 2 mảng, sắp xếp mới nhất lên đầu
         const merged = [...annResults.flat(), ...asgResults.flat()].sort(
-          (a, b) => {
-            const dateA = new Date(
-              a.createdAt.endsWith("Z") ? a.createdAt : a.createdAt + "Z",
-            );
-            const dateB = new Date(
-              b.createdAt.endsWith("Z") ? b.createdAt : b.createdAt + "Z",
-            );
-            return dateB - dateA;
-          },
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
         );
-
         setFeedItems(merged);
       } finally {
         setLoadingFeed(false);
       }
     };
 
-    //  Deadline
     const fetchDeadlines = async () => {
       setLoadingDead(true);
       try {
@@ -188,15 +170,13 @@ const Home = () => {
           classIds.map((id) =>
             safeFetch(`${API_BASE_URL}/api/assignment/class/${id}/upcoming`, {
               headers,
-            })
-              .then(({ ok, data }) =>
-                (ok && Array.isArray(data) ? data : []).map((item) => ({
-                  ...item,
-                  className:
-                    myClasses.find((c) => c.id === id)?.name || "Lớp học",
-                })),
-              )
-              .catch(() => []),
+            }).then(({ ok, data }) =>
+              (ok && Array.isArray(data) ? data : []).map((item) => ({
+                ...item,
+                className:
+                  myClasses.find((c) => c.id === id)?.name || "Lớp học",
+              })),
+            ),
           ),
         );
         const upcoming = results
@@ -214,12 +194,12 @@ const Home = () => {
     fetchDeadlines();
   }, [myClasses]);
 
-  const visibleFeed = showAll ? feedItems : feedItems.slice(0, 4);
+  const visibleFeed = feedItems.slice(0, 4);
 
   return (
     <div className="modern-home">
       <main className="main-content">
-        {/* Hero */}
+        {/* Hero Section */}
         <section className="hero-section">
           <div className="hero-content">
             <span className="date-badge">
@@ -232,8 +212,8 @@ const Home = () => {
             <h1>Chào buổi sáng, {userName}!</h1>
             <p>
               {isGlobalTeacher
-                ? "Hệ thống đã sẵn sàng. Bạn có 3 tiết dạy trong hôm nay."
-                : "Tiếp tục hành trình học tập của bạn. Bạn có bài tập cần hoàn thành!"}
+                ? "Hệ thống đã sẵn sàng. Bạn có thể quản lý các lớp học và bài tập của mình tại đây."
+                : "Tiếp tục hành trình học tập của bạn. Đừng quên kiểm tra các bài tập sắp tới!"}
             </p>
           </div>
           <div className="hero-actions">
@@ -250,7 +230,7 @@ const Home = () => {
         </section>
 
         <div className="dashboard-grid">
-          {/* Cột trái - Danh sách lớp */}
+          {/* Cột trái - Lớp học */}
           <div className="left-column">
             <div className="section-header">
               <div className="title-group">
@@ -262,10 +242,12 @@ const Home = () => {
 
             <div className="scrollable-grid">
               {loading ? (
-                <div className="skeleton-loader">Đang tải lớp học...</div>
+                <div className="skeleton-loader">
+                  Đang tải danh sách lớp học...
+                </div>
               ) : myClasses.length === 0 ? (
                 <div className="empty-card">
-                  <p>Chưa có dữ liệu lớp học.</p>
+                  <p>Bạn chưa tham gia lớp học nào.</p>
                 </div>
               ) : (
                 myClasses.map((cls, index) => (
@@ -290,7 +272,7 @@ const Home = () => {
                       <h3>{cls.name}</h3>
                       <p>
                         {cls.description ||
-                          "Khám phá kiến thức mới mỗi ngày..."}
+                          "Khám phá kiến thức mới mỗi ngày cùng lớp học này..."}
                       </p>
                       <div className="card-footer">
                         <div className="meta">
@@ -315,13 +297,13 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Cột phải */}
+          {/* Cột phải - Widgets */}
           <div className="right-column">
-            {/* Widget: Thông báo (feed gộp) */}
+            {/* Widget Thông báo */}
             <section className="side-card">
               <div className="side-header">
                 <h3>
-                  <Bell size={18} /> Thông báo
+                  <Bell size={18} /> Thông báo mới
                 </h3>
                 {feedItems.length > 4 && (
                   <Link to="/notifications" className="btn-text">
@@ -331,25 +313,19 @@ const Home = () => {
               </div>
 
               <div className="side-scroll">
-                {loadingFeed && (
+                {loadingFeed ? (
                   <div className="activity-item">
-                    <div className="dot blue"></div>
                     <div className="text">
-                      <p>Đang tải thông báo...</p>
+                      <p>Đang tải...</p>
                     </div>
                   </div>
-                )}
-
-                {!loadingFeed && feedItems.length === 0 && (
+                ) : visibleFeed.length === 0 ? (
                   <div className="activity-item">
-                    <div className="dot"></div>
                     <div className="text">
-                      <p>Chưa có thông báo nào.</p>
+                      <p>Chưa có thông báo.</p>
                     </div>
                   </div>
-                )}
-
-                {!loadingFeed &&
+                ) : (
                   visibleFeed.map((item) => (
                     <div
                       key={`${item.type}-${item.id}`}
@@ -361,98 +337,45 @@ const Home = () => {
                       <div className="text">
                         <p>
                           <strong>{item.className}</strong>:{" "}
-                          {item.type === "assignment" ? (
-                            <span>
-                              <FileText
-                                size={12}
-                                style={{
-                                  marginRight: 3,
-                                  verticalAlign: "middle",
-                                }}
-                              />
-                              Bài tập mới: {item.title}
-                            </span>
-                          ) : (
-                            <span>
-                              <Megaphone
-                                size={12}
-                                style={{
-                                  marginRight: 3,
-                                  verticalAlign: "middle",
-                                }}
-                              />
-                              {item.title}
-                            </span>
-                          )}
+                          {item.type === "assignment"
+                            ? "Bài tập mới"
+                            : item.title}
                         </p>
-
-                        {item.preview && (
-                          <p className="ann-preview">
-                            {item.preview.length > 60
-                              ? item.preview.slice(0, 60) + "..."
-                              : item.preview}
-                          </p>
-                        )}
-
-                        {item.type === "assignment" && item.dueDate && (
-                          <p
-                            className="ann-preview"
-                            style={{ color: "#f59e0b" }}
-                          >
-                            <Clock
-                              size={11}
-                              style={{
-                                marginRight: 3,
-                                verticalAlign: "middle",
-                              }}
-                            />
-                            {formatDeadline(item.dueDate)}
-                          </p>
-                        )}
-
+                        <p className="ann-preview">{item.preview}</p>
                         <span>{timeAgo(item.createdAt)}</span>
                       </div>
                     </div>
-                  ))}
+                  ))
+                )}
               </div>
             </section>
 
+            {/* Widget Deadline */}
             <section className="side-card">
               <div className="side-header">
                 <h3>
                   <Clock size={18} /> Sắp hết hạn
                 </h3>
               </div>
-
               <div className="side-scroll">
-                {loadingDead && (
+                {loadingDead ? (
+                  <p className="empty-msg">Đang tải...</p>
+                ) : deadlines.length === 0 ? (
                   <div className="deadline-box">
-                    <Calendar size={20} />
                     <div className="info">
-                      <h4>Đang tải...</h4>
+                      <h4>Tuyệt vời! Không có bài tập nào sắp đến hạn.</h4>
                     </div>
                   </div>
-                )}
-
-                {!loadingDead && deadlines.length === 0 && (
-                  <div className="deadline-box">
-                    <Calendar size={20} />
-                    <div className="info">
-                      <h4>Không có bài tập sắp hết hạn</h4>
-                    </div>
-                  </div>
-                )}
-
-                {!loadingDead &&
+                ) : (
                   deadlines.map((d) => (
                     <div
                       key={d.id}
                       className={`deadline-box ${deadlineUrgency(d.dueDate)}`}
                     >
                       {deadlineUrgency(d.dueDate) === "urgent" ? (
-                        <AlertCircle size={20} />
+                        <AlertCircle size={18} />
                       ) : (
-                        <Calendar size={20} />
+                        <Calendar size={18} />
                       )}
                       <div className="info">
                         <h4>{d.title}</h4>
@@ -460,7 +383,8 @@ const Home = () => {
                         <p>{formatDeadline(d.dueDate)}</p>
                       </div>
                     </div>
-                  ))}
+                  ))
+                )}
               </div>
             </section>
           </div>
