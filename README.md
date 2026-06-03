@@ -2,6 +2,22 @@
 
 > Hệ thống quản lý lớp học trực tuyến (LMS) xây dựng với **ASP.NET Core Web API** và **ReactJS**, theo kiến trúc **Clean Architecture**.
 
+🚀 Demo
+
+🔗 Live: https://edu-flatform-project.vercel.app
+
+🔐 Tài khoản demo
+
+👨‍🏫 /Teacher
+
+Email: nguyena@gmail.com
+Password: 2303
+
+👨‍🎓 Student
+
+Email: thailuongduy2303@gmail.com
+Password: 230304
+
 <p align="center">
   <img src="https://img.shields.io/badge/.NET-ASP.NET_Core-blueviolet?style=for-the-badge&logo=dotnet" />
   <img src="https://img.shields.io/badge/Frontend-ReactJS-61DAFB?style=for-the-badge&logo=react" />
