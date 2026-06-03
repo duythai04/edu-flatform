@@ -1,403 +1,774 @@
 @import "../../styles/variables";
 
-// Mixin cho thanh cuộn tinh tế
-@mixin custom-scrollbar {
+@mixin scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: darken($bg-light, 14%) transparent;
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
+    height: 4px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: darken($bg-light, 10%);
+    background: darken($bg-light, 14%);
     border-radius: 10px;
-    &:hover {
-      background: darken($bg-light, 20%);
-    }
   }
 }
+
+$bp-sm: 640px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
 
 .modern-home {
   background-color: $bg-body;
   min-height: 100vh;
-  padding: 24px;
   color: $text-main;
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  overflow-x: hidden;
+  width: 100%;
 
-  @media (max-width: 768px) {
-    padding: 16px 12px;
+  padding: 12px 10px;
+
+  @media (min-width: $bp-md) {
+    padding: 24px 20px;
+  }
+  @media (min-width: $bp-lg) {
+    padding: 28px 24px;
   }
 
   .main-content {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
+    width: 100%;
   }
 
-  // --- HERO SECTION ---
+  // ─── HERO ──────────────────────────────────────────────────────────────────
   .hero-section {
-    background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+    background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 100%);
     border: 1px solid $border-color;
-    border-radius: 20px;
-    padding: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-    box-shadow: 0 10px 25px -5px rgba($primary-color, 0.05);
+    border-radius: $radius-lg;
+    padding: 20px 16px;
+    margin-bottom: 16px;
     position: relative;
     overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 
-    @media (max-width: 768px) {
-      flex-direction: column;
-      text-align: center;
-      padding: 24px;
+    @media (min-width: $bp-sm) {
+      padding: 28px 24px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: $bp-md) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 20px;
+      padding: 32px 36px;
+      margin-bottom: 28px;
+    }
+    @media (min-width: $bp-lg) {
+      padding: 36px 48px;
+      margin-bottom: 32px;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(
+        circle,
+        rgba($primary-color, 0.06),
+        transparent 70%
+      );
+      border-radius: 50%;
+      pointer-events: none;
     }
 
     .hero-content {
+      @media (min-width: $bp-md) {
+        flex: 1;
+        min-width: 0;
+      }
+
       .date-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         color: $primary-color;
-        font-size: 12px;
-        font-weight: 700;
-        background: rgba($primary-color, 0.08);
+        font-size: 11px;
+        font-weight: 600;
+        background: $white;
+        border: 1px solid rgba($primary-color, 0.2);
         padding: 4px 12px;
-        border-radius: 100px;
-        display: inline-block;
-        margin-bottom: 12px;
+        border-radius: 20px;
+        margin-bottom: 10px;
+        white-space: nowrap;
+
+        @media (min-width: $bp-sm) {
+          font-size: 12px;
+          padding: 5px 14px;
+          margin-bottom: 12px;
+        }
       }
 
       h1 {
-        font-size: clamp(22px, 5vw, 32px);
+        font-size: 18px;
         font-weight: 700;
-        margin-bottom: 8px;
-        color: #1a1a1a;
+        line-height: 1.25;
+        letter-spacing: -0.3px;
+        margin: 0 0 8px;
+
+        @media (min-width: $bp-sm) {
+          font-size: 22px;
+        }
+        @media (min-width: $bp-md) {
+          font-size: 26px;
+        }
+        @media (min-width: $bp-lg) {
+          font-size: 30px;
+        }
       }
 
       p {
+        font-size: 13px;
         color: $text-secondary;
-        font-size: 15px;
-        max-width: 500px;
-        line-height: 1.5;
+        line-height: 1.6;
+        margin: 0;
+        max-width: 480px;
+
+        @media (min-width: $bp-sm) {
+          font-size: 14px;
+        }
+        @media (min-width: $bp-md) {
+          font-size: 15px;
+        }
       }
     }
 
     .hero-actions {
+      margin-top: 16px;
+
+      @media (min-width: $bp-md) {
+        margin-top: 0;
+        flex-shrink: 0;
+      }
+
       .btn-glass {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        gap: 8px;
         background: $primary-color;
-        padding: 14px 32px;
-        border-radius: 12px;
         color: $white;
         text-decoration: none;
+        font-size: 13px;
         font-weight: 600;
-        font-size: 15px;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 14px 0 rgba($primary-color, 0.3);
+        padding: 12px 18px;
+        border-radius: $radius-md;
+        width: 100%;
+        box-sizing: border-box;
+        box-shadow: 0 3px 12px rgba($primary-color, 0.25);
+        transition:
+          background 0.2s,
+          transform 0.2s,
+          box-shadow 0.2s;
 
-        &:hover {
-          background: darken($primary-color, 5%);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba($primary-color, 0.25);
+        @media (min-width: $bp-md) {
+          width: auto;
+          padding: 13px 26px;
+          font-size: 14px;
         }
 
-        @media (max-width: 768px) {
-          width: 100%;
+        &:hover {
+          background: darken($primary-color, 6%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 18px rgba($primary-color, 0.3);
+        }
+        &:active {
+          transform: translateY(0);
+        }
+        @media (hover: none) {
+          &:hover {
+            transform: none;
+          }
         }
       }
     }
   }
 
-  // --- GRID LAYOUT ---
+  // ─── DASHBOARD GRID ────────────────────────────────────────────────────────
   .dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 32px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
 
-    @media (max-width: 1100px) {
-      grid-template-columns: 1fr;
+    @media (min-width: $bp-lg) {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (min-width: $bp-xl) {
+      grid-template-columns: 1fr 360px;
     }
   }
 
-  // --- LEFT COLUMN ---
+  // ─── LEFT COLUMN ───────────────────────────────────────────────────────────
   .left-column {
+    // Quan trọng: giới hạn chiều rộng để scroll ngang không tràn
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
+
+      @media (min-width: $bp-sm) {
+        margin-bottom: 16px;
+      }
 
       .title-group {
         display: flex;
         align-items: center;
         gap: 8px;
+
         h2 {
-          font-size: 18px;
+          font-size: 15px;
           font-weight: 700;
-          color: $text-main;
+          margin: 0;
+
+          @media (min-width: $bp-sm) {
+            font-size: 17px;
+          }
+          @media (min-width: $bp-md) {
+            font-size: 18px;
+          }
         }
-        svg {
+
+        .icon-blue {
           color: $primary-color;
+          flex-shrink: 0;
         }
       }
+
       .count-badge {
-        font-size: 12px;
+        background: $bg-light;
         color: $text-secondary;
-        background: #eee;
-        padding: 2px 8px;
-        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 12px;
+        white-space: nowrap;
       }
     }
 
+    // ── Mobile: scroll ngang ──────────────────────────────────────────────────
     .scrollable-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      overflow-x: auto;
+      overflow-y: visible;
+      // padding-right để card cuối không bị cắt
+      padding: 2px 10px 8px 2px;
+      // kéo ra ngoài padding của parent để scroll sát mép
+      margin: 0 -2px;
+      width: calc(100% + 4px);
+      box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
 
-      @media (min-width: 1100px) {
+      // Ẩn scrollbar trên mobile
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      // ── Tablet trở lên: grid bình thường ──────────────────────────────────
+      @media (min-width: $bp-sm) {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        overflow-x: visible;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+      }
+
+      @media (min-width: $bp-lg) {
         max-height: 80vh;
         overflow-y: auto;
-        padding-right: 12px;
-        @include custom-scrollbar;
+        overflow-x: hidden;
+        padding-right: 8px;
+        @include scrollbar-thin;
+      }
+
+      @media (min-width: $bp-xl) {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
   }
 
-  // --- CLASS CARD ---
+  // ─── CLASS CARD ────────────────────────────────────────────────────────────
   .modern-class-card {
     background: $white;
-    border-radius: 16px;
-    overflow: hidden;
     border: 1px solid $border-color;
-    transition: all 0.3s ease;
+    border-radius: $radius-lg;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition:
+      transform 0.22s ease,
+      box-shadow 0.22s ease,
+      border-color 0.22s ease;
+
+    // Mobile: chiều rộng cố định để scroll ngang đẹp
+    flex: 0 0 168px;
+    min-width: 168px;
+
+    @media (min-width: $bp-sm) {
+      // Trong grid thì để tự giãn
+      flex: none;
+      min-width: 0;
+      width: 100%;
+    }
 
     &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-      border-color: rgba($primary-color, 0.2);
+      @media (hover: hover) {
+        transform: translateY(-3px);
+        box-shadow: $shadow-md;
+        border-color: rgba($primary-color, 0.25);
+      }
     }
 
     .card-banner {
-      height: 100px;
-      padding: 16px;
+      height: 80px;
+      padding: 10px 12px;
       position: relative;
       color: $white;
+      flex-shrink: 0;
+
+      @media (min-width: $bp-sm) {
+        height: 88px;
+      }
+      @media (min-width: $bp-lg) {
+        height: 96px;
+      }
 
       .class-code {
         font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
         background: rgba(0, 0, 0, 0.2);
         padding: 3px 8px;
-        border-radius: 4px;
-        font-weight: 600;
+        border-radius: 5px;
       }
 
       .role-tag {
         position: absolute;
-        bottom: 12px;
-        left: 16px;
+        bottom: 8px;
+        left: 10px;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
         background: rgba($white, 0.95);
         color: $text-main;
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-size: 11px;
-        font-weight: 700;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 5px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
       }
     }
 
     .card-body {
-      padding: 20px;
+      padding: 12px 12px 14px;
       flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+
+      @media (min-width: $bp-sm) {
+        padding: 16px 18px 18px;
+      }
 
       h3 {
-        font-size: 17px;
+        font-size: 12px;
         font-weight: 700;
-        margin-bottom: 8px;
-        color: $text-main;
+        margin: 0 0 4px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        @media (min-width: $bp-sm) {
+          font-size: 15px;
+        }
       }
 
       p {
-        font-size: 14px;
+        font-size: 11px;
         color: $text-secondary;
-        line-height: 1.5;
-        height: 44px;
-        overflow: hidden;
+        line-height: 1.45;
+        margin: 0 0 10px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
-        margin-bottom: 16px;
+        overflow: hidden;
+        min-height: 32px;
+
+        @media (min-width: $bp-sm) {
+          font-size: 13px;
+          min-height: 40px;
+          margin-bottom: 14px;
+        }
       }
 
       .card-footer {
-        padding-top: 16px;
-        border-top: 1px solid #f5f5f5;
+        margin-top: auto;
+        padding-top: 8px;
+        border-top: 1px solid $bg-light;
         display: flex;
         justify-content: space-between;
         align-items: center;
 
         .meta {
           display: flex;
-          gap: 12px;
+          gap: 6px;
           color: $text-secondary;
-          font-size: 12px;
+          font-size: 10px;
+
           span {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
+          }
+
+          @media (min-width: $bp-sm) {
+            font-size: 11px;
+            gap: 8px;
           }
         }
 
         .btn-enter-arrow {
           color: $primary-color;
-          font-weight: 700;
+          font-size: 10px;
+          font-weight: 600;
           text-decoration: none;
-          font-size: 14px;
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 3px;
+          white-space: nowrap;
+          transition: gap 0.18s ease;
+
           &:hover {
-            gap: 8px;
+            gap: 7px;
+          }
+
+          @media (min-width: $bp-sm) {
+            font-size: 13px;
+            gap: 4px;
           }
         }
       }
     }
   }
 
-  // --- RIGHT COLUMN ---
+  // ─── RIGHT COLUMN ──────────────────────────────────────────────────────────
+  .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+
+    @media (min-width: $bp-sm) and (max-width: #{$bp-lg - 1}) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (min-width: $bp-lg) {
+      gap: 20px;
+    }
+  }
+
+  // ─── SIDE CARD ─────────────────────────────────────────────────────────────
   .side-card {
     background: $white;
-    border-radius: 16px;
-    padding: 24px;
     border: 1px solid $border-color;
-    margin-bottom: 24px;
-    box-shadow: $shadow-sm;
+    border-radius: $radius-lg;
+    overflow: hidden;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
 
     .side-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      padding: 14px 14px 0;
+
+      @media (min-width: $bp-sm) {
+        padding: 16px 18px 0;
+      }
+
       h3 {
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 7px;
+        margin: 0;
+        white-space: nowrap;
+
+        svg {
+          color: $primary-color;
+          flex-shrink: 0;
+        }
+
+        @media (min-width: $bp-sm) {
+          font-size: 14px;
+        }
       }
+
       .btn-text {
         color: $primary-color;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         text-decoration: none;
+        padding: 3px 7px;
+        border-radius: 6px;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: background 0.15s;
+
+        &:hover {
+          background: rgba($primary-color, 0.07);
+        }
       }
     }
 
     .side-scroll {
-      max-height: 400px;
       overflow-y: auto;
-      @include custom-scrollbar;
+      max-height: 280px;
+      padding: 8px 0 0;
+
+      @media (min-width: $bp-sm) {
+        max-height: 300px;
+      }
+      @media (min-width: $bp-lg) {
+        max-height: 340px;
+      }
+
+      @include scrollbar-thin;
     }
   }
 
+  // ─── ACTIVITY ITEMS ────────────────────────────────────────────────────────
   .activity-item {
     display: flex;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid #f8f8f8;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid $bg-light;
+
+    @media (min-width: $bp-sm) {
+      padding: 11px 18px;
+      gap: 12px;
+    }
+
     &:last-child {
       border-bottom: none;
     }
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
+      min-width: 7px;
       border-radius: 50%;
-      margin-top: 6px;
+      background: $border-color;
+      margin-top: 5px;
+      flex-shrink: 0;
+
       &.blue {
         background: $primary-color;
+        box-shadow: 0 0 0 3px rgba($primary-color, 0.12);
       }
       &.orange {
         background: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(#f59e0b, 0.14);
       }
     }
 
     .text {
+      flex: 1;
+      min-width: 0;
+
       p {
-        font-size: 14px;
-        color: $text-main;
-        margin: 0;
+        font-size: 12px;
+        margin: 0 0 3px;
+        line-height: 1.45;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        @media (min-width: $bp-sm) {
+          font-size: 13px;
+          white-space: normal;
+        }
+
+        strong {
+          font-weight: 600;
+        }
       }
+
       .ann-preview {
-        font-size: 13px;
-        color: $text-secondary;
-        background: $bg-light;
-        padding: 6px 10px;
-        border-radius: 8px;
-        margin: 4px 0;
-      }
-      span {
         font-size: 11px;
         color: $text-secondary;
+        background: $bg-light;
+        padding: 4px 8px;
+        border-radius: 6px;
+        margin: 4px 0;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        @media (min-width: $bp-sm) {
+          font-size: 12px;
+        }
+      }
+
+      > span {
+        font-size: 10px;
+        color: #9aa0a6;
+
+        @media (min-width: $bp-sm) {
+          font-size: 11px;
+        }
       }
     }
   }
 
+  // ─── DEADLINE BOXES ────────────────────────────────────────────────────────
   .deadline-box {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: $bg-light;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    border: 1px solid transparent;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid $bg-light;
+    border-left: 3px solid transparent;
+    transition: background 0.18s;
+
+    @media (min-width: $bp-sm) {
+      padding: 12px 18px;
+      gap: 12px;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      @media (hover: hover) {
+        background: $bg-light;
+      }
+    }
 
     &.urgent {
-      border-left: 4px solid #d93025;
       background: #fef2f2;
+      border-left-color: #d93025;
+
+      svg {
+        color: #d93025;
+      }
+      .info p:last-child {
+        color: #d93025;
+        font-weight: 500;
+      }
     }
+
     &.soon {
-      border-left: 4px solid #f59e0b;
+      border-left-color: #f59e0b;
+      svg {
+        color: #f59e0b;
+      }
+    }
+
+    > svg,
+    > i {
+      color: $text-secondary;
+      min-width: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
     .info {
+      flex: 1;
+      min-width: 0;
+
       h4 {
-        font-size: 14px;
-        font-weight: 600;
-        margin: 0;
-      }
-      p {
         font-size: 12px;
+        font-weight: 600;
+        margin: 0 0 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        @media (min-width: $bp-sm) {
+          font-size: 13px;
+        }
+      }
+
+      .deadline-class {
+        font-size: 10px;
         color: $text-secondary;
-        margin: 2px 0 0;
+        margin: 0 0 2px;
+
+        @media (min-width: $bp-sm) {
+          font-size: 11px;
+        }
+      }
+
+      p:last-child {
+        font-size: 10px;
+        color: $text-secondary;
+        margin: 0;
+
+        @media (min-width: $bp-sm) {
+          font-size: 11px;
+        }
       }
     }
   }
 
-  .skeleton-loader,
-  .empty-card {
+  // ─── EMPTY / SKELETON ──────────────────────────────────────────────────────
+  .empty-card,
+  .skeleton-loader {
+    grid-column: 1 / -1;
     text-align: center;
-    padding: 40px;
+    padding: 32px 20px;
     background: $bg-light;
-    border-radius: 16px;
+    border-radius: $radius-lg;
     border: 2px dashed $border-color;
     color: $text-secondary;
+    font-style: italic;
+    font-size: 13px;
+    width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+
+    @media (min-width: $bp-sm) {
+      padding: 40px 20px;
+      font-size: 14px;
+    }
   }
 }
