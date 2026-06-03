@@ -68,7 +68,6 @@ export default function Sidebar({ isOpen }) {
       const lastReadDate = lastRead ? new Date(lastRead) : new Date(0);
 
       const totalUnread = results.reduce((acc, result) => {
-        // ✅ Kiểm tra an toàn trước khi destructure
         if (!result || !result.ok || !Array.isArray(result.data)) return acc;
         const newItems = result.data.filter(
           (item) => item?.createdAt && new Date(item.createdAt) > lastReadDate,
@@ -95,7 +94,7 @@ export default function Sidebar({ isOpen }) {
     isActive ? "nav-item active" : "nav-item";
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-group">
         <NavLink to="/" className={navLinkClass}>
           <div className="nav-item-content">
