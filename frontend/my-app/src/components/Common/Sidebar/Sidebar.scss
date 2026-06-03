@@ -1,17 +1,21 @@
 @import "../../../styles/variables";
 
+// Chiều cao Navbar cố định
+$nav-height: 64px;
+
+// 1. LỚP PHỦ MỜ (OVERLAY)
 .sidebar-overlay {
   display: none;
 
   @media (max-width: 1024px) {
     position: fixed;
-    top: 0;
+    top: $nav-height;
     left: 0;
     width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
+    height: calc(100vh - #{$nav-height});
+    background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(2px);
-    z-index: 1040;
+    z-index: 950;
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -24,32 +28,27 @@
   }
 }
 
+// 2. SIDEBAR CHÍNH
 .sidebar {
   width: 280px;
-  background-color: $white;
+  background-color: $white !important;
   display: flex;
   flex-direction: column;
   border-right: 1px solid $border-color;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1050;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    width 0.3s ease;
 
-  @media (max-width: 1024px) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    transform: translateX(-100%);
+  // VỊ TRÍ CỐ ĐỊNH DƯỚI NAVBAR
+  position: fixed;
+  top: $nav-height;
+  height: calc(100vh - #{$nav-height});
+  left: 0;
+  z-index: 1000;
 
-    &.open {
-      transform: translateX(0);
-      box-shadow: 15px 0 30px rgba(0, 0, 0, 0.1);
-    }
-  }
-
+  // --- TRÊN DESKTOP (> 1024px) ---
   @media (min-width: 1025px) {
     position: sticky;
-    top: 64px;
-    height: calc(100vh - 64px);
 
     &:not(.open) {
       width: 0;
@@ -59,20 +58,35 @@
     }
   }
 
-  .sidebar-scroll-container {
-    padding: 12px 0;
-    overflow-y: auto;
-    height: 100%;
+  // --- TRÊN MOBILE/TABLET (<= 1024px) ---
+  @media (max-width: 1024px) {
+    transform: translateX(-100%);
 
+    &.open {
+      transform: translateX(0);
+      box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  // --- CONTAINER CUỘN ---
+  .sidebar-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0;
+
+    // Custom scrollbar đơn giản không dùng mixin
     &::-webkit-scrollbar {
       width: 4px;
     }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
     &::-webkit-scrollbar-thumb {
       background: transparent;
-      border-radius: 4px;
+      border-radius: 10px;
     }
     &:hover::-webkit-scrollbar-thumb {
-      background: #e0e0e0;
+      background: #dadce0;
     }
   }
 
@@ -102,7 +116,6 @@
       background-color: rgba($primary-color, 0.08);
       color: $primary-color !important;
       font-weight: 600;
-
       svg {
         color: $primary-color;
       }
@@ -116,13 +129,14 @@
         flex-shrink: 0;
       }
       .nav-label {
-        font-size: 14px;
+        font-size: 14.5px;
+        white-space: nowrap;
       }
     }
 
     .nav-badge {
       background: #d93025;
-      color: white;
+      color: $white;
       font-size: 11px;
       padding: 1px 6px;
       border-radius: 10px;
@@ -134,6 +148,7 @@
     height: 1px;
     background-color: $border-color;
     margin: 12px 20px;
+    opacity: 0.6;
   }
 
   .section-header {
@@ -147,22 +162,7 @@
       font-weight: 700;
       color: $text-secondary;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-add-class {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: $text-secondary;
-      transition: all 0.2s;
-      &:hover {
-        background: $bg-light;
-        color: $primary-color;
-      }
+      letter-spacing: 0.8px;
     }
   }
 
@@ -175,7 +175,8 @@
       width: 28px;
       height: 28px;
       border-radius: 6px;
-      color: white;
+      color: $white;
+      // Thay mixin bằng flexbox thuần
       display: flex;
       align-items: center;
       justify-content: center;
@@ -186,36 +187,11 @@
 
     .class-name {
       font-size: 14px;
+      color: $text-main;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 170px;
-    }
-  }
-
-  .empty-msg {
-    padding: 10px 16px;
-    font-size: 13px;
-    color: $text-secondary;
-    font-style: italic;
-  }
-
-  @media (max-width: 1024px) {
-    position: fixed;
-    top: 65px;
-    left: 0;
-    width: 280px;
-    z-index: 999;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-
-    &.open {
-      transform: translateX(0);
-      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .sidebar-scroll-container {
-      padding-top: 20px;
     }
   }
 }
