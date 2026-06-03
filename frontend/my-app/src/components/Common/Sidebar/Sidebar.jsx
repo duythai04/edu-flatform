@@ -30,7 +30,7 @@ const getColorFromName = (name) => {
   return colors[Math.abs(hash) % colors.length];
 };
 
-export default function Sidebar({ isOpen }) {
+export default function Sidebar({ isOpen, onClose }) {
   const { user } = useContext(AuthContext);
   const [myClasses, setMyClasses] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -39,11 +39,16 @@ export default function Sidebar({ isOpen }) {
   const isTeacher = (user?.role || user?.Role) === "Teacher";
   const classActionPath = isTeacher ? "/create-class" : "/join-class";
 
+  const handleItemClick = () => {
+    if (window.innerWidth <= 1024) {
+      if (onClose) onClose();
+    }
+  };
+
   const fetchData = async () => {
     if (!token) return;
     try {
       const headers = { Authorization: `Bearer ${token}` };
-
       const { ok: classOk, data: classesData } = await safeFetch(
         `${API_BASE_URL}/api/classroom/my`,
         { headers },
@@ -53,7 +58,6 @@ export default function Sidebar({ isOpen }) {
       setMyClasses(classes);
 
       if (classes.length === 0) return;
-
       const classIds = classes.map((c) => c.id).filter(Boolean);
 
       const notifyRequests = classIds.flatMap((id) => [
@@ -82,107 +86,130 @@ export default function Sidebar({ isOpen }) {
   };
 
   useEffect(() => {
-    if (!isOpen) return;
     fetchData();
     window.addEventListener("notificationsRead", fetchData);
     return () => window.removeEventListener("notificationsRead", fetchData);
-  }, [isOpen, token]);
-
-  if (!isOpen) return null;
+  }, [token]);
 
   const navLinkClass = ({ isActive }) =>
     isActive ? "nav-item active" : "nav-item";
 
   return (
-    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
-      <div className="sidebar-group">
-        <NavLink to="/" className={navLinkClass}>
-          <div className="nav-item-content">
-            <Home size={20} />
-            <span className="nav-label">Trang chủ</span>
-          </div>
-        </NavLink>
+    <>
+      <div
+        className={`sidebar-overlay ${isOpen ? "show" : ""}`}
+        onClick={onClose}
+      ></div>
 
-        <NavLink to="/notifications" className={navLinkClass}>
-          <div className="nav-item-content">
-            <Bell size={20} />
-            <span className="nav-label">Thông báo</span>
-          </div>
-          {unreadCount > 0 && (
-            <span className="nav-badge">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </NavLink>
+      <aside className={`sidebar ${isOpen ? "open" : ""}`}>
+        <div className="sidebar-group">
+          <NavLink to="/" className={navLinkClass} onClick={handleItemClick}>
+            <div className="nav-item-content">
+              <Home size={20} />
+              <span className="nav-label">Trang chủ</span>
+            </div>
+          </NavLink>
 
-        <NavLink to="/calendar" className={navLinkClass}>
-          <div className="nav-item-content">
-            <Calendar size={20} />
-            <span className="nav-label">Lịch học</span>
-          </div>
-        </NavLink>
-      </div>
-
-      <div className="sidebar-divider" />
-
-      <div className="sidebar-group">
-        <div className="section-header">
-          <h4 className="section-title">LỚP HỌC CỦA TÔI</h4>
-          <Link
-            to={classActionPath}
-            className="btn-add-class"
-            title={isTeacher ? "Tạo lớp" : "Tham gia lớp"}
+          <NavLink
+            to="/notifications"
+            className={navLinkClass}
+            onClick={handleItemClick}
           >
-            <Plus size={16} />
-          </Link>
+            <div className="nav-item-content">
+              <Bell size={20} />
+              <span className="nav-label">Thông báo</span>
+            </div>
+            {unreadCount > 0 && (
+              <span className="nav-badge">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/calendar"
+            className={navLinkClass}
+            onClick={handleItemClick}
+          >
+            <div className="nav-item-content">
+              <Calendar size={20} />
+              <span className="nav-label">Lịch học</span>
+            </div>
+          </NavLink>
         </div>
 
-        {Array.isArray(myClasses) &&
-          myClasses.map((cls) => (
-            <NavLink
-              key={cls.id}
-              to={`/class/${cls.id}`}
-              className={navLinkClass}
+        <div className="sidebar-divider" />
+
+        <div className="sidebar-group">
+          <div className="section-header">
+            <h4 className="section-title">LỚP HỌC CỦA TÔI</h4>
+            <Link
+              to={classActionPath}
+              className="btn-add-class"
+              title={isTeacher ? "Tạo lớp" : "Tham gia lớp"}
+              onClick={handleItemClick}
             >
-              <div className="class-item-inner">
-                <div
-                  className="class-avatar"
-                  style={{ backgroundColor: getColorFromName(cls.name || "") }}
-                >
-                  {(cls.name || "?").charAt(0).toUpperCase()}
+              <Plus size={16} />
+            </Link>
+          </div>
+
+          {Array.isArray(myClasses) &&
+            myClasses.map((cls) => (
+              <NavLink
+                key={cls.id}
+                to={`/class/${cls.id}`}
+                className={navLinkClass}
+                onClick={handleItemClick}
+              >
+                <div className="class-item-inner">
+                  <div
+                    className="class-avatar"
+                    style={{
+                      backgroundColor: getColorFromName(cls.name || ""),
+                    }}
+                  >
+                    {(cls.name || "?").charAt(0).toUpperCase()}
+                  </div>
+                  <span className="class-name">{cls.name}</span>
                 </div>
-                <span className="class-name">{cls.name}</span>
+              </NavLink>
+            ))}
+          {myClasses.length === 0 && (
+            <p className="empty-msg">Chưa có lớp học</p>
+          )}
+        </div>
+
+        <div className="sidebar-divider" />
+
+        <div className="sidebar-group tools-section">
+          <h4 className="section-title">CÔNG CỤ</h4>
+          {[
+            {
+              icon: <LayoutGrid size={20} />,
+              label: "Chấm điểm",
+              path: "/grading",
+            },
+            {
+              icon: <ClipboardCheck size={20} />,
+              label: "Bài tập",
+              path: "/assignments",
+            },
+            { icon: <Users size={20} />, label: "Học sinh", path: "/students" },
+          ].map((tool) => (
+            <NavLink
+              key={tool.label}
+              to={tool.path}
+              className={navLinkClass}
+              onClick={handleItemClick}
+            >
+              <div className="nav-item-content">
+                <span className="nav-icon">{tool.icon}</span>
+                <span className="nav-label">{tool.label}</span>
               </div>
             </NavLink>
           ))}
-        {myClasses.length === 0 && <p className="empty-msg">Chưa có lớp học</p>}
-      </div>
-
-      <div className="sidebar-divider" />
-
-      <div className="sidebar-group tools-section">
-        <h4 className="section-title">CÔNG CỤ</h4>
-        {[
-          {
-            icon: <LayoutGrid size={20} />,
-            label: "Chấm điểm",
-            path: "/grading",
-          },
-          {
-            icon: <ClipboardCheck size={20} />,
-            label: "Bài tập",
-            path: "/assignments",
-          },
-          { icon: <Users size={20} />, label: "Học sinh", path: "/students" },
-        ].map((tool) => (
-          <NavLink key={tool.label} to={tool.path} className={navLinkClass}>
-            <div className="nav-item-content">
-              <span className="nav-icon">{tool.icon}</span>
-              <span className="nav-label">{tool.label}</span>
-            </div>
-          </NavLink>
-        ))}
-      </div>
-    </aside>
+        </div>
+      </aside>
+    </>
   );
 }
