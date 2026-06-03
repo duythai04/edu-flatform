@@ -297,6 +297,11 @@
     }
   }
 
+  .assignment-link-wrapper {
+    text-decoration: none;
+    color: inherit;
+  }
+
   .feed-item {
     background: $white;
     border: 1px solid $border-color;
