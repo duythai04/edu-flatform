@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 100px); // Trừ đi chiều cao dự kiến của Navbar
+  min-height: calc(100vh - 100px); 
   padding: 16px;
   background-color: $bg-body;
 
@@ -21,7 +21,7 @@
     @media (max-width: 480px) {
       padding: 24px 20px;
       border-radius: 16px;
-      box-shadow: none; // Giảm bóng đổ trên mobile cực nhỏ cho gọn
+      box-shadow: none; 
       border: none;
     }
 
