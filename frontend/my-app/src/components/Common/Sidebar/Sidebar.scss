@@ -1,6 +1,5 @@
 @import "../../../styles/variables";
 
-// 1. LỚP PHỦ MỜ (OVERLAY)
 .sidebar-overlay {
   display: none;
 
@@ -25,7 +24,6 @@
   }
 }
 
-// 2. SIDEBAR CHÍNH
 .sidebar {
   width: 280px;
   background-color: $white;
@@ -35,27 +33,24 @@
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1050;
 
-  // Tự động ẩn sidebar trên mobile/tablet
   @media (max-width: 1024px) {
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
-    transform: translateX(-100%); // Ẩn hoàn toàn bên trái màn hình
+    transform: translateX(-100%);
 
     &.open {
-      transform: translateX(0); // Trượt ra khi nhấn nút toggle
+      transform: translateX(0);
       box-shadow: 15px 0 30px rgba(0, 0, 0, 0.1);
     }
   }
 
-  // Luôn ở trạng thái Sticky trên Desktop dưới Navbar
   @media (min-width: 1025px) {
     position: sticky;
     top: 64px;
     height: calc(100vh - 64px);
 
-    // Nếu bạn muốn desktop cũng đóng được khi nhấn nút:
     &:not(.open) {
       width: 0;
       transform: translateX(-100%);
@@ -86,7 +81,6 @@
     margin-bottom: 4px;
   }
 
-  // STYLE CÁC MENU ITEM
   .nav-item {
     display: flex;
     align-items: center;
@@ -211,7 +205,7 @@
     top: 65px;
     left: 0;
     width: 280px;
-    z-index: 999; // ĐẶT GIÁ TRỊ NÀY CAO HƠN NAVBAR (Navbar thường là 1000-1100)
+    z-index: 999;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
 
@@ -220,10 +214,8 @@
       box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
     }
 
-    // Thêm một khoảng trống ở đầu Sidebar để không bị lút các mục menu
-    // Hoặc để nội dung bắt đầu dưới thanh Navbar nếu bạn muốn hiện Navbar
     .sidebar-scroll-container {
-      padding-top: 20px; // Nếu Sidebar đè lên Navbar
+      padding-top: 20px;
     }
   }
 }
