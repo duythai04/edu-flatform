@@ -32,7 +32,7 @@ const Navbar = ({ onToggleSidebar }) => {
 
   const handleLogout = () => {
     logout();
-    navigate("/auth");
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
