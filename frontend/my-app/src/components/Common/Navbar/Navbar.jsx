@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Menu, Plus, Bell, Grid, Search } from "lucide-react";
+import { AuthContext } from "../../../contexts/AuthContext";
 import "./Navbar.scss";
 
+const getInitials = (name) => {
+  if (!name) return "?";
+  const parts = name.trim().split(" ");
+  return parts.length === 1
+    ? parts[0][0].toUpperCase()
+    : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
 const Navbar = ({ onToggleSidebar }) => {
+  const { user } = useContext(AuthContext);
+  const fullName = user?.fullName || localStorage.getItem("user_name") || "";
+  const initials = getInitials(fullName);
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
@@ -25,7 +38,6 @@ const Navbar = ({ onToggleSidebar }) => {
       </div>
 
       <div className="navbar-right">
-        {/* Nút tạo lớp học chuyển hướng sang trang Create Class */}
         <Link to="/create-class" className="icon-btn" title="Tạo lớp học mới">
           <Plus size={24} />
         </Link>
@@ -38,7 +50,9 @@ const Navbar = ({ onToggleSidebar }) => {
           <Bell size={22} />
         </button>
 
-        <Link to="auth" className="navbar-profile"></Link>
+        <Link to="auth" className="navbar-profile" title={fullName}>
+          {initials}
+        </Link>
       </div>
     </nav>
   );
