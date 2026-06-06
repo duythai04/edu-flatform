@@ -5,18 +5,16 @@ import LoginForm from "./LoginForm/LoginForm";
 import "./Auth.scss";
 
 const AuthMain = ({ onLoginSuccess }) => {
-  const [view, setView] = useState("ROLE_SELECT"); // ROLE_SELECT, REGISTER, LOGIN
-  const [role, setRole] = useState(null); // 'Teacher' hoặc 'Student'
+  const [view, setView] = useState("ROLE_SELECT");
+  const [role, setRole] = useState(null);
 
-  // Chuyển sang màn hình Đăng ký sau khi chọn vai trò
   const handleSelectRole = (selectedRole) => {
     setRole(selectedRole);
     setView("REGISTER");
   };
 
-  // Hàm trung gian nhận token từ LoginForm và gửi lên App.js
-  const handleFinalLogin = (token) => {
-    onLoginSuccess(token);
+  const handleFinalLogin = (token, userData) => {
+    onLoginSuccess(token, userData);
   };
 
   return (

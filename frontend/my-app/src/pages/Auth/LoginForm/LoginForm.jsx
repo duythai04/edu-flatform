@@ -26,7 +26,12 @@ const LoginForm = ({ onSwitchToRegister, onLoginSuccess }) => {
       if (ok && data) {
         localStorage.setItem("user_name", data.fullName);
         localStorage.setItem("user_role", data.role);
-        onLoginSuccess(data.accessToken);
+
+        onLoginSuccess(data.accessToken, {
+          fullName: data.fullName,
+          role: data.role,
+          email: data.email,
+        });
       } else {
         setError(
           (typeof data === "string" ? data : data?.message) ||
