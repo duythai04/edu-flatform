@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }) => {
     return {
       ...extracted,
       fullName: localStorage.getItem("user_name") || "",
+      role: extracted.role || localStorage.getItem("user_role") || "",
     };
   });
 
@@ -47,11 +48,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("user_name", userData.fullName || "");
+    localStorage.setItem("user_role", userData.role || "");
+
     setToken(newToken);
     setUser({
       ...extractUserFromToken(newToken),
       fullName: userData.fullName || "",
+      role: userData.role || extractUserFromToken(newToken)?.role || "",
     });
+
     window.location.href = "/";
   };
 
