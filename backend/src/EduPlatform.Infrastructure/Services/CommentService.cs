@@ -34,6 +34,7 @@ public class CommentService : ICommentService
             query = query.Where(c => c.AssignmentId == assignmentId);
 
         var comments = await query
+            .AsNoTracking()
             .Include(c => c.User)
             .Include(c => c.Replies.Where(r => !r.IsDeleted))
                 .ThenInclude(r => r.User)

@@ -22,7 +22,7 @@ public class CommentsController : ControllerBase
     private Guid CurrentUserId =>
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    // ─── GET /api/classrooms/{classroomId}/comments ───────────────────────────
+    //GET /api/classrooms/{classroomId}/comments 
     [HttpGet]
     public async Task<IActionResult> GetByClassroom(
     Guid classroomId,
@@ -41,7 +41,7 @@ public class CommentsController : ControllerBase
         }
     }
 
-    // ─── POST /api/classrooms/{classroomId}/comments ──────────────────────────
+    //  POST /api/classrooms/{classroomId}/comments
     [HttpPost]
     public async Task<IActionResult> Create(Guid classroomId, [FromBody] CreateCommentDto dto)
     {
@@ -67,7 +67,7 @@ public class CommentsController : ControllerBase
         }
     }
 
-    // ─── PUT /api/classrooms/{classroomId}/comments/{commentId} ─────────────
+    // PUT /api/classrooms/{classroomId}/comments/{commentId} 
     [HttpPut("{commentId}")]
     public async Task<IActionResult> Update(
         Guid classroomId, Guid commentId, [FromBody] UpdateCommentDto dto)
@@ -90,7 +90,7 @@ public class CommentsController : ControllerBase
         }
     }
 
-    // ─── DELETE /api/classrooms/{classroomId}/comments/{commentId} ───────────
+    // DELETE /api/classrooms/{classroomId}/comments/{commentId}
     [HttpDelete("{commentId}")]
     public async Task<IActionResult> Delete(Guid classroomId, Guid commentId)
     {

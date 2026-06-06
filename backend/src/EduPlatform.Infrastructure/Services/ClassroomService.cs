@@ -16,6 +16,7 @@ namespace EduPlatform.Infrastructure.Services
         public async Task<ClassroomDetailDto> GetClassroomDetailAsync(Guid classId, Guid userId)
         {
             var classroom = await _context.Classrooms
+                .AsNoTracking()
                 .Include(c => c.Teacher)
                 .Include(c => c.ClassroomMembers)
                 .Include(c => c.Assignments)

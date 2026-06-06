@@ -47,6 +47,7 @@ public class SubmissionService : ISubmissionService
     public async Task<SubmissionDto?> GetByIdAsync(Guid id)
     {
         var s = await _db.Submissions
+            .AsNoTracking()
             .Include(x => x.Student)
             .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -57,6 +58,7 @@ public class SubmissionService : ISubmissionService
     public async Task<IEnumerable<SubmissionDto>> GetByAssignmentAsync(Guid assignmentId)
     {
         var list = await _db.Submissions
+            .AsNoTracking()
             .Include(x => x.Student)
             .Where(x => x.AssignmentId == assignmentId)
             .OrderByDescending(x => x.SubmittedAt)

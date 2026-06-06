@@ -42,12 +42,11 @@ public class AssignmentService : IAssignmentService
         );
     }
 
-    // ─────────────────────────────────────────────────────────────
     // GET DETAIL (Student + Teacher view)
-    // ─────────────────────────────────────────────────────────────
     public async Task<AssignmentDetailDto> GetDetailAsync(Guid assignmentId, Guid userId, string? role)
     {
         var assignment = await _context.Assignments
+            .AsNoTracking()
             .Include(a => a.AssignmentFiles)
             .Include(a => a.Classroom)
                 .ThenInclude(c => c.Teacher)
@@ -106,9 +105,7 @@ public class AssignmentService : IAssignmentService
         return dto;
     }
 
-    // ─────────────────────────────────────────────────────────────
     // CREATE
-    // ─────────────────────────────────────────────────────────────
     public async Task<AssignmentResponseDto> CreateAsync(CreateAssignmentDto dto)
     {
         var assignment = new Assignment
@@ -128,9 +125,7 @@ public class AssignmentService : IAssignmentService
         return await GetByIdAsync(assignment.Id);
     }
 
-    // ─────────────────────────────────────────────────────────────
     // UPDATE
-    // ─────────────────────────────────────────────────────────────
     public async Task UpdateAsync(Guid id, UpdateAssignmentDto dto)
     {
         var a = await _context.Assignments.FindAsync(id);
@@ -144,9 +139,7 @@ public class AssignmentService : IAssignmentService
         await _context.SaveChangesAsync();
     }
 
-    // ─────────────────────────────────────────────────────────────
     // DELETE assignment
-    // ─────────────────────────────────────────────────────────────
     public async Task DeleteAsync(Guid id)
     {
         var a = await _context.Assignments.FindAsync(id);
@@ -156,9 +149,7 @@ public class AssignmentService : IAssignmentService
         await _context.SaveChangesAsync();
     }
 
-    // ─────────────────────────────────────────────────────────────
     // UPLOAD FILE (cũ — giữ lại để không break)
-    // ─────────────────────────────────────────────────────────────
     public async Task<FileDto> UploadFileAsync(Guid assignmentId, IFormFile file)
     {
         var assignmentFile = new AssignmentFile
@@ -176,9 +167,7 @@ public class AssignmentService : IAssignmentService
         return new FileDto(assignmentFile.Id, assignmentFile.FileName, assignmentFile.FileUrl, assignmentFile.FileSize);
     }
 
-    // ─────────────────────────────────────────────────────────────
     // SAVE FILE (mới — dùng safeFileName từ Controller)
-    // ─────────────────────────────────────────────────────────────
     public async Task SaveAssignmentFileAsync(Guid assignmentId, string fileUrl, string fileName, long fileSize)
     {
         var assignmentFile = new AssignmentFile
@@ -194,9 +183,7 @@ public class AssignmentService : IAssignmentService
         await _context.SaveChangesAsync();
     }
 
-    // ─────────────────────────────────────────────────────────────
     // GET FILE (dùng để xoá file vật lý ở Controller)
-    // ─────────────────────────────────────────────────────────────
     public async Task<AssignmentFileDto?> GetAssignmentFileAsync(Guid fileId)
     {
         var f = await _context.AssignmentFiles.FindAsync(fileId);
@@ -211,9 +198,7 @@ public class AssignmentService : IAssignmentService
         };
     }
 
-    // ─────────────────────────────────────────────────────────────
     // DELETE FILE (record DB — file vật lý xoá ở Controller)
-    // ─────────────────────────────────────────────────────────────
     public async Task DeleteFileAsync(Guid fileId)
     {
         var f = await _context.AssignmentFiles.FindAsync(fileId);
@@ -226,13 +211,9 @@ public class AssignmentService : IAssignmentService
     public async Task DeleteAssignmentFileAsync(Guid fileId)
         => await DeleteFileAsync(fileId);
 
-    // ─────────────────────────────────────────────────────────────
     // ADD COMMENT
-    // ─────────────────────────────────────────────────────────────
     public async Task AddCommentAsync(Guid assignmentId, Guid userId, string content)
     {
-        // Nếu bạn có entity Comment, thêm vào đây.
-        // Hiện tại để trống để build pass — bổ sung sau khi có entity.
         await Task.CompletedTask;
     }
 
