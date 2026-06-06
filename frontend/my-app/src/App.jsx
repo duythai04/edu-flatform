@@ -17,14 +17,12 @@ import ClassroomDetail from "./pages/ClassroomDetail/ClassDetail";
 import AssignmentDetail from "./pages/AssignmentDetail/AssignmentDetail";
 import SubmissionList from "./pages/SubmissionList/SubmissionList";
 import NotificationPage from "./pages/NotificationPage/NotificationPage";
-import { AuthContext } from "./contexts/AuthContext";
 
 import "./App.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
-  const { login } = useContext(AuthContext);
 
   useEffect(() => {
     const handleStorageChange = () => {
@@ -47,8 +45,9 @@ function App() {
     };
   }, []);
 
-  const handleLoginSuccess = (newToken, userData) => {
-    login(newToken, userData); 
+  const handleLoginSuccess = (newToken) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
   };
 
   const handleLogout = () => {
