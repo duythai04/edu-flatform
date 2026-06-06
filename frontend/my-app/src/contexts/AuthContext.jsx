@@ -35,18 +35,18 @@ export const AuthProvider = ({ children }) => {
     const savedToken = localStorage.getItem("token");
     const extracted = extractUserFromToken(savedToken);
     if (!extracted) return null;
-
     return {
       ...extracted,
       fullName: localStorage.getItem("user_name") || "",
     };
   });
 
+  const getToken = () => token || localStorage.getItem("token");
+
   const login = (newToken, userData) => {
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("user_name", userData.fullName || "");
-
     setToken(newToken);
     setUser({
       ...extractUserFromToken(newToken),
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, getToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
