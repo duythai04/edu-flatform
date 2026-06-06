@@ -72,4 +72,5 @@ public class AuthController : ControllerBase
             Role = user.Role.ToString()
         });
     }
+
 }

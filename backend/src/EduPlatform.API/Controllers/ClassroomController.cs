@@ -42,6 +42,7 @@ public class ClassroomController : ControllerBase
             Id = Guid.NewGuid(),
             Name = request.Name,
             Description = request.Description,
+            Color = request.Color ?? "#4f46e5",
             TeacherId = Guid.Parse(userId),
             ClassCode = GenerateJoinCode()
         };
@@ -126,6 +127,7 @@ public class ClassroomController : ControllerBase
                 x.Classroom.Name,
                 x.Classroom.Description,
                 x.Classroom.ClassCode,
+                x.Classroom.Color,
                 Role = "Member"
             })
             .ToListAsync();
@@ -139,6 +141,7 @@ public class ClassroomController : ControllerBase
                 x.Name,
                 x.Description,
                 x.ClassCode,
+                x.Color,
                 Role = "Teacher"
             })
             .ToListAsync();
@@ -162,7 +165,7 @@ public class ClassroomController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetDetails(Guid id) 
+    public async Task<IActionResult> GetDetails(Guid id)
     {
         // 2. Lấy UserId từ Token (nó là chuỗi string)
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
