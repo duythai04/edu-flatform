@@ -90,7 +90,8 @@ const Home = () => {
   const [showAll, setShowAll] = useState(false);
 
   const isGlobalTeacher = user?.role === "Teacher";
-  const userName = user?.Fullname || user?.fullname || "Người dùng";
+  const userName =
+    user?.fullName || localStorage.getItem("user_name") || "Người dùng";
   const token = localStorage.getItem("token");
   const headers = { Authorization: `Bearer ${token}` };
 
