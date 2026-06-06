@@ -80,10 +80,18 @@ function deadlineUrgency(dateStr) {
 }
 
 const Home = () => {
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 1 && hour < 12) return "Chào buổi sáng";
+    if (hour >= 12 && hour < 18) return "Chào buổi chiều";
+    return "Chào buổi tối";
+  };
+
   const { user } = useContext(AuthContext);
   const [myClasses, setMyClasses] = useState([]);
   const [feedItems, setFeedItems] = useState([]);
   const [deadlines, setDeadlines] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [loadingFeed, setLoadingFeed] = useState(false);
   const [loadingDead, setLoadingDead] = useState(false);
@@ -236,7 +244,9 @@ const Home = () => {
                 month: "long",
               })}
             </span>
-            <h1>Chào buổi sáng, {userName}!</h1>
+            <h1>
+              {getGreeting()}, {userName}!
+            </h1>
             <p>
               {isGlobalTeacher
                 ? "Hệ thống đã sẵn sàng. Bạn có 3 tiết dạy trong hôm nay."
