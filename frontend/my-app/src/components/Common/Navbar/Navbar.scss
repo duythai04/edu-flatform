@@ -114,13 +114,18 @@
       border-radius: 50%;
       margin-left: 8px;
       cursor: pointer;
-      background-color: $bg-light;
       border: 2px solid transparent;
       transition: all 0.2s;
+      background-color: #4285f4;
+      background-size: cover;
+      background-position: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-size: cover;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
 
       &:hover {
         border-color: $primary-color;
