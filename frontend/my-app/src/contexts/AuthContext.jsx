@@ -52,6 +52,7 @@ export const AuthProvider = ({ children }) => {
       ...extractUserFromToken(newToken),
       fullName: userData.fullName || "",
     });
+    window.location.href = "/";
   };
 
   const logout = () => {
