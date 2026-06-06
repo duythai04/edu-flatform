@@ -9,6 +9,7 @@ public class ClassroomDetailDto
     public string TeacherName { get; set; }
     public int StudentCount { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string? Color { get; set; }
 
     public List<AssignmentDto> Assignments { get; set; }
 }

@@ -35,6 +35,7 @@ namespace EduPlatform.Infrastructure.Services
                 Name = classroom.Name,
                 ClassCode = classroom.ClassCode,
                 Description = classroom.Description,
+                Color = classroom.Color,
                 TeacherName = classroom.Teacher?.FullName ?? "N/A",
                 StudentCount = classroom.ClassroomMembers?.Count ?? 0,
                 Assignments = classroom.Assignments?.Select(a => new AssignmentDto
