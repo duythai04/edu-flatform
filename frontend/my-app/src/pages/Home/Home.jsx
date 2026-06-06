@@ -97,7 +97,7 @@ const Home = () => {
   const [loadingDead, setLoadingDead] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
-  const isGlobalTeacher = user?.role === "Teacher";
+  const isGlobalTeacher = user?.role?.toLowerCase() === "teacher";
   const userName =
     user?.fullName || localStorage.getItem("user_name") || "Người dùng";
   const token = localStorage.getItem("token");
