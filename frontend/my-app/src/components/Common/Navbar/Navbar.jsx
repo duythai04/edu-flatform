@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
-import { Menu, Plus, Bell, Grid, Search } from "lucide-react";
+import React, { useContext, useRef, useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, Plus, Bell, Grid, Search, LogOut } from "lucide-react";
 import { AuthContext } from "../../../contexts/AuthContext";
 import "./Navbar.scss";
 
@@ -13,9 +13,27 @@ const getInitials = (name) => {
 };
 
 const Navbar = ({ onToggleSidebar }) => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const fullName = user?.fullName || localStorage.getItem("user_name") || "";
   const initials = getInitials(fullName);
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/auth");
+  };
 
   return (
     <nav className="navbar">
@@ -23,7 +41,6 @@ const Navbar = ({ onToggleSidebar }) => {
         <button className="icon-btn sidebar-toggle" onClick={onToggleSidebar}>
           <Menu size={24} />
         </button>
-
         <Link to="/" className="navbar-logo">
           <div className="logo-icon">E</div>
           <span className="logo-text">EduClass</span>
@@ -42,9 +59,32 @@ const Navbar = ({ onToggleSidebar }) => {
           <Grid size={22} />
         </button>
 
-        <Link to="auth" className="navbar-profile" title={fullName}>
-          {initials}
-        </Link>
+        <div className="profile-wrapper" ref={dropdownRef}>
+          <button
+            className="navbar-profile"
+            title={fullName}
+            onClick={() => setOpen((prev) => !prev)}
+          >
+            {initials}
+          </button>
+
+          {open && (
+            <div className="profile-dropdown">
+              <div className="dropdown-header">
+                <div className="dropdown-avatar">{initials}</div>
+                <div>
+                  <p className="dropdown-name">{fullName || "Người dùng"}</p>
+                  <p className="dropdown-email">{user?.email || ""}</p>
+                </div>
+              </div>
+              <div className="dropdown-divider" />
+              <button className="dropdown-item logout" onClick={handleLogout}>
+                <LogOut size={15} />
+                Đăng xuất
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
