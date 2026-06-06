@@ -278,9 +278,7 @@ const Home = () => {
                     <div
                       className="card-banner"
                       style={{
-                        background: cls.color
-                          ? `linear-gradient(135deg, ${cls.color}dd, ${cls.color}88)`
-                          : "linear-gradient(135deg, #4f46e5, #818cf8)",
+                        background: cls.color ?? "#4f46e5",
                       }}
                     >
                       <span className="class-code">{cls.classCode}</span>

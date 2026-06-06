@@ -19,10 +19,20 @@ import { safeFetch } from "../../config/fetchHelper";
 
 const COLORS = [
   { hex: "#1a73e8", label: "Xanh dương" },
+  { hex: "#0ea5e9", label: "Xanh nhạt" },
   { hex: "#0d9488", label: "Xanh ngọc" },
+  { hex: "#10b981", label: "Xanh lá" },
+  { hex: "#f59e0b", label: "Vàng" },
+  { hex: "#f97316", label: "Cam" },
   { hex: "#ea580c", label: "Cam đậm" },
-  { hex: "#dc2626", label: "Đỏ" },
+  { hex: "#ef4444", label: "Đỏ" },
+  { hex: "#dc2626", label: "Đỏ đậm" },
   { hex: "#7c3aed", label: "Tím" },
+  { hex: "#8b5cf6", label: "Tím nhạt" },
+  { hex: "#ec4899", label: "Hồng" },
+  { hex: "#14b8a6", label: "Ngọc lam" },
+  { hex: "#84cc16", label: "Xanh chanh" },
+  { hex: "#6b7280", label: "Xám" },
 ];
 
 const PERMISSIONS = [
