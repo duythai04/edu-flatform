@@ -245,7 +245,7 @@ const TeacherStream = ({
       <div
         className="stream-banner"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5)), url('https://www.gstatic.com/classroom/themes/img_read.jpg')`,
+          background: classData?.color ?? "#4f46e5",
         }}
       >
         <div className="banner-footer">
@@ -312,7 +312,7 @@ const StudentStream = ({ classData, announcements, id }) => (
     <div
       className="stream-banner"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.5)), url('https://www.gstatic.com/classroom/themes/img_read.jpg')`,
+        background: classData?.color ?? "#4f46e5",
       }}
     >
       <div className="banner-footer">
