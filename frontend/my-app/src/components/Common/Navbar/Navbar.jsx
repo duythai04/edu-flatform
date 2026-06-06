@@ -38,16 +38,8 @@ const Navbar = ({ onToggleSidebar }) => {
       </div>
 
       <div className="navbar-right">
-        <Link to="/create-class" className="icon-btn" title="Tạo lớp học mới">
-          <Plus size={24} />
-        </Link>
-
         <button className="icon-btn">
           <Grid size={22} />
-        </button>
-
-        <button className="icon-btn">
-          <Bell size={22} />
         </button>
 
         <Link to="auth" className="navbar-profile" title={fullName}>
