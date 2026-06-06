@@ -75,7 +75,7 @@ const CreateClass = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ name, description }),
+          body: JSON.stringify({ name, description, color: selectedColor.hex }),
         },
       );
 

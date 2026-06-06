@@ -21,18 +21,6 @@ import "./Home.scss";
 import { API_BASE_URL } from "../../config/api";
 import { safeFetch } from "../../config/fetchHelper";
 
-const getBannerColor = (index) => {
-  const colors = [
-    "#4f46e5",
-    "#0ea5e9",
-    "#10b981",
-    "#f59e0b",
-    "#8b5cf6",
-    "#ec4899",
-  ];
-  return colors[index % colors.length];
-};
-
 function timeAgo(dateStr) {
   if (!dateStr) return "";
 
@@ -290,7 +278,9 @@ const Home = () => {
                     <div
                       className="card-banner"
                       style={{
-                        background: `linear-gradient(135deg, ${getBannerColor(index)}, ${getBannerColor(index + 1)})`,
+                        background: cls.color
+                          ? `linear-gradient(135deg, ${cls.color}dd, ${cls.color}88)`
+                          : "linear-gradient(135deg, #4f46e5, #818cf8)",
                       }}
                     >
                       <span className="class-code">{cls.classCode}</span>
