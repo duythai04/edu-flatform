@@ -267,7 +267,7 @@ const TeacherStream = ({
         <div className={`composer-box ${isExpanding ? "active" : ""}`}>
           {!isExpanding ? (
             <div className="placeholder" onClick={() => setIsExpanding(true)}>
-              <div className="avatar-mini">{user?.name?.charAt(0)}</div>
+              <div className="avatar-mini">{user?.fullName?.charAt(0)}</div>
               <span>Thông báo nội dung nào đó cho lớp học...</span>
             </div>
           ) : (
