@@ -521,10 +521,6 @@ const ClassDetail = () => {
             <span className="name">{classData.name}</span>
           </div>
         </div>
-        <div className="nav-right">
-          <Bell size={20} />
-          <div className="user-avatar">{user?.name?.charAt(0)}</div>
-        </div>
       </header>
 
       <div className="gc-main-layout">
