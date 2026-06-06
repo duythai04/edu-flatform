@@ -13,7 +13,6 @@ import Home from "./pages/Home/Home";
 import CreateClass from "./pages/CreateClass/CreateClass";
 import AuthMain from "./pages/Auth/Auth";
 import JoinClass from "./pages/JoinClass/JoinClass";
-
 import ClassroomDetail from "./pages/ClassroomDetail/ClassDetail";
 import AssignmentDetail from "./pages/AssignmentDetail/AssignmentDetail";
 import SubmissionList from "./pages/SubmissionList/SubmissionList";
@@ -23,18 +22,14 @@ import "./App.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
-
-  // Mặc định: Mở trên desktop (>1024px), đóng trên mobile
   const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
 
   useEffect(() => {
-    // Đồng bộ token giữa các tab
     const handleStorageChange = () => {
       setToken(localStorage.getItem("token"));
     };
-    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);  
 
-    // Xử lý tự động đóng/mở sidebar khi xoay màn hình hoặc thay đổi kích thước
     const handleResize = () => {
       if (window.innerWidth <= 1024) {
         setSidebarOpen(false);
@@ -65,58 +60,63 @@ function App() {
   };
 
   const closeSidebar = () => {
-    // Chỉ đóng khi ở màn hình mobile/tablet
     if (window.innerWidth <= 1024) {
       setSidebarOpen(false);
     }
   };
 
+  const AppLayout = () => (
+    <div className="app-layout">
+      <Navbar
+        onToggleSidebar={toggleSidebar}
+        isSidebarOpen={isSidebarOpen}
+        onLogout={handleLogout}
+      />
+      <div className="app-container">
+        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+        <main
+          className={`main-content ${
+            isSidebarOpen ? "sidebar-open" : "sidebar-closed"
+          }`}
+        >
+          <div className="page-container">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/create-class" element={<CreateClass />} />
+              <Route path="/join-class" element={<JoinClass />} />
+              <Route path="/class/:id" element={<ClassroomDetail />} />
+              <Route path="/assignment/:id" element={<AssignmentDetail />} />
+              <Route path="/notifications" element={<NotificationPage />} />
+              <Route
+                path="/assignment/:id/submissions"
+                element={<SubmissionList />}
+              />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+
   return (
     <Router>
-      {!token ? (
-        <AuthMain onLoginSuccess={handleLoginSuccess} />
-      ) : (
-        <div className="app-layout">
-          {/* Navbar luôn ở trên cùng */}
-          <Navbar
-            onToggleSidebar={toggleSidebar}
-            isSidebarOpen={isSidebarOpen}
-            onLogout={handleLogout}
-          />
-
-          <div className="app-container">
-            {/* Sidebar truyền hàm closeSidebar để tự đóng khi click menu item */}
-            <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-
-            {/* Vùng nội dung chính */}
-            <main
-              className={`main-content ${
-                isSidebarOpen ? "sidebar-open" : "sidebar-closed"
-              }`}
-            >
-              <div className="page-container">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/create-class" element={<CreateClass />} />
-                  <Route path="/join-class" element={<JoinClass />} />
-                  <Route path="/class/:id" element={<ClassroomDetail />} />
-                  <Route
-                    path="/assignment/:id"
-                    element={<AssignmentDetail />}
-                  />
-                  <Route path="/notifications" element={<NotificationPage />} />
-                  <Route
-                    path="/assignment/:id/submissions"
-                    element={<SubmissionList />}
-                  />
-                  {/* Điều hướng mặc định */}
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </div>
-            </main>
-          </div>
-        </div>
-      )}
+      <Routes>
+        <Route
+          path="/auth"
+          element={
+            token ? (
+              <Navigate to="/" />
+            ) : (
+              <AuthMain onLoginSuccess={handleLoginSuccess} />
+            )
+          }
+        />
+        <Route
+          path="*"
+          element={token ? <AppLayout /> : <Navigate to="/auth" />}
+        />
+      </Routes>
     </Router>
   );
 }
