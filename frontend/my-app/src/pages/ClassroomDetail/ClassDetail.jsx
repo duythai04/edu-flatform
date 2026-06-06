@@ -462,11 +462,22 @@ const ClassDetail = () => {
   };
 
   const fetchData = useCallback(async () => {
-    if (!token) return;
+    const authToken = token || localStorage.getItem("token");
+    if (!authToken) return;
+
+    const authHeaders = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    };
+
     try {
       const [classRes, announceRes] = await Promise.all([
-        safeFetch(`${API_BASE_URL}/api/classroom/${id}`, { headers }),
-        safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, { headers }),
+        safeFetch(`${API_BASE_URL}/api/classroom/${id}`, {
+          headers: authHeaders,
+        }),
+        safeFetch(`${API_BASE_URL}/api/announcement/class/${id}`, {
+          headers: authHeaders,
+        }),
       ]);
       if (classRes.ok && classRes.data) setClassData(classRes.data);
       if (announceRes.ok && Array.isArray(announceRes.data))
