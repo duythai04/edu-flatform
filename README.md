@@ -10,13 +10,13 @@
 
 👨‍🏫 /Teacher
 
-Email: nguyena@gmail.com
+Email: nguyenb@gmail.com
 Password: 2303
 
 👨‍🎓 Student
 
-Email: thailuongduy2303@gmail.com
-Password: 230304
+Email: nguyenhalinhchi@gmail.com
+Password: 2504
 <br>
 
 
