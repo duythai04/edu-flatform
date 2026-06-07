@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Supabase;
 
 namespace EduPlatform.API.Controllers;
 
@@ -16,11 +17,13 @@ public class AssignmentController : ControllerBase
 {
     private readonly IAssignmentService _service;
     private readonly Cloudinary _cloudinary;
+    private readonly IConfiguration _config;
 
-    public AssignmentController(IAssignmentService service, Cloudinary cloudinary)
+    public AssignmentController(IAssignmentService service, Cloudinary cloudinary, IConfiguration config)
     {
         _service = service;
         _cloudinary = cloudinary;
+        _config = config;
     }
 
     // GET api/assignment
@@ -39,7 +42,7 @@ public class AssignmentController : ControllerBase
         return Ok(result);
     }
 
-    // PUT api/assignment
+    // PUT api/assignment/{id}
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAssignmentDto dto)
     {
@@ -97,47 +100,38 @@ public class AssignmentController : ControllerBase
         if (file.Length > maxSize)
             return BadRequest("File vượt quá giới hạn 10 MB.");
 
-        await using var stream = file.OpenReadStream();
-
-        var ext = Path.GetExtension(file.FileName).ToLower();
-        var isImage = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext);
-        var publicId = Guid.NewGuid().ToString();
-
-        string fileUrl;
-
-        if (isImage)
+        try
         {
-            var uploadParams = new ImageUploadParams
-            {
-                File = new FileDescription(file.FileName, stream),
-                Folder = "assignments",
-                PublicId = publicId,
-                AccessMode = "public"
-            };
-            var result = await _cloudinary.UploadAsync(uploadParams);
-            if (result.Error != null)
-                return BadRequest("Upload thất bại: " + result.Error.Message);
-            fileUrl = result.SecureUrl.ToString();
+            var supabaseUrl = _config["SUPABASE_URL"] ?? Environment.GetEnvironmentVariable("SUPABASE_URL");
+            var supabaseKey = _config["SUPABASE_KEY"] ?? Environment.GetEnvironmentVariable("SUPABASE_KEY");
+
+            var supabase = new Supabase.Client(supabaseUrl, supabaseKey);
+            await supabase.InitializeAsync();
+
+            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+
+            await supabase.Storage
+                .From("assignments")
+                .Upload(bytes, fileName, new Supabase.Storage.FileOptions
+                {
+                    ContentType = file.ContentType,
+                    Upsert = true
+                });
+
+            var fileUrl = supabase.Storage
+                .From("assignments")
+                .GetPublicUrl(fileName);
+
+            await _service.SaveAssignmentFileAsync(id, fileUrl, file.FileName, file.Length);
+            return Ok(new { url = fileUrl, fileName = file.FileName, fileSize = file.Length });
         }
-        else
+        catch (Exception ex)
         {
-            var uploadParams = new RawUploadParams
-            {
-                File = new FileDescription(file.FileName, stream),
-                Folder = "assignments",
-                PublicId = publicId,
-                AccessMode = "public",
-                Type = "upload"
-            };
-            var result = await _cloudinary.UploadAsync(uploadParams);
-            if (result.Error != null)
-                return BadRequest("Upload thất bại: " + result.Error.Message);
-
-            fileUrl = $"https://res.cloudinary.com/{_cloudinary.Api.Account.Cloud}/raw/upload/fl_attachment/{result.PublicId}";
+            return BadRequest("Upload thất bại: " + ex.Message);
         }
-
-        await _service.SaveAssignmentFileAsync(id, fileUrl, file.FileName, file.Length);
-        return Ok(new { url = fileUrl, fileName = file.FileName, fileSize = file.Length });
     }
 
     // DELETE api/assignment/{id}/files/{fileId}
