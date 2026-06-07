@@ -40,7 +40,7 @@ public class AssignmentController : ControllerBase
     }
 
     // PUT api/assignment
-    [HttpPut]
+    [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAssignmentDto dto)
     {
         if (!IsTeacher()) return Forbid();
@@ -133,7 +133,7 @@ public class AssignmentController : ControllerBase
             if (result.Error != null)
                 return BadRequest("Upload thất bại: " + result.Error.Message);
 
-            fileUrl = $"https://res.cloudinary.com/{_cloudinary.Api.Account.Cloud}/raw/upload/{result.PublicId}";
+            fileUrl = $"https://res.cloudinary.com/{_cloudinary.Api.Account.Cloud}/raw/upload/fl_attachment/{result.PublicId}";
         }
 
         await _service.SaveAssignmentFileAsync(id, fileUrl, file.FileName, file.Length);
