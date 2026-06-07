@@ -17,6 +17,8 @@ public class AssignmentController : ControllerBase
     private readonly IAssignmentService _service;
     private readonly IWebHostEnvironment _env;
 
+    private const string Bucket = "assignments";
+
     public AssignmentController(IAssignmentService service, IWebHostEnvironment env)
     {
         _service = service;

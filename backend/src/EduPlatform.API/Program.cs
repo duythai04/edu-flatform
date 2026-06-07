@@ -67,6 +67,14 @@ builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddScoped<IAssignmentService, AssignmentService>();
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IStorageService, SupabaseStorageService>();
+
+
+var supabaseUrl = builder.Configuration["Supabase:Url"];
+var supabaseKey = builder.Configuration["Supabase:ServiceKey"]; 
+var supabase = new Supabase.Client(supabaseUrl, supabaseKey);
+await supabase.InitializeAsync();
+builder.Services.AddSingleton(supabase);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
