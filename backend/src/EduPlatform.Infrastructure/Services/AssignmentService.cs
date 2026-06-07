@@ -53,7 +53,7 @@ public class AssignmentService : IAssignmentService
             .FirstOrDefaultAsync(a => a.Id == assignmentId);
 
         if (assignment == null)
-            throw new Exception("Assignment not found");
+            return null!;
 
         var dto = new AssignmentDetailDto
         {
