@@ -1,10 +1,8 @@
 using EduPlatform.Application.DTOs.Assignment;
 using EduPlatform.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Security.Claims;
 
 namespace EduPlatform.API.Controllers;
@@ -15,14 +13,13 @@ namespace EduPlatform.API.Controllers;
 public class AssignmentController : ControllerBase
 {
     private readonly IAssignmentService _service;
-    private readonly IWebHostEnvironment _env;
-
+    private readonly IStorageService _storage;
     private const string Bucket = "assignments";
 
-    public AssignmentController(IAssignmentService service, IWebHostEnvironment env)
+    public AssignmentController(IAssignmentService service, IStorageService storage)
     {
         _service = service;
-        _env = env;
+        _storage = storage;
     }
 
     // GET api/assignment
@@ -41,8 +38,7 @@ public class AssignmentController : ControllerBase
         return Ok(result);
     }
 
-
-    // PUT api/assignment
+    // PUT api/assignment?id={id}
     [HttpPut]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAssignmentDto dto)
     {
@@ -54,10 +50,9 @@ public class AssignmentController : ControllerBase
 
         await _service.UpdateAsync(id, dto);
         return Ok(await _service.GetByIdAsync(id));
-
     }
 
-
+    // DELETE api/assignment/{id}
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -67,21 +62,15 @@ public class AssignmentController : ControllerBase
         if (existing == null)
             return NotFound("Không tìm thấy bài tập.");
 
-        // Xoá file vật lý của từng file đính kèm
+        // Xoá từng file trên Supabase Storage
         foreach (var file in existing.Files)
         {
-            var relativePath = file.FileUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-            var fullPath = Path.Combine(_env.ContentRootPath, relativePath);
-            if (System.IO.File.Exists(fullPath))
-                System.IO.File.Delete(fullPath);
+            await _storage.DeleteAsync(Bucket, file.FileUrl);
         }
 
         await _service.DeleteAsync(id);
         return NoContent();
     }
-
-
-
 
     // GET api/assignment/{id}/detail
     [HttpGet("{id:guid}/detail")]
@@ -103,79 +92,54 @@ public class AssignmentController : ControllerBase
     }
 
     // POST api/assignment/{id}/files
-
     [HttpPost("{id:guid}/files")]
     public async Task<IActionResult> UploadAssignmentFile(Guid id, IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("File không được để trống.");
 
-        // Giới hạn kích thước file (10 MB)
-        const long maxSize = 10 * 1024 * 1024;
+        const long maxSize = 10 * 1024 * 1024; // 10 MB
         if (file.Length > maxSize)
             return BadRequest("File vượt quá giới hạn 10 MB.");
 
-        // Tạo thư mục uploads nếu chưa có
-        var uploadsFolder = Path.Combine(_env.ContentRootPath, "uploads");
-        if (!Directory.Exists(uploadsFolder))
-            Directory.CreateDirectory(uploadsFolder);
-
-        // Dùng GUID làm tên file để tránh lỗi ký tự đặc biệt trên Linux
+        // Nhóm file theo assignmentId để dễ quản lý trên Supabase
         var extension = Path.GetExtension(file.FileName);
-        var safeFileName = Guid.NewGuid().ToString() + extension;
-        var filePath = Path.Combine(uploadsFolder, safeFileName);
+        var safeFileName = $"{id}/{Guid.NewGuid()}{extension}";
 
-        // Lưu file vật lý
-        await using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
+        await using var stream = file.OpenReadStream();
+        var publicUrl = await _storage.UploadAsync(Bucket, safeFileName, stream, file.ContentType);
 
-        // FIX: Truyền safeFileName vào service để DB lưu đúng URL
-        var fileUrl = "/uploads/" + safeFileName;
-        await _service.SaveAssignmentFileAsync(id, fileUrl, file.FileName, file.Length);
+        await _service.SaveAssignmentFileAsync(id, publicUrl, file.FileName, file.Length);
 
         return Ok(new
         {
-            url = fileUrl,
+            url = publicUrl,
             fileName = file.FileName,
             fileSize = file.Length
         });
     }
 
-
+    // DELETE api/assignment/{id}/files/{fileId}
     [HttpDelete("{id:guid}/files/{fileId:guid}")]
     public async Task<IActionResult> DeleteAssignmentFile(Guid id, Guid fileId)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
         if (string.IsNullOrEmpty(userIdClaim))
             return Unauthorized();
 
-        if (role?.ToLower() != "teacher")
-            return Forbid();
+        if (!IsTeacher()) return Forbid();
 
         var fileRecord = await _service.GetAssignmentFileAsync(fileId);
         if (fileRecord == null)
             return NotFound("Không tìm thấy file.");
 
-
-        var relativePath = fileRecord.FileUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-        var fullPath = Path.Combine(_env.ContentRootPath, relativePath);
-        if (System.IO.File.Exists(fullPath))
-            System.IO.File.Delete(fullPath);
-
+        await _storage.DeleteAsync(Bucket, fileRecord.FileUrl);
         await _service.DeleteAssignmentFileAsync(fileId);
 
         return NoContent();
     }
 
-    private bool IsTeacher()
-        => User.FindFirst(ClaimTypes.Role)?.Value?.ToLower() == "teacher";
-
-
-
+    // GET api/assignment/class/{classId}/upcoming
     [HttpGet("class/{classId:guid}/upcoming")]
     public async Task<IActionResult> GetUpcomingByClass(Guid classId)
     {
@@ -183,5 +147,6 @@ public class AssignmentController : ControllerBase
         return Ok(result);
     }
 
-
+    private bool IsTeacher()
+        => User.FindFirst(ClaimTypes.Role)?.Value?.ToLower() == "teacher";
 }
