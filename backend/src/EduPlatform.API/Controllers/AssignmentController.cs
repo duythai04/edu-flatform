@@ -1,5 +1,4 @@
 using CloudinaryDotNet;
-using CloudinaryDotNet.Actions;
 using EduPlatform.Application.DTOs.Assignment;
 using EduPlatform.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -25,7 +24,6 @@ public class AssignmentController : ControllerBase
         _config = config;
     }
 
-    // GET api/assignment
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -33,7 +31,6 @@ public class AssignmentController : ControllerBase
         return Ok(result);
     }
 
-    // POST api/assignment
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateAssignmentDto dto)
     {
@@ -41,35 +38,26 @@ public class AssignmentController : ControllerBase
         return Ok(result);
     }
 
-    // PUT api/assignment/{id}
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAssignmentDto dto)
     {
         if (!IsTeacher()) return Forbid();
-
         var existing = await _service.GetByIdAsync(id);
-        if (existing == null)
-            return NotFound("Không tìm thấy bài tập.");
-
+        if (existing == null) return NotFound("Không tìm thấy bài tập.");
         await _service.UpdateAsync(id, dto);
         return Ok(await _service.GetByIdAsync(id));
     }
 
-    // DELETE api/assignment/{id}
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         if (!IsTeacher()) return Forbid();
-
         var existing = await _service.GetByIdAsync(id);
-        if (existing == null)
-            return NotFound("Không tìm thấy bài tập.");
-
+        if (existing == null) return NotFound("Không tìm thấy bài tập.");
         await _service.DeleteAsync(id);
         return NoContent();
     }
 
-    // GET api/assignment/{id}/detail
     [HttpGet("{id:guid}/detail")]
     public async Task<IActionResult> GetAssignmentDetail(Guid id)
     {
@@ -79,16 +67,19 @@ public class AssignmentController : ControllerBase
         if (string.IsNullOrEmpty(userIdClaim))
             return Unauthorized();
 
-        var userId = Guid.Parse(userIdClaim);
-        var result = await _service.GetDetailAsync(id, userId, role);
-
-        if (result == null)
-            return NotFound("Không tìm thấy bài tập.");
-
-        return Ok(result);
+        try
+        {
+            var userId = Guid.Parse(userIdClaim);
+            var result = await _service.GetDetailAsync(id, userId, role);
+            if (result == null) return NotFound("Không tìm thấy bài tập.");
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
-    // POST api/assignment/{id}/files
     [HttpPost("{id:guid}/files")]
     public async Task<IActionResult> UploadAssignmentFile(Guid id, IFormFile file)
     {
@@ -133,33 +124,34 @@ public class AssignmentController : ControllerBase
         }
     }
 
-    // DELETE api/assignment/{id}/files/{fileId}
     [HttpDelete("{id:guid}/files/{fileId:guid}")]
     public async Task<IActionResult> DeleteAssignmentFile(Guid id, Guid fileId)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
 
-        if (string.IsNullOrEmpty(userIdClaim))
-            return Unauthorized();
-
-        if (role?.ToLower() != "teacher")
-            return Forbid();
+        if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized();
+        if (role?.ToLower() != "teacher") return Forbid();
 
         var fileRecord = await _service.GetAssignmentFileAsync(fileId);
-        if (fileRecord == null)
-            return NotFound("Không tìm thấy file.");
+        if (fileRecord == null) return NotFound("Không tìm thấy file.");
 
         await _service.DeleteAssignmentFileAsync(fileId);
         return NoContent();
     }
 
-    // GET api/assignment/class/{classId}/upcoming
     [HttpGet("class/{classId:guid}/upcoming")]
     public async Task<IActionResult> GetUpcomingByClass(Guid classId)
     {
-        var result = await _service.GetUpcomingByClassAsync(classId);
-        return Ok(result);
+        try
+        {
+            var result = await _service.GetUpcomingByClassAsync(classId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 
     private bool IsTeacher()
