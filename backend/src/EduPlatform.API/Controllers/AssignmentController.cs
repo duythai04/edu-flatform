@@ -103,7 +103,8 @@ public class AssignmentController : ControllerBase
         {
             File = new FileDescription(file.FileName, stream),
             Folder = "assignments",
-            PublicId = Guid.NewGuid().ToString()
+            PublicId = Guid.NewGuid().ToString(),
+            AccessMode = "public" 
         };
 
         var result = await _cloudinary.UploadAsync(uploadParams);

@@ -4,7 +4,6 @@ using EduPlatform.Application.Interfaces;
 using EduPlatform.Infrastructure.Persistence;
 using EduPlatform.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
