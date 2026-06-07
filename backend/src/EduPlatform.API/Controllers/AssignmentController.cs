@@ -104,7 +104,8 @@ public class AssignmentController : ControllerBase
 
         // Nhóm file theo assignmentId để dễ quản lý trên Supabase
         var extension = Path.GetExtension(file.FileName);
-        var safeFileName = $"{id}/{Guid.NewGuid()}{extension}";
+        var originalName = Path.GetFileNameWithoutExtension(file.FileName);
+        var safeFileName = $"{id}/{originalName}_{Guid.NewGuid().ToString()[..8]}{extension}";
 
         await using var stream = file.OpenReadStream();
         var publicUrl = await _storage.UploadAsync(Bucket, safeFileName, stream, file.ContentType);
