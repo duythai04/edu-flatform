@@ -63,7 +63,6 @@ public class AssignmentController : ControllerBase
         if (existing == null)
             return NotFound("Không tìm thấy bài tập.");
 
-        // Cloudinary: không cần xóa file local
         await _service.DeleteAsync(id);
         return NoContent();
     }
@@ -99,23 +98,45 @@ public class AssignmentController : ControllerBase
             return BadRequest("File vượt quá giới hạn 10 MB.");
 
         await using var stream = file.OpenReadStream();
-        var uploadParams = new RawUploadParams
+
+        var ext = Path.GetExtension(file.FileName).ToLower();
+        var isImage = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext);
+        var publicId = Guid.NewGuid().ToString();
+
+        string fileUrl;
+
+        if (isImage)
         {
-            File = new FileDescription(file.FileName, stream),
-            Folder = "assignments",
-            PublicId = Guid.NewGuid().ToString(),
-            AccessMode = "public",
-            Type = "upload"
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = "assignments",
+                PublicId = publicId,
+                AccessMode = "public"
+            };
+            var result = await _cloudinary.UploadAsync(uploadParams);
+            if (result.Error != null)
+                return BadRequest("Upload thất bại: " + result.Error.Message);
+            fileUrl = result.SecureUrl.ToString();
+        }
+        else
+        {
+            var uploadParams = new RawUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = "assignments",
+                PublicId = publicId,
+                AccessMode = "public",
+                Type = "upload"
+            };
+            var result = await _cloudinary.UploadAsync(uploadParams);
+            if (result.Error != null)
+                return BadRequest("Upload thất bại: " + result.Error.Message);
 
-        };
+            fileUrl = $"https://res.cloudinary.com/{_cloudinary.Api.Account.Cloud}/raw/upload/{result.PublicId}";
+        }
 
-        var result = await _cloudinary.UploadAsync(uploadParams);
-        if (result.Error != null)
-            return BadRequest("Upload thất bại: " + result.Error.Message);
-
-        var fileUrl = result.SecureUrl.ToString();
         await _service.SaveAssignmentFileAsync(id, fileUrl, file.FileName, file.Length);
-
         return Ok(new { url = fileUrl, fileName = file.FileName, fileSize = file.Length });
     }
 
@@ -137,7 +158,6 @@ public class AssignmentController : ControllerBase
             return NotFound("Không tìm thấy file.");
 
         await _service.DeleteAssignmentFileAsync(fileId);
-
         return NoContent();
     }
 
