@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using EduPlatform.Application.Interfaces;
+using EduPlatform.Application.DTOs.Classroom;
 using EduPlatform.Infrastructure.Persistence;
 
 namespace EduPlatform.Infrastructure.Services
@@ -20,15 +21,19 @@ namespace EduPlatform.Infrastructure.Services
                 .Include(c => c.Teacher)
                 .Include(c => c.ClassroomMembers)
                 .Include(c => c.Assignments)
-                .ThenInclude(a => a.Submissions)
                 .FirstOrDefaultAsync(c => c.Id == classId);
 
             if (classroom == null) return null;
 
             bool isMember = classroom.TeacherId == userId ||
-                            classroom.ClassroomMembers.Any(m => m.UserId == userId);
+                classroom.ClassroomMembers.Any(m => m.UserId == userId);
 
             if (!isMember) return null;
+
+            var submittedAssignmentIds = await _context.Submissions
+                .Where(s => s.StudentId == userId)
+                .Select(s => new { s.AssignmentId, s.SubmittedAt })
+                .ToListAsync();
 
             return new ClassroomDetailDto
             {
@@ -39,17 +44,18 @@ namespace EduPlatform.Infrastructure.Services
                 Color = classroom.Color,
                 TeacherName = classroom.Teacher?.FullName ?? "N/A",
                 StudentCount = classroom.ClassroomMembers?.Count ?? 0,
-                // MỚI
-                Assignments = classroom.Assignments?.Select(a => new AssignmentDto
+                Assignments = classroom.Assignments?.Select(a =>
                 {
-                    Id = a.Id,
-                    Title = a.Title,
-                    DueDate = a.DueDate,
-                    SubmissionStatus = a.Submissions.Any(s => s.StudentId == userId)
-                        ? (a.Submissions.First(s => s.StudentId == userId).SubmittedAt > a.DueDate
-                            ? "late"
-                            : "submitted")
-                        : "missing"
+                    var sub = submittedAssignmentIds.FirstOrDefault(s => s.AssignmentId == a.Id);
+                    return new AssignmentDto
+                    {
+                        Id = a.Id,
+                        Title = a.Title,
+                        DueDate = a.DueDate,
+                        SubmissionStatus = sub == null ? "missing"
+                            : sub.SubmittedAt > a.DueDate ? "late"
+                            : "submitted"
+                    };
                 }).ToList() ?? new List<AssignmentDto>()
             };
         }
