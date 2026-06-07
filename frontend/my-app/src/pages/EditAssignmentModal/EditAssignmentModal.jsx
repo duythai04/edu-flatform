@@ -21,30 +21,43 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
     maxScore: 100,
   });
 
-  const [existingFiles, setExistingFiles] = useState([]); // file đã có trong DB
-  const [newFiles, setNewFiles] = useState([]); // file mới thêm vào
-  const [deletedFileIds, setDeletedFileIds] = useState([]); // id file cần xoá
+  const [existingFiles, setExistingFiles] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
+  const [deletedFileIds, setDeletedFileIds] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
-  // Khi mở modal, điền dữ liệu hiện tại vào form
   useEffect(() => {
-    if (isOpen && assignment) {
-      const due = assignment.dueDate ? new Date(assignment.dueDate) : null;
+    if (!isOpen || !assignment) return;
 
-      setAsmData({
-        title: assignment.title ?? "",
-        description: assignment.description ?? "",
-        dueDate: due ? due.toISOString().slice(0, 10) : "",
-        dueTime: due ? due.toTimeString().slice(0, 5) : "23:59",
-        maxScore: assignment.maxScore ?? 100,
-      });
+    const fetchDetail = async () => {
+      setLoadingDetail(true);
+      const token = localStorage.getItem("token");
+      try {
+        const { ok, data } = await safeFetch(
+          `${API_BASE_URL}/api/assignment/${assignment.id}/detail`,
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        if (ok && data) {
+          const due = data.dueDate ? new Date(data.dueDate) : null;
+          setAsmData({
+            title: data.title ?? "",
+            description: data.description ?? "",
+            dueDate: due ? due.toISOString().slice(0, 10) : "",
+            dueTime: due ? due.toTimeString().slice(0, 5) : "23:59",
+            maxScore: data.maxScore ?? 100,
+          });
+          setExistingFiles(data.files ?? []);
+        }
+      } finally {
+        setLoadingDetail(false);
+      }
+    };
 
-      setExistingFiles(assignment.files ?? []);
-      setNewFiles([]);
-      setDeletedFileIds([]);
-    }
+    fetchDetail();
+    setNewFiles([]);
+    setDeletedFileIds([]);
   }, [isOpen, assignment]);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setAsmData((prev) => ({ ...prev, [name]: value }));
@@ -139,6 +152,23 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onRefresh }) => {
   };
 
   if (!isOpen || !assignment) return null;
+
+  if (loadingDetail)
+    return (
+      <div className="cam-overlay">
+        <div
+          className="cam-container"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: 300,
+          }}
+        >
+          <Loader2 size={32} className="cam-spin" />
+        </div>
+      </div>
+    );
 
   return (
     <div className="cam-overlay">
