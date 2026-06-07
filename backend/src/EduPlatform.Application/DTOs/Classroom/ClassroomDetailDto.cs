@@ -19,4 +19,6 @@ public class AssignmentDto
     public Guid Id { get; set; }
     public string Title { get; set; }
     public DateTime DueDate { get; set; }
+
+    public string SubmissionStatus { get; set; }
 }

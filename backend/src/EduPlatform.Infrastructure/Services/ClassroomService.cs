@@ -20,6 +20,7 @@ namespace EduPlatform.Infrastructure.Services
                 .Include(c => c.Teacher)
                 .Include(c => c.ClassroomMembers)
                 .Include(c => c.Assignments)
+                .ThenInclude(a => a.Submissions)
                 .FirstOrDefaultAsync(c => c.Id == classId);
 
             if (classroom == null) return null;
@@ -38,11 +39,17 @@ namespace EduPlatform.Infrastructure.Services
                 Color = classroom.Color,
                 TeacherName = classroom.Teacher?.FullName ?? "N/A",
                 StudentCount = classroom.ClassroomMembers?.Count ?? 0,
+                // MỚI
                 Assignments = classroom.Assignments?.Select(a => new AssignmentDto
                 {
                     Id = a.Id,
                     Title = a.Title,
-                    DueDate = a.DueDate
+                    DueDate = a.DueDate,
+                    SubmissionStatus = a.Submissions.Any(s => s.StudentId == userId)
+                        ? (a.Submissions.First(s => s.StudentId == userId).SubmittedAt > a.DueDate
+                            ? "late"
+                            : "submitted")
+                        : "missing"
                 }).ToList() ?? new List<AssignmentDto>()
             };
         }

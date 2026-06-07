@@ -159,6 +159,7 @@ const FeedList = ({ classData, announcements, classroomId }) => {
           <Link
             to={`/assignment/${asm.id}`}
             className="assignment-link-wrapper"
+            sstyle={{ textDecoration: "none", color: "inherit" }}
           >
             <div className="item-header">
               <div className="icon-circle assignment">

@@ -1,6 +1,6 @@
 @import "../../styles/variables";
 
-$primary-color: #1a73e8; 
+$primary-color: #1a73e8;
 $text-main: #3c4043;
 $text-secondary: #5f6368;
 $bg-body: #f8f9fa;
@@ -151,7 +151,10 @@ $shadow-sm:
       margin: 0 auto;
     }
   }
-
+  .assignment-link-wrapper {
+    text-decoration: none;
+    color: inherit;
+  }
   // --- TAB: CLASSWORK (BÀI TẬP) - PHẦN QUAN TRỌNG NHẤT ---
   .tab-classwork {
     padding-bottom: 40px;
